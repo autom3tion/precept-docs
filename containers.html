@@ -115,7 +115,7 @@
     <span class="tok-str">&quot;my/greeter:latest&quot;</span>,
     c =&gt; c.WithPortBinding(<span class="tok-number">5000</span>, <span class="tok-keyword">true</span>)
           .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(<span class="tok-number">5000</span>)),
-    addressOverride: settings.Api.BaseUrl));</code></pre>
+    addressOverride: settings.Configuration[<span class="tok-str">&quot;Greeter:Address&quot;</span>]));</code></pre>
 
     </article>
 

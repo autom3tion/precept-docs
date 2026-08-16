@@ -326,6 +326,11 @@ takes.</p>
 <td><code>chromium</code>, <code>firefox</code> or <code>webkit</code>.</td>
 </tr>
 <tr>
+<td><code>PRECEPT_WEB__ARGS</code></td>
+<td>unset</td>
+<td>Extra command-line arguments for the browser executable, as one command line: <code>--no-sandbox --disable-dev-shm-usage</code>. Split on whitespace outside quotes, and either quote character groups — <code>--user-agent='Mozilla/5.0 (X11)'</code> is one argument. Passed to the browser <em>process</em>, so it applies to the whole run and not to one test; the flags are the engine's own and an unrecognised one is ignored rather than reported.</td>
+</tr>
+<tr>
 <td><code>PRECEPT_WEB__HEADLESS</code></td>
 <td><code>true</code></td>
 <td>Run without a visible browser window.</td>

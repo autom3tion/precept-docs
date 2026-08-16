@@ -117,7 +117,7 @@ a service once for the run, hand the tests its address, and tear it down afterwa
     <span class="tok-str">&quot;my/greeter:latest&quot;</span>,
     c =&gt; c.WithPortBinding(<span class="tok-number">5000</span>, <span class="tok-keyword">true</span>)
           .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(<span class="tok-number">5000</span>)),
-    addressOverride: settings.Api.BaseUrl));</code></pre>
+    addressOverride: settings.Configuration[<span class="tok-str">&quot;Greeter:Address&quot;</span>]));</code></pre>
 
 <p><code>addressOverride</code> is the point of the module: when it is set, no container starts and the tests are
 handed that address instead. The same suite then runs against a throwaway container on a developer's

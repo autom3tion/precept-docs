@@ -129,6 +129,29 @@ list, with each default.</p>
 <pre data-lang="xml"><code><span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
   <span class="tok-keyword">&lt;EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>false<span class="tok-keyword">&lt;/EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>
 <span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span></code></pre>
+<h2 id="where-a-section-comes-from">Where a section comes from<a class="anchor" href="#where-a-section-comes-from" aria-label="Link to this section">#</a></h2>
+<p>One file, but not one owner. The runner owns the top level — <code>MaxParallelism</code>, <code>ParallelScope</code>,
+<code>DefaultTimeoutMilliseconds</code>, <code>DefaultRetries</code>, <code>ArtifactDirectory</code>, <code>Environment</code>,
+<code>IsContinuousIntegration</code> — plus <code>Filter</code>, <code>Assertions</code>, <code>Reporting</code> and <code>ConnectionStrings</code>. Those
+are on <code>PreceptSettings</code>, the object <a href="startup.html#startup">startup</a> is handed.</p>
+<p>Every other section belongs to the package that reads it, and is registered by that package's
+<code>AddPrecept…</code> call: <code>Web</code> by <code>Precept.Web</code>, <code>Api</code> by <code>Precept.Api</code>, <code>Grpc</code> by <code>Precept.Grpc</code>,
+<code>TestData</code> by <code>Precept.TestData</code>, and each <code>Reporting:&lt;Name&gt;</code> subsection by its reporter. A browser
+setting is then versioned with the browser module, and a project that never installed one is never
+offered its settings.</p>
+<p>This shows up in two places, and nowhere else:</p>
+<ul>
+<li><p><strong>The section is read only if the module is registered.</strong> A <code>Web</code> block in a project that never
+calls <code>AddPreceptWeb()</code> is read by nothing. Given a project, <code>precept_explain_module</code> says so for
+each module, since configuration that does nothing looks identical to configuration that works.</p>
+</li>
+<li><p><strong>Overriding one in code is an argument to the registration</strong>, not an assignment on
+<code>PreceptSettings</code> — see <a href="startup.html#startup">startup</a>:</p>
+<pre data-lang="csharp"><code>services.AddPreceptWeb(web =&gt; web.BaseUrl = stub.BaseUrl);</code></pre>
+</li>
+</ul>
+<p>The file itself is unaffected: sections sit at the top level of <code>precept.json</code> whoever owns them,
+and are overlaid and overridden by environment variables all the same way.</p>
 <h2 id="your-own-settings">Your own settings<a class="anchor" href="#your-own-settings" aria-label="Link to this section">#</a></h2>
 <p>Precept does not try to model everything a suite might need to configure — auth, tenants, feature flags, a service address. Put those in the same file under a section of your own, and bind them onto a class you write:</p>
 <pre data-lang="json"><code>{
@@ -176,7 +199,11 @@ services.AddPreceptSettings&lt;AuthSettings&gt;(configure: a =&gt; a.ClientSecre
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#where-a-section-comes-from">Where a section comes from</a></li>
+<li><a href="#your-own-settings">Your own settings</a></li>
+</ul>
     </nav>
   </aside>
 </div>

@@ -123,6 +123,15 @@
 }</code></pre>
 
 <p><code>ConfigureServices</code> is required — write it with an empty body if the suite registers nothing, since an explicit declaration is what stops a mistyped signature from compiling. <code>BeforeRunAsync</code> and <code>AfterRunAsync</code> are optional.</p>
+<p>Each <code>AddPrecept…</code> binds that module's own section of <code>precept.json</code> and takes a callback for
+anything the file cannot say — a base address the startup only learns at run time, a secret read
+from a vault rather than committed:</p>
+<pre data-lang="csharp"><code>services.AddPreceptApi(api =&gt; api.BaseUrl = stub.BaseUrl);
+services.AddPreceptWeb(web =&gt; web.Headless = <span class="tok-keyword">false</span>);</code></pre>
+
+<p>The callback runs when the settings are first resolved rather than here, so it may close over
+something this method has only just created. The <code>settings</code> parameter carries the run's own settings
+— parallelism, retries, the environment, the filter — and <a href="configuration.html#where-a-section-comes-from">not a module's</a>; read one of those with <code>settings.GetSection&lt;T&gt;()</code> if a decision here depends on it.</p>
 <p>Anything registered here is resolvable from <code>PreceptTestContext.Current.Services</code>.</p>
 <p>The run's container is disposed once <code>AfterRunAsync</code> has returned, so a singleton that implements
 <code>IDisposable</code> or <code>IAsyncDisposable</code> — a container host, test data created for the whole run, a
