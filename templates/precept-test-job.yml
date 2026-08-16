@@ -1,0 +1,321 @@
+# One Precept run, as an Azure Pipelines job.
+#
+# Everything the run configuration decides is handed to the test binary in one of two ways, and
+# which one is not arbitrary:
+#
+#   * The command line — --precept-environment and --precept-filter — for what this *run* is.
+#   * PRECEPT_* environment variables for anything that is a *setting*. The variable name is the
+#     configuration key with ':' written as '__': Reporting:Teams:WebhookUrl becomes
+#     PRECEPT_REPORTING__TEAMS__WEBHOOKURL. They are the last word in the chain, overriding both
+#     precept.json and the precept.{environment}.json overlay, so a pipeline can override any
+#     setting without a file in the repository being edited.
+#
+# PRECEPT_ is therefore a namespace with an owner, not a convenient prefix: the settings loader
+# strips it and binds whatever is left. The variables this job needs for itself — the filter it
+# was given, the project path, the TRX name — are SUITE_* for that reason. They are the
+# pipeline's, not the framework's, and nothing should read them into a settings object.
+#
+# Nothing turns reporting on: the reporters are registered in the suite's startup and are CI-only
+# by default, so they wake up here because the agent sets TF_BUILD and stay asleep on a laptop.
+# What the parameters below do is switch individual ones off and tell them where to file.
+
+parameters:
+  - name: jobSuffix
+    type: string
+    default: default
+  - name: browser
+    type: string
+    default: chromium
+
+  - name: testProject
+    type: string
+  - name: testProjectDirectory
+    type: string
+  - name: buildConfiguration
+    type: string
+    default: Release
+  - name: targetFramework
+    type: string
+    default: net10.0
+  - name: dotnetVersion
+    type: string
+    default: '10.0.x'
+  - name: vmImage
+    type: string
+    default: ubuntu-latest
+  - name: timeoutInMinutes
+    type: number
+    default: 120
+
+  - name: environment
+    type: string
+  - name: filter
+    type: string
+    default: ' '
+  - name: excludeFilter
+    type: string
+    default: ' '
+
+  - name: maxParallelism
+    type: number
+    default: 0
+  - name: parallelScope
+    type: string
+    default: Class
+  - name: defaultRetries
+    type: number
+    default: 0
+  - name: defaultTimeoutMinutes
+    type: number
+    default: 2
+
+  - name: installBrowsers
+    type: boolean
+    default: true
+
+  - name: reportPortal
+    type: boolean
+    default: true
+  - name: reportPortalLaunchMode
+    type: string
+    default: DEFAULT
+  - name: teams
+    type: boolean
+    default: true
+  - name: teamsNotifyOn
+    type: string
+    default: FailureOrFlaky
+  - name: azureDevOps
+    type: boolean
+    default: true
+  - name: testPlanId
+    type: number
+    default: 0
+  - name: testSuiteId
+    type: number
+    default: 0
+  - name: onlyMappedTests
+    type: boolean
+    default: false
+
+jobs:
+  - job: Precept_${{ parameters.jobSuffix }}
+    displayName: '${{ parameters.environment }} · ${{ parameters.jobSuffix }}'
+    timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+
+    pool:
+      vmImage: ${{ parameters.vmImage }}
+
+    variables:
+      - name: resultsDirectory
+        value: $(Build.ArtifactStagingDirectory)/testresults
+      # Kept short on purpose. Windows caps a full path at 260 characters, and a captured file past
+      # that is still written while the TRX writer's copy of it fails with "attachment not found".
+      - name: artifactDirectory
+        value: $(Agent.TempDirectory)/pa
+      - name: buildLink
+        value: '$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)&view=results'
+
+    steps:
+      - checkout: self
+        fetchDepth: 1
+
+      - task: UseDotNet@2
+        displayName: Install the .NET SDK
+        inputs:
+          packageType: sdk
+          version: ${{ parameters.dotnetVersion }}
+
+      - task: DotNetCoreCLI@2
+        displayName: Restore
+        inputs:
+          command: restore
+          projects: ${{ parameters.testProject }}
+
+      - task: DotNetCoreCLI@2
+        displayName: Build
+        inputs:
+          command: build
+          projects: ${{ parameters.testProject }}
+          arguments: '--configuration ${{ parameters.buildConfiguration }} --no-restore'
+
+      # Playwright ships its browser installer beside the test binary, so this only exists after the
+      # build. --with-deps is what makes it work on a hosted Linux image, which has none of the
+      # shared libraries a browser needs.
+      - ${{ if parameters.installBrowsers }}:
+          - pwsh: |
+              $script = Join-Path '${{ parameters.testProjectDirectory }}' 'bin/${{ parameters.buildConfiguration }}/${{ parameters.targetFramework }}/playwright.ps1'
+              if (-not (Test-Path $script)) {
+                Write-Host "##vso[task.logissue type=warning]No playwright.ps1 beside the test binary — set installBrowsers to false for a suite that drives no browser."
+                exit 0
+              }
+              & $script install --with-deps ${{ parameters.browser }}
+              exit $LASTEXITCODE
+            displayName: 'Install Playwright — ${{ parameters.browser }}'
+
+      - pwsh: |
+          $ErrorActionPreference = 'Stop'
+
+          # The exit code is the result here, not an accident: 2 means tests failed and 8 means none
+          # ran, and both are handled below. Letting a native non-zero exit throw instead would lose
+          # the distinction and the message that goes with it.
+          $PSNativeCommandUseErrorActionPreference = $false
+
+          # Read the free-text parameters out of the environment rather than interpolating them into
+          # this script. A filter expression is typed by whoever queues the run, and a value
+          # substituted into a script body is a value that can end it and start a command.
+          $filter = "$env:SUITE_FILTER".Trim()
+          $exclude = "$env:SUITE_EXCLUDE".Trim()
+          $environment = "$env:SUITE_ENVIRONMENT".Trim()
+
+          # Set here rather than in the step's env block, because an environment variable wins over
+          # the overlay whatever its value: an empty PRECEPT_FILTER__EXCLUDE does not mean "the
+          # parameter was left blank", it means "this environment excludes nothing", and it would
+          # quietly resurrect the tests precept.$environment.json removes.
+          if ($exclude) { $env:PRECEPT_FILTER__EXCLUDE = $exclude }
+
+          # Minutes are what the dialog asks for and milliseconds are what the setting takes.
+          # Azure Pipelines has no arithmetic in template expressions, so the conversion is here.
+          $timeoutMinutes = [int]"$env:SUITE_TIMEOUT_MINUTES"
+          $env:PRECEPT_DEFAULTTIMEOUTMILLISECONDS = ($timeoutMinutes * 60000).ToString()
+
+          New-Item -ItemType Directory -Force -Path "$env:PRECEPT_ARTIFACTDIRECTORY" | Out-Null
+
+          # Microsoft.Testing.Platform reads a leading @ as a response file name, so a filter that
+          # starts with a tag fails as a missing file several seconds into the run. Say so here,
+          # while the message still points at the parameter that caused it.
+          if ($filter.StartsWith('@')) {
+            throw "The filter must not start with '@' — the test platform reads that as a response file. Write '$($filter.Substring(1))' or wrap it: '($filter)'."
+          }
+
+          $arguments = @(
+            'test',
+            '--project', "$env:SUITE_TEST_PROJECT",
+            '--configuration', "$env:SUITE_BUILD_CONFIGURATION",
+            '--no-build',
+            '--',
+            '--report-trx',
+            '--report-trx-filename', "$env:SUITE_TRX_NAME",
+            '--results-directory', "$env:SUITE_RESULTS_DIRECTORY",
+            '--precept-environment', $environment
+          )
+
+          if ($filter) { $arguments += @('--precept-filter', $filter) }
+
+          Write-Host "dotnet $($arguments -join ' ')"
+          & dotnet @arguments
+          $code = $LASTEXITCODE
+
+          # 8 is the platform's "no test ran". A filter that matches nothing is the usual cause and
+          # it is worth failing on — a green run of zero tests is the failure mode this whole
+          # pipeline exists to avoid — but the default message says nothing about why.
+          if ($code -eq 8) {
+            Write-Host "##vso[task.logissue type=error]No test ran. The filter '$filter' matched nothing, or the Filter section of precept.$environment.json removed everything."
+          }
+
+          exit $code
+        displayName: 'Run the suite'
+        env:
+          # ---- what this script itself needs -------------------------------------------------
+          # Deliberately NOT under PRECEPT_. That prefix is the framework's configuration
+          # namespace — everything in it is stripped of the prefix and bound as a settings key —
+          # so a scratch variable put there is read into the run's IConfiguration, and one that
+          # happens to collide with a real key silently changes the run. These are the pipeline's
+          # own, so they carry the pipeline's own prefix.
+          SUITE_FILTER: ${{ parameters.filter }}
+          SUITE_EXCLUDE: ${{ parameters.excludeFilter }}
+          SUITE_ENVIRONMENT: ${{ parameters.environment }}
+          SUITE_TIMEOUT_MINUTES: ${{ parameters.defaultTimeoutMinutes }}
+          SUITE_TEST_PROJECT: ${{ parameters.testProject }}
+          SUITE_BUILD_CONFIGURATION: ${{ parameters.buildConfiguration }}
+          SUITE_RESULTS_DIRECTORY: $(resultsDirectory)
+          SUITE_TRX_NAME: 'precept-${{ parameters.environment }}-${{ parameters.jobSuffix }}.trx'
+
+          # ---- execution -------------------------------------------------------------------
+          # 0 means "the agent's processor count" — PreceptSettings.Load fills it in.
+          PRECEPT_MAXPARALLELISM: ${{ parameters.maxParallelism }}
+          PRECEPT_PARALLELSCOPE: ${{ parameters.parallelScope }}
+          # Reruns, not runs: 0 reruns nothing, 2 means a test may run three times in all.
+          PRECEPT_DEFAULTRETRIES: ${{ parameters.defaultRetries }}
+          PRECEPT_ARTIFACTDIRECTORY: $(artifactDirectory)
+
+          # ---- web -------------------------------------------------------------------------
+          PRECEPT_WEB__BROWSER: ${{ parameters.browser }}
+          PRECEPT_WEB__HEADLESS: 'true'
+          PRECEPT_WEB__SCREENSHOTONFAILURE: 'true'
+          PRECEPT_WEB__TRACEONFAILURE: 'true'
+
+          # ---- ReportPortal ----------------------------------------------------------------
+          # The key is a credential and lives in the variable group; the endpoint and project are
+          # not, and belong in the suite's precept.json.
+          PRECEPT_REPORTING__REPORTPORTAL__ENABLED: ${{ parameters.reportPortal }}
+          PRECEPT_REPORTING__REPORTPORTAL__APIKEY: $(reportPortalApiKey)
+          PRECEPT_REPORTING__REPORTPORTAL__LAUNCHNAME: '$(Build.DefinitionName) · ${{ parameters.environment }}'
+          PRECEPT_REPORTING__REPORTPORTAL__LAUNCHMODE: ${{ parameters.reportPortalLaunchMode }}
+          # Attributes is a dictionary, so the last segment of the variable name is the key.
+          PRECEPT_REPORTING__REPORTPORTAL__ATTRIBUTES__BUILD: $(Build.BuildNumber)
+          PRECEPT_REPORTING__REPORTPORTAL__ATTRIBUTES__BRANCH: $(Build.SourceBranchName)
+          PRECEPT_REPORTING__REPORTPORTAL__ATTRIBUTES__BROWSER: ${{ parameters.browser }}
+          PRECEPT_REPORTING__REPORTPORTAL__ATTRIBUTES__REASON: $(Build.Reason)
+
+          # ---- Teams -----------------------------------------------------------------------
+          PRECEPT_REPORTING__TEAMS__ENABLED: ${{ parameters.teams }}
+          PRECEPT_REPORTING__TEAMS__WEBHOOKURL: $(teamsWebhookUrl)
+          PRECEPT_REPORTING__TEAMS__TITLE: '$(Build.DefinitionName) · ${{ parameters.environment }}'
+          PRECEPT_REPORTING__TEAMS__NOTIFYON: ${{ parameters.teamsNotifyOn }}
+          PRECEPT_REPORTING__TEAMS__RUNURL: $(buildLink)
+          PRECEPT_REPORTING__TEAMS__RUNURLTITLE: 'Open the build'
+          # Facts is a dictionary too — these become rows on the card.
+          PRECEPT_REPORTING__TEAMS__FACTS__BUILD: $(Build.BuildNumber)
+          PRECEPT_REPORTING__TEAMS__FACTS__BRANCH: $(Build.SourceBranchName)
+          PRECEPT_REPORTING__TEAMS__FACTS__BROWSER: ${{ parameters.browser }}
+
+          # ---- Azure DevOps test runs ------------------------------------------------------
+          # The organization and project are the ones running this pipeline, taken from the agent's
+          # own variables so the suite's precept.json does not have to name them.
+          PRECEPT_REPORTING__AZUREDEVOPS__ENABLED: ${{ parameters.azureDevOps }}
+          PRECEPT_REPORTING__AZUREDEVOPS__ORGANIZATIONURL: $(System.TeamFoundationCollectionUri)
+          PRECEPT_REPORTING__AZUREDEVOPS__PROJECT: $(System.TeamProject)
+          # The build's own token. It needs the job's "Allow scripts to access the OAuth token"
+          # option — which is what the explicit mapping here is — and the build service identity
+          # granted test management rights on the project.
+          PRECEPT_REPORTING__AZUREDEVOPS__PERSONALACCESSTOKEN: $(System.AccessToken)
+          PRECEPT_REPORTING__AZUREDEVOPS__RUNNAME: '$(Build.DefinitionName) ${{ parameters.environment }} #$(Build.BuildNumber)'
+          # Associates the run with this build, so it shows on the build's Tests tab.
+          PRECEPT_REPORTING__AZUREDEVOPS__BUILDID: $(Build.BuildId)
+          PRECEPT_REPORTING__AZUREDEVOPS__ONLYMAPPEDTESTS: ${{ parameters.onlyMappedTests }}
+          # A plan turns this into a planned run, which accepts a result only when it fills a test
+          # point — so set it only when the scenarios carry their work item ids.
+          ${{ if ne(parameters.testPlanId, 0) }}:
+            PRECEPT_REPORTING__AZUREDEVOPS__TESTPLANID: ${{ parameters.testPlanId }}
+          ${{ if ne(parameters.testSuiteId, 0) }}:
+            PRECEPT_REPORTING__AZUREDEVOPS__TESTSUITEID: ${{ parameters.testSuiteId }}
+
+      # The TRX carries the declaring class, the categories, the lines each test logged and the
+      # failure split into message and stack trace. publishRunAttachments uploads the screenshots
+      # and traces the TRX writer copied next to it.
+      - task: PublishTestResults@2
+        displayName: Publish the TRX
+        condition: succeededOrFailed()
+        # A run that died before it wrote a TRX has already reported why. Do not bury that under a
+        # second failure about a missing file.
+        continueOnError: true
+        inputs:
+          testResultsFormat: VSTest
+          testResultsFiles: '**/*.trx'
+          searchFolder: $(resultsDirectory)
+          publishRunAttachments: true
+          mergeTestResults: true
+          testRunTitle: '${{ parameters.environment }} · ${{ parameters.jobSuffix }}'
+          failTaskOnFailedTests: false
+
+      # The raw artifact tree as well: a Playwright trace is worth downloading whole and opening in
+      # the trace viewer, which is not what a TRX attachment list is for.
+      - task: PublishPipelineArtifact@1
+        displayName: Publish the captured artifacts
+        condition: succeededOrFailed()
+        continueOnError: true
+        inputs:
+          targetPath: $(artifactDirectory)
+          artifact: 'precept-${{ parameters.environment }}-${{ parameters.jobSuffix }}-$(System.JobAttempt)'
+          publishLocation: pipeline

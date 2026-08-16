@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en" data-page="filtering">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Filtering · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html" class="active">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="filtering">Filtering</h1>
+<p>Two filters, one expression language. <code>--precept-filter</code> <strong>selects</strong> among the tests a run has; the <code>Filter</code> section of <code>precept.json</code> decides <strong>which tests the run has at all</strong>.</p>
+<h2 id="selecting-from-the-command-line">Selecting from the command line<a class="anchor" href="#selecting-from-the-command-line" aria-label="Link to this section">#</a></h2>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke and not slow&quot;</span>
+<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;(@api or @web) and not @wip&quot;</span>
+<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;name:*checkout*&quot;</span></code></pre>
+
+<blockquote>
+<p>The value must not <strong>start</strong> with <code>@</code>: Microsoft.Testing.Platform reads a leading <code>@</code> as a response-file reference and will look for a file by that name. Write <code>&quot;smoke and not @slow&quot;</code> or wrap the whole thing in parentheses.</p>
+</blockquote>
+<h2 id="removing-tests-from-an-environment">Removing tests from an environment<a class="anchor" href="#removing-tests-from-an-environment" aria-label="Link to this section">#</a></h2>
+<p>Some tests have no business running somewhere: a suite that creates and deletes records, a pack that needs a payment sandbox, browser tests on an agent with no browsers. <code>[Ignore]</code> is the wrong tool — it reports them as skipped, they still clutter the report, and they still sit in the test explorer waiting for someone to click Run.</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Filter&quot;</span>: {
+    <span class="tok-key">&quot;Include&quot;</span>: <span class="tok-str">&quot;smoke or regression&quot;</span>,
+    <span class="tok-key">&quot;Exclude&quot;</span>: <span class="tok-str">&quot;wip or name:*PayPal* or class:*.LegacyTests&quot;</span>
+  }
+}</code></pre>
+
+<p>A test survives when <code>Include</code> is empty or matches it, and <code>Exclude</code> is empty or does not. Anything else is gone before discovery reports a thing: not published to the test explorer, not reachable by <code>--precept-filter</code>, not reachable by uid from a stale explorer tree, and — when a class loses every test it had — its <code>[BeforeSuite]</code> and <code>[AfterSuite]</code> hooks never run either.</p>
+<p>Both are single expressions rather than lists of tags, which is what makes them overridable. <code>precept.prod.json</code> replaces the base filter outright, an empty string clears it, and <code>PRECEPT_FILTER__EXCLUDE</code> overrides both from CI:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;Filter&quot;</span>: { <span class="tok-key">&quot;Exclude&quot;</span>: <span class="tok-str">&quot;wip&quot;</span> } }</code></pre>
+
+<p>A JSON array could do neither: <code>IConfiguration</code> merges arrays element by element across overlays, and an empty one clears nothing.</p>
+<h2 id="the-expression-language">The expression language<a class="anchor" href="#the-expression-language" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smoke</code>, <code>@smoke</code>, <code>tag:smoke</code></td>
+<td>a test category</td>
+</tr>
+<tr>
+<td><code>name:Checkout</code></td>
+<td>the test's display name</td>
+</tr>
+<tr>
+<td><code>class:LegacyTests</code></td>
+<td>the declaring class, by name or full name</td>
+</tr>
+</tbody>
+</table></div>
+<p>Operands combine with <code>and</code>, <code>or</code>, <code>not</code>, parentheses and the <code>&amp;&amp;</code>/<code>||</code>/<code>!</code> spellings; <code>not</code> binds tightest, then <code>and</code>, then <code>or</code>. Matching is case-insensitive throughout and the leading <code>@</code> on a tag is optional.</p>
+<p>Every operand is a glob — <code>*</code> for any run of characters, <code>?</code> for one — so a substring match is <code>name:*checkout*</code>, and a pattern with no wildcard is an exact match. Wrap anything with spaces in double quotes, which also protects parentheses and operator words:</p>
+<pre><code>name:&quot;A customer checks out (with a card)&quot;</code></pre>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="execution-model.html"><span>Previous</span>Execution model</a><a class="next" href="artifacts-and-logging.html"><span>Next</span>Artifacts and logging</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#selecting-from-the-command-line">Selecting from the command line</a></li>
+<li><a href="#removing-tests-from-an-environment">Removing tests from an environment</a></li>
+<li><a href="#the-expression-language">The expression language</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

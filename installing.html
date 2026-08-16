@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en" data-page="installing">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installing · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html" class="active">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="installing">Installing</h1>
+<p>Precept ships as a set of NuGet packages. Pick the one for what you are testing; each brings in
+<code>Precept.Core</code> and everything else it needs.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Install it to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Precept.TestPlatform</code></td>
+<td>Run Precept tests. This is the runner — a test project starts here.</td>
+</tr>
+<tr>
+<td><code>Precept.Reqnroll</code></td>
+<td>Write scenarios in <code>.feature</code> files. Carries both Reqnroll plugins, so nothing else is needed for Gherkin.</td>
+</tr>
+<tr>
+<td><code>Precept.Api</code></td>
+<td>Call HTTP APIs.</td>
+</tr>
+<tr>
+<td><code>Precept.Web</code></td>
+<td>Drive a browser through Playwright.</td>
+</tr>
+<tr>
+<td><code>Precept.Data</code></td>
+<td>Talk to a database over ADO.NET.</td>
+</tr>
+<tr>
+<td><code>Precept.TestData</code></td>
+<td>Manage the users, clients, vehicles and other records the tests need.</td>
+</tr>
+<tr>
+<td><code>Precept.Grpc</code></td>
+<td>Call gRPC services.</td>
+</tr>
+<tr>
+<td><code>Precept.Containers</code></td>
+<td>Start Docker dependencies for the run.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.ReportPortal</code></td>
+<td>Report runs to ReportPortal.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.Teams</code></td>
+<td>Post a run summary to a Teams channel.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.AzureDevOps</code></td>
+<td>File results against Azure DevOps test cases.</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>Precept.Core</code> is published too, but referencing it directly is only useful for a library of shared
+step definitions or helpers that must not drag in the runner — or for a
+<a href="reporting.html#writing-a-reporter">reporter of your own</a>, which needs nothing else.</p>
+<p><code>Precept.Mcp</code> is published as a <strong><code>dotnet tool</code></strong>, not a library — it is a server a coding agent
+talks to, so nothing in a test project references it:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
+
+<p>Point an MCP client at the <code>precept-mcp</code> command, or at <code>dnx Precept.Mcp</code> to run it without
+installing anything. See <a href="Precept.Mcp.html"><code>docs/packages/Precept.Mcp.md</code></a>.</p>
+<p>The tool package bundles its own <code>Precept.Core</code>, so the server answers out of <em>its</em> version rather
+than the project's — which is why a global install, being one version for the whole machine, can
+answer a second repository with the first one's rules. It reports the difference rather than hiding
+it: every answer names the version behind it, and <code>precept_diagnose_project</code> raises <code>PMCP008</code> when
+the two could disagree. <code>dnx Precept.Mcp@&lt;version&gt;</code> pins it per project.</p>
+<p>A complete test project:</p>
+<pre data-lang="xml"><code><span class="tok-keyword">&lt;Project</span> Sdk=<span class="tok-str">&quot;Microsoft.NET.Sdk&quot;</span><span class="tok-keyword">&gt;</span>
+
+  <span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
+    <span class="tok-keyword">&lt;TargetFramework</span><span class="tok-keyword">&gt;</span>net10.0<span class="tok-keyword">&lt;/TargetFramework</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span>
+
+  <span class="tok-keyword">&lt;ItemGroup</span><span class="tok-keyword">&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.TestPlatform&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reqnroll&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Api&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+  <span class="tok-keyword">&lt;/ItemGroup</span><span class="tok-keyword">&gt;</span>
+
+<span class="tok-keyword">&lt;/Project</span><span class="tok-keyword">&gt;</span></code></pre>
+
+<p>That is the whole file. <code>Precept.TestPlatform</code> makes the project an executable and generates the
+entry point, so there is no <code>Main</code> and no <code>OutputType</code> to write; <code>Precept.Reqnroll</code> brings the
+code-behind generator, so <code>.feature</code> files compile on their own. The first build leaves a commented
+<code>precept.json</code> in the project — see <a href="configuration.html#configuration">Configuration</a>.</p>
+<p>One thing a NuGet package cannot do for you: <code>dotnet test</code> on the .NET 10 SDK has to be told to use
+Microsoft.Testing.Platform, and that setting lives in <code>global.json</code> beside the project or anywhere
+above it.</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;test&quot;</span>: {
+    <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span>
+  }
+}</code></pre>
+
+<p>Without it <code>dotnet test</code> fails with <em>&quot;Testing with VSTest target is no longer supported&quot;</em>. Running
+the test binary directly — <code>dotnet run -- --list-tests</code> — works either way.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="layout.html"><span>Previous</span>Layout</a><a class="next" href="project-templates.html"><span>Next</span>Project templates</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

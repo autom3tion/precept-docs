@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en" data-page="Precept.Reporting.ReportPortal">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precept.Reporting.ReportPortal · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html" class="active">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="precept.reporting.reportportal">Precept.Reporting.ReportPortal</h1>
+<p>ReportPortal reporting for Precept: a launch per run, a suite per feature, a test item per scenario,
+with logs and artifacts attached.</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Reporting.ReportPortal</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> Startup : IPreceptStartup
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings) =&gt;
+        services.AddPreceptReportPortalReporting();
+}</code></pre>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-key">&quot;ReportPortal&quot;</span>: {
+      <span class="tok-key">&quot;Endpoint&quot;</span>: <span class="tok-str">&quot;https://rp.example.com&quot;</span>,
+      <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-str">&quot;acme_regression&quot;</span>,
+      <span class="tok-key">&quot;LaunchName&quot;</span>: <span class="tok-str">&quot;Checkout regression&quot;</span>,
+      <span class="tok-key">&quot;Attributes&quot;</span>: { <span class="tok-key">&quot;suite&quot;</span>: <span class="tok-str">&quot;regression&quot;</span> }
+    }
+  }
+}</code></pre>
+
+<p>Supply the API key from CI as <code>PRECEPT_REPORTING__REPORTPORTAL__APIKEY</code>; a key in a committed
+<code>precept.json</code> is a key anyone with the repository can post launches with.</p>
+<p><strong>Launches are opened from a build agent only.</strong> A developer's run reports nothing and asks for
+nothing — the reporter is never started, so the API key that machine does not have is not an error
+there. Add <code>{ &quot;Reporting&quot;: { &quot;CiOnly&quot;: false } }</code> to <code>precept.local.json</code> to report from your own
+machine, and see
+<a href="reporting.html#ci-and-local-runs">CI and local runs</a> for how a run is
+recognised as CI.</p>
+<p>Each <code>.feature</code> becomes a suite, named by its feature title rather than by the class Reqnroll
+generated from it and described by the narrative under that title, and each scenario a test item
+tagged with the scenario's own Gherkin tags. Whatever the test logged goes up as log entries, a
+failure as an error with its stack trace, and the files a failing test captured — Playwright
+screenshots, traces, request logs — as attachments on the item, so a failure in the dashboard opens
+with the screenshot already there.
+Skipped tests are closed as <code>NOT_ISSUE</code> so nobody has to triage a test that was never meant to run.
+A scenario that passed only after a retry is one test item carrying its attempt count, not a chain of
+them: ReportPortal's own retry flag nests an item under an earlier one and leaves it out of the
+launch's statistics, and the earlier one is a report Precept never sends.</p>
+<p>Set <code>&quot;LaunchMode&quot;: &quot;DEBUG&quot;</code> alongside <code>&quot;CiOnly&quot;: false</code> to keep the launches a developer's machine
+does send out of the project's statistics.</p>
+<p>A run on an Azure DevOps agent describes its launch with a link back to the build, from the variables
+the agent already sets (<code>BUILD_BUILDID</code>, <code>SYSTEM_TEAMFOUNDATIONCOLLECTIONURI</code>, <code>SYSTEM_TEAMPROJECT</code>) —
+so a launch somebody opens from a chat message leads back to the pipeline run that produced it. It is
+appended to your <code>Description</code> rather than replacing it, and a run anywhere else — a developer's
+machine, another CI — has nothing appended.</p>
+<p>The link goes the other way too: the launch's own page is posted to the run's <code>PreceptRunLinks</code> as
+soon as it is opened, so a run that also reports to Teams gets an <strong>Open ReportPortal</strong> button on its
+card. Nothing to configure — a launch id is assigned by the server, so it could not have been. See
+<a href="reporting.html#linking-a-runs-reports-to-each-other">linking a run's reports to each other</a>.</p>
+<p>Reporting runs on a queue of its own, so a slow ReportPortal deployment costs the run nothing until
+the very end, where it gets <code>Reporting:ShutdownTimeoutSeconds</code> to finish sending.</p>
+<hr />
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+Full documentation: <a href="azure-devops.html#reporting">reporting</a> ·
+<a href="configuration.html#configuration">configuration</a> ·
+<a href="artifacts-and-logging.html#artifacts-and-logging">artifacts</a></p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="Precept.Containers.html"><span>Previous</span>Precept.Containers</a><a class="next" href="Precept.Reporting.Teams.html"><span>Next</span>Precept.Reporting.Teams</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

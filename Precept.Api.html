@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en" data-page="Precept.Api">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precept.Api · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html" class="active">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="precept.api">Precept.Api</h1>
+<p>HTTP API testing for Precept: a fluent request builder, response assertions, and automatic
+request/response logging into the test report.</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Api</code></pre>
+<pre data-lang="csharp"><code>services.AddPreceptApi();</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> response = <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/orders&quot;</span>)
+    .WithJsonBody(<span class="tok-keyword">new</span> { sku = <span class="tok-str">&quot;ABC&quot;</span>, quantity = <span class="tok-number">2</span> })
+    .SendAsync();
+
+<span class="tok-keyword">await</span> Assert.That(response).ToBeSuccessfulAsync();
+<span class="tok-keyword">await</span> Assert.That(response).ToHaveJsonValueAsync(<span class="tok-str">&quot;status&quot;</span>, <span class="tok-str">&quot;created&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(response).JsonAt(<span class="tok-str">&quot;customer.email&quot;</span>).ToEndWithAsync(<span class="tok-str">&quot;@example.com&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(response).Json&lt;Order&gt;().ToSatisfyAsync(o =&gt; o.Lines.Count == <span class="tok-number">2</span>, <span class="tok-str">&quot;have two lines&quot;</span>);</code></pre>
+
+<p>Every failure carries the request line and the body, because that is always the next question.</p>
+<p><code>ToHaveStatusAsync</code>, <code>ToBeSuccessfulAsync</code>, <code>ToHaveHeaderAsync</code>, <code>ToContainAsync</code>,
+<code>ToHaveJsonValueAsync</code> and <code>ToRespondWithinAsync</code> cover responses, and <code>JsonAt</code>/<code>Json&lt;T&gt;</code> narrow to a
+part of one so the general assertions apply to it. Polling for a state that arrives later is the same
+sentence under <code>Assert.Eventually</code>:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.Eventually(() =&gt; Rest.Get(<span class="tok-str">$&quot;/jobs/{id}&quot;</span>).SendAsync())
+            .Within(TimeSpan.FromMinutes(<span class="tok-number">2</span>))
+            .ToHaveJsonValueAsync(<span class="tok-str">&quot;state&quot;</span>, <span class="tok-str">&quot;Completed&quot;</span>);</code></pre>
+<hr />
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+Full documentation: <a href="assertions.html#on-a-response">assertions on a response</a> ·
+<a href="assertions.html#waiting-for-something-to-become-true">waiting</a> ·
+<a href="configuration.html#configuration">configuration</a></p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="Precept.Reqnroll.html"><span>Previous</span>Precept.Reqnroll</a><a class="next" href="Precept.Web.html"><span>Next</span>Precept.Web</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" data-page="environments">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Environments · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html" class="active">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="environments">Environments</h1>
+<p>The environment names the overlay: <code>staging</code> loads <code>precept.staging.json</code>, and <code>Precept.TestData</code> loads <code>testdata.staging.json</code> beside every data file. It is resolved once per run, first of these to say anything:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Source</th>
+<th>For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>--precept-environment staging</code></td>
+<td>CI, and anything driven from a shell</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>PRECEPT_ENVIRONMENT</code></td>
+<td>a build agent, a container</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>DOTNET_ENVIRONMENT</code></td>
+<td>a suite that already sets it</td>
+</tr>
+<tr>
+<td>4</td>
+<td>the build configuration</td>
+<td><strong>switching environments in an IDE</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>&quot;Environment&quot;</code> in <code>precept.json</code></td>
+<td>the team's default</td>
+</tr>
+<tr>
+<td>6</td>
+<td>—</td>
+<td><code>local</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>An <code>&quot;Environment&quot;</code> key in an overlay does nothing: the overlay is chosen before it is read.</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-environment</span> staging
+<span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> samples/Precept.Sample.Tests/Precept.Sample.Tests.csproj -- <span class="tok-attr">--precept-environment</span> staging</code></pre>
+
+<p>Every run says which environment it used, and complains when the overlay for it is not there — the case where a typo quietly runs the suite against the defaults:</p>
+<pre><code>[Precept] Environment &#39;staging&#39;. Filter excluded 5 of 33 tests.
+[Precept] There is no &#39;precept.nope.json&#39; beside the test binary, so the run is using &#39;precept.json&#39; alone.</code></pre>
+<h2 id="switching-environments-from-an-ide">Switching environments from an IDE<a class="anchor" href="#switching-environments-from-an-ide" aria-label="Link to this section">#</a></h2>
+<p>Neither Visual Studio's Test Explorer nor VS Code's testing pane has anywhere to type a runner argument, and editing a committed file to switch leaves you with a modified working tree to remember not to push. <strong>Make each environment a build configuration instead</strong> — the IDE already has a picker for those.</p>
+<p>Declare them once, in the test project or in <code>Directory.Build.props</code>:</p>
+<pre data-lang="xml"><code><span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;Configurations</span><span class="tok-keyword">&gt;</span>Debug;Release;Dev;Stage<span class="tok-keyword">&lt;/Configurations</span><span class="tok-keyword">&gt;</span>
+<span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span>
+
+<span class="tok-keyword">&lt;PropertyGroup</span> Condition=<span class="tok-str">&quot;&#39;$(Configuration)&#39; == &#39;Dev&#39;&quot;</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;PreceptEnvironment</span><span class="tok-keyword">&gt;</span>dev<span class="tok-keyword">&lt;/PreceptEnvironment</span><span class="tok-keyword">&gt;</span>
+<span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span>
+
+<span class="tok-keyword">&lt;PropertyGroup</span> Condition=<span class="tok-str">&quot;&#39;$(Configuration)&#39; == &#39;Stage&#39;&quot;</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;PreceptEnvironment</span><span class="tok-keyword">&gt;</span>stage<span class="tok-keyword">&lt;/PreceptEnvironment</span><span class="tok-keyword">&gt;</span>
+<span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span></code></pre>
+
+<p>That is the whole consumer side. <code>Precept.TestPlatform</code> carries <code>PreceptEnvironment</code> into <code>runtimeconfig.json</code> as a <code>Precept.Environment</code> property, and Precept reads it back at startup. Pick <strong>Stage</strong> from the configuration list and Test Explorer runs against Stage; pick <strong>Dev</strong> and it runs against Dev. Nothing to edit, nothing to leave modified, nothing to push by accident — the selected configuration is IDE state, not a file in your repository. From a shell it is <code>dotnet test -c Stage</code>.</p>
+<p>Each configuration builds to its own <code>bin/Stage/</code>, so switching costs a rebuild, and the two never overwrite each other's output. Add the configurations to the solution too (Visual Studio: Build → Configuration Manager) so the picker offers them.</p>
+<p>An environment variable or <code>--precept-environment</code> still overrides the build, which is what keeps CI in charge of its own runs.</p>
+<blockquote>
+<p><code>.runsettings</code> does <strong>not</strong> work here. It is a VSTest concept, and Precept is a Microsoft.Testing.Platform framework with no VSTest bridge: <code>dotnet test --settings …</code> runs zero tests and exits 5. The platform has no <code>--settings</code> option at all. Its replacement is <code>testconfig.json</code> in the project directory, which sets any runner option and is copied to the output as <code>{AssemblyName}.testconfig.json</code> by <code>Microsoft.Testing.Platform.MSBuild</code>:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;commandLineOptions&quot;</span>: { <span class="tok-key">&quot;precept-environment&quot;</span>: <span class="tok-str">&quot;stage&quot;</span> } }</code></pre>
+
+<p>Reach for it over a build configuration only when you want one machine's override without touching the project file — it outranks <code>precept.json</code>, so gitignore it if that is what you are using it for.</p>
+</blockquote>
+<p>To run against two environments at once — a smoke pack against staging while a regression pack runs locally — use two shells rather than one IDE:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-environment</span> staging <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke&quot;</span> &amp;
+<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-environment</span> local <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;not smoke&quot;</span></code></pre>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="environment-variables.html"><span>Previous</span>Environment variables</a><a class="next" href="startup.html"><span>Next</span>Startup</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

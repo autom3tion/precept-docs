@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="en" data-page="test-data">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test data · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html" class="active">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="test-data">Test data</h1>
+<p>Almost every suite needs records to exist before a scenario can start: a user to sign in as, a
+client to place an order for, a vehicle to book in. <code>Precept.TestData</code> is where those live, so they
+stop being string literals scattered through step definitions.</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings) =&gt;
+    services.AddPreceptTestData();</code></pre>
+<pre data-lang="json"><code><span class="tok-comment">// testdata.json, beside the test binary</span>
+{
+  <span class="tok-key">&quot;users&quot;</span>: {
+    <span class="tok-key">&quot;admin&quot;</span>: { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;admin@acme.test&quot;</span>, <span class="tok-key">&quot;password&quot;</span>: <span class="tok-str">&quot;{{env:ADMIN_PASSWORD}}&quot;</span> }
+  },
+  <span class="tok-key">&quot;clients&quot;</span>: {
+    <span class="tok-key">&quot;new&quot;</span>: { <span class="tok-key">&quot;name&quot;</span>: <span class="tok-str">&quot;Acme {{unique}}&quot;</span>, <span class="tok-key">&quot;email&quot;</span>: <span class="tok-str">&quot;acme-{{unique}}@acme.test&quot;</span> }
+  }
+}</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> admin = TestData.Get&lt;TestUser&gt;(<span class="tok-str">&quot;admin&quot;</span>);        <span class="tok-comment">// users:admin</span>
+<span class="tok-keyword">var</span> van = TestData.Get&lt;Vehicle&gt;(<span class="tok-str">&quot;vehicles:van&quot;</span>);    <span class="tok-comment">// or by full path</span>
+<span class="tok-keyword">var</span> password = TestData.Value(<span class="tok-str">&quot;users:admin:password&quot;</span>);</code></pre>
+
+<p><code>TestUser</code> reads <code>users</code>, <code>Vehicle</code> reads <code>vehicles</code>, <code>Company</code> reads <code>companies</code>: the set is the
+plural of the type name, with a <code>Test</code> prefix and a <code>Data</code>/<code>Dto</code>/<code>Model</code> suffix dropped. Name it
+yourself with <code>[TestDataSet(&quot;people&quot;)]</code> on the type, or <code>data.Map&lt;Person&gt;(&quot;users&quot;)</code> at registration.
+Lookups are case-insensitive, so a file written in lower case matches.</p>
+<p>The module's own types live in the <code>Precept</code> namespace, so a step definition that already uses
+Precept needs no further <code>using</code>.</p>
+<p>Data files must reach the output directory:</p>
+<pre data-lang="xml"><code><span class="tok-keyword">&lt;ItemGroup</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;None</span> Update=<span class="tok-str">&quot;testdata*.json&quot;</span> CopyToOutputDirectory=<span class="tok-str">&quot;PreserveNewest&quot;</span> <span class="tok-keyword">/&gt;</span>
+<span class="tok-keyword">&lt;/ItemGroup</span><span class="tok-keyword">&gt;</span></code></pre>
+<h2 id="environment-specific-data">Environment-specific data<a class="anchor" href="#environment-specific-data" aria-label="Link to this section">#</a></h2>
+<p><code>testdata.json</code> is overlaid by <code>testdata.{environment}.json</code> and then by <code>PRECEPT_TESTDATA__*</code>
+environment variables, the same order Precept uses for settings, and against the same environment —
+see <a href="environments.html#environments">Environments</a> for how that is chosen. An overlay only has to carry what differs:</p>
+<pre data-lang="json"><code><span class="tok-comment">// testdata.staging.json</span>
+{ <span class="tok-key">&quot;users&quot;</span>: { <span class="tok-key">&quot;admin&quot;</span>: { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;admin@staging.acme&quot;</span> } } }</code></pre>
+
+<p>The password is a different matter, and this is why the environment variables exist:</p>
+<pre data-lang="bash"><code>PRECEPT_TESTDATA__USERS__ADMIN__PASSWORD=<span class="tok-str">&#39;...&#39;</span></code></pre>
+
+<p>That sets <code>users:admin:password</code> without it ever being written down in the repository. <code>__</code> becomes
+the <code>:</code> separator, exactly as <code>PRECEPT_WEB__BASEURL</code> works for settings.</p>
+<p>Load more files — one per domain area, say — with <code>data.AddJsonFile(&quot;vehicles.json&quot;)</code>, which brings
+its own <code>vehicles.{environment}.json</code> overlay along. <code>TestData:Files</code> and <code>TestData:Directory</code> in
+<code>precept.json</code> do the same from configuration; <code>TestData:LeaseTimeoutMilliseconds</code> is there too.</p>
+<h2 id="dynamic-values">Dynamic values<a class="anchor" href="#dynamic-values" aria-label="Link to this section">#</a></h2>
+<p>Anything in a data file may carry <code>{{token}}</code> placeholders, expanded when the value is read rather
+than when the file is loaded. A suite that inserts the same email address on every run fails on the
+second one; this is the answer to that.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Gives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{{unique}}</code></td>
+<td>A short id, the same everywhere in one scenario and different in the next.</td>
+</tr>
+<tr>
+<td><code>{{unique:buyer}}</code></td>
+<td>A second, independent one, for when a scenario needs two.</td>
+</tr>
+<tr>
+<td><code>{{guid}}</code>, <code>{{guid:N}}</code></td>
+<td>A GUID, optionally in a .NET format.</td>
+</tr>
+<tr>
+<td><code>{{now}}</code>, <code>{{now:yyyy-MM-dd}}</code>, <code>{{now:+2d:HH:mm}}</code>, <code>{{today}}</code></td>
+<td>A UTC timestamp, optionally shifted by <code>d</code>, <code>h</code>, <code>m</code>, <code>s</code> or <code>y</code>, and formatted.</td>
+</tr>
+<tr>
+<td><code>{{random}}</code>, <code>{{random:1000-9999}}</code></td>
+<td>A number, optionally in an inclusive range.</td>
+</tr>
+<tr>
+<td><code>{{digits:6}}</code>, <code>{{letters:8}}</code>, <code>{{alphanumeric:10}}</code></td>
+<td>Random text of that length.</td>
+</tr>
+<tr>
+<td><code>{{env:BUILD_ID}}</code>, <code>{{env:BUILD_ID\|local}}</code></td>
+<td>An environment variable, with an optional fallback.</td>
+</tr>
+<tr>
+<td><code>{{setting:Api:BaseUrl}}</code></td>
+<td>A value from <code>precept.json</code>.</td>
+</tr>
+<tr>
+<td><code>{{ref:users:admin:username}}</code></td>
+<td>Another test data value, so two records agree.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Add your own for whatever the domain needs — a VIN with a valid check digit, a national insurance
+number, an IBAN:</p>
+<pre data-lang="csharp"><code>services.AddPreceptTestData(data =&gt; data.AddToken(<span class="tok-str">&quot;vin&quot;</span>, c =&gt; Vin.Generate(c.Argument)));</code></pre>
+
+<p>Stability is what makes these usable. Within one scenario, <code>Get&lt;Client&gt;(&quot;new&quot;)</code> returns the same
+client every time it is asked, so the <code>{{unique}}</code> in the name and the one in the email agree and
+every step sees what the first one created. <code>New&lt;Client&gt;(&quot;new&quot;)</code> deliberately breaks that: it reads
+another one, with its own generated values, which is how a scenario gets two different customers.
+A retry generates fresh values, because a test that failed on a duplicate key needs a rerun to stop
+colliding with what it already inserted.</p>
+<h2 id="data-the-tests-have-to-create">Data the tests have to create<a class="anchor" href="#data-the-tests-have-to-create" aria-label="Link to this section">#</a></h2>
+<p>Reading a template only goes so far — most data has to exist in the system under test. A factory
+says how to put it there and how to take it away:</p>
+<pre data-lang="csharp"><code>services.AddPreceptTestData(data =&gt; data.Factory&lt;Client&gt;(
+    create: <span class="tok-keyword">async</span> (_, client) =&gt;
+    {
+        <span class="tok-keyword">var</span> created = <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/clients&quot;</span>).WithJsonBody(client).SendAsync();
+        <span class="tok-keyword">await</span> Assert.That(created).ToHaveStatusAsync(HttpStatusCode.Created);
+        <span class="tok-keyword">return</span> created.Json&lt;Client&gt;();
+    },
+    delete: <span class="tok-keyword">async</span> (_, client) =&gt; <span class="tok-keyword">await</span> Rest.Delete(<span class="tok-str">$&quot;/clients/{client.Id}&quot;</span>).SendAsync()));</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> client = <span class="tok-keyword">await</span> TestData.CreateAsync&lt;Client&gt;(<span class="tok-str">&quot;new&quot;</span>);</code></pre>
+
+<p>The template comes from <code>clients:new</code>, the factory creates it through whatever the suite already
+uses — an API call, a database insert, a gRPC request — and the delete runs when the test ends,
+after the <code>[AfterTest]</code> hook and whatever the verdict was.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Call</th>
+<th>Lifetime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CreateAsync&lt;T&gt;(key)</code></td>
+<td>One per call, removed when the test ends.</td>
+</tr>
+<tr>
+<td><code>GetOrCreateAsync&lt;T&gt;(key)</code></td>
+<td>One per test, however many steps ask for it.</td>
+</tr>
+<tr>
+<td><code>SharedAsync&lt;T&gt;(key)</code></td>
+<td>One per run, removed when the run ends. Treat it as read-only: parallel tests share it.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="pooled-data">Pooled data<a class="anchor" href="#pooled-data" aria-label="Link to this section">#</a></h2>
+<p>Some data cannot be generated and cannot be shared: three pre-provisioned accounts on a partner
+system, a handful of licensed test vehicles. Declare that set as a pool and a scenario takes one
+for its own:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;drivers&quot;</span>: [ { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;driver-one&quot;</span> }, { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;driver-two&quot;</span> } ] }</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> driver = <span class="tok-keyword">await</span> TestData.LeaseAsync&lt;TestUser&gt;(<span class="tok-str">&quot;drivers&quot;</span>);
+<span class="tok-keyword">await</span> signIn.SignInAsync(driver.Value.Username, driver.Value.Password);</code></pre>
+
+<p>Nothing else in the run holds that item until the lease is released, which happens when the test
+ends — a scenario that throws does not take an account down with it. Dispose the lease to give it
+back sooner. When every item is in use, the next test waits, and gives up after
+<code>TestData:LeaseTimeoutMilliseconds</code> with an inconclusive verdict rather than a failure: running out
+of accounts is an environment problem, not a defect in the code under test.</p>
+<h2 id="from-gherkin">From Gherkin<a class="anchor" href="#from-gherkin" aria-label="Link to this section">#</a></h2>
+<p>Steps refer to data by name, so the feature file says what the scenario means rather than what the
+credentials are:</p>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Given</span> I am signed in as the <span class="tok-str">&quot;admin&quot;</span> user
+<span class="tok-keyword">When</span> I create a client
+<span class="tok-keyword">Then</span> the client should appear on the dashboard</code></pre>
+<pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> ClientSteps(SignInPage signIn)
+{
+<span class="tok-attr">    [Given(&quot;I am signed in as the {string} user&quot;)]</span>
+    <span class="tok-keyword">public</span> Task SignIn(<span class="tok-keyword">string</span> key)
+    {
+        <span class="tok-keyword">var</span> user = TestData.Get&lt;TestUser&gt;(key);
+        <span class="tok-keyword">return</span> signIn.SignInAsync(user.Username, user.Password);
+    }
+
+<span class="tok-attr">    [When(&quot;I create a client&quot;)]</span>
+    <span class="tok-keyword">public</span> Task CreateClient() =&gt; TestData.GetOrCreateAsync&lt;Client&gt;(<span class="tok-str">&quot;new&quot;</span>);
+}</code></pre>
+
+<p><code>TestData.Resolve(&quot;buyer-{{unique}}@acme.test&quot;)</code> expands tokens in a string that came from the
+feature file itself, for the cases where the value belongs in the scenario rather than in a data
+file. <code>samples/Precept.Sample.Tests</code> runs all of this against its in-process stub.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="dependency-injection.html"><span>Previous</span>Dependency injection</a><a class="next" href="browsers.html"><span>Next</span>Browsers</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#environment-specific-data">Environment-specific data</a></li>
+<li><a href="#dynamic-values">Dynamic values</a></li>
+<li><a href="#data-the-tests-have-to-create">Data the tests have to create</a></li>
+<li><a href="#pooled-data">Pooled data</a></li>
+<li><a href="#from-gherkin">From Gherkin</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

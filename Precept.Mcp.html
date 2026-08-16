@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en" data-page="Precept.Mcp">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precept.Mcp · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html" class="active">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="precept.mcp">Precept.Mcp</h1>
+<p>An <a href="https://modelcontextprotocol.io">MCP</a> server that lets a coding agent inspect a Precept test
+project. It answers the questions Precept cannot answer for itself at runtime: why a green build
+found no tests, which of five sources decided the environment, why raising <code>MaxParallelism</code> changed
+nothing, what a filter expression will actually select, and how the suite's test data is meant to be
+written.</p>
+<p>This is a <strong>tool</strong>, not a library — nothing in your test code references it.</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
+
+<p>Then point an MCP client at it. Checked into the repository as <code>.mcp.json</code>, this is picked up by
+Claude Code and other clients that read it:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;mcpServers&quot;</span>: {
+    <span class="tok-key">&quot;precept&quot;</span>: {
+      <span class="tok-key">&quot;command&quot;</span>: <span class="tok-str">&quot;precept-mcp&quot;</span>
+    }
+  }
+}</code></pre>
+
+<p>To skip the install entirely, use <code>&quot;command&quot;: &quot;dnx&quot;</code> with
+<code>&quot;args&quot;: [&quot;Precept.Mcp&quot;, &quot;--yes&quot;]</code> — the package is fetched and run on demand.</p>
+<h2 id="what-it-does">What it does<a class="anchor" href="#what-it-does" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>precept_diagnose_project</code></td>
+<td>Feature files that generate no code-behind, duplicate scenarios from a stray <code>.feature</code> under <code>bin</code>, settings that never reach the test binary, test data files that never reach it either, <code>dotnet test</code> pointed at the wrong runner, a <code>.runsettings</code> nothing reads, an environment with no overlay, a reporter the CI gate will drop.</td>
+</tr>
+<tr>
+<td><code>precept_explain_environment</code></td>
+<td>Which of the five sources decided the environment, and which <code>precept.{environment}.json</code> that loads.</td>
+</tr>
+<tr>
+<td><code>precept_explain_parallelism</code></td>
+<td>The effective width of a run, and why a higher <code>MaxParallelism</code> may schedule nothing extra.</td>
+</tr>
+<tr>
+<td><code>precept_explain_failure</code></td>
+<td>Maps an error message or symptom onto its known cause.</td>
+</tr>
+<tr>
+<td><code>precept_explain_module</code></td>
+<td>What a module is for, its one-line registration, its entry point and settings section with the real defaults, the assertions it adds — and which modules a project already references, registers and configures.</td>
+</tr>
+<tr>
+<td><code>precept_explain_testdata</code></td>
+<td>How <code>Precept.TestData</code> is used — files and overlays, <code>{{token}}</code> generators, the type-to-set convention, factories and pools — plus what the project already has and whether its data files reach the output directory.</td>
+</tr>
+<tr>
+<td><code>precept_validate_filter</code></td>
+<td>Parses a filter with the runner's own parser, and catches the leading <code>@</code> that the test platform reads as a response file.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every check is one of Precept's <em>silent</em> failure modes — the ones where the build is green, the run
+is green, and the answer is quietly wrong. A compiler error needs no help. The explanations are
+there for the same reason: a convention, a precedence order or a copy step that is nowhere in the
+project's own source is the thing an agent guesses at, and guesses wrong.</p>
+<p>The server is read-only. It reports each finding with the edit that would fix it and leaves the
+edit to you.</p>
+<h2 id="which-precept-is-answering">Which Precept is answering<a class="anchor" href="#which-precept-is-answering" aria-label="Link to this section">#</a></h2>
+<p>The server references <strong>every</strong> Precept package, not just <code>Precept.Core</code>, and reads the answers out
+of those assemblies: settings sections with their real defaults, the assertions each module adds,
+the test data naming convention, which <code>{{token}}</code> names are built in. Nothing here is a
+transcription that a release can quietly falsify.</p>
+<p>A tool package bundles its dependencies, so the server carries its own copy of them and answers
+out of that: the filter parser, the environment order and the settings names it reports are the
+server's version, not necessarily the project's. A global install is one version for the whole
+machine, which is how a second repository on a second Precept version gets answered for by the
+first.</p>
+<p>The server says so rather than leaving you to find out. Every answer names the version behind it,
+and <code>precept_diagnose_project</code> reports <code>PMCP008</code> when the two are far enough apart to disagree. To
+pin the server to a project instead, run it per invocation:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;mcpServers&quot;</span>: {
+    <span class="tok-key">&quot;precept&quot;</span>: { <span class="tok-key">&quot;command&quot;</span>: <span class="tok-str">&quot;dnx&quot;</span>, <span class="tok-key">&quot;args&quot;</span>: [<span class="tok-str">&quot;Precept.Mcp@0.3.0&quot;</span>, <span class="tok-str">&quot;--yes&quot;</span>] }
+  }
+}</code></pre>
+<hr />
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+Full documentation: <a href="configuration.html#configuration">configuration</a> ·
+<a href="azure-devops.html#environments">environments</a> ·
+<a href="execution-model.html#execution-model">execution model</a> ·
+<a href="filtering.html#filtering">filtering</a> ·
+<a href="azure-devops.html#reporting">reporting</a></p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="Precept.Templates.html"><span>Previous</span>Precept.Templates</a><a class="next" href="roadmap.html"><span>Next</span>Not yet built</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#what-it-does">What it does</a></li>
+<li><a href="#which-precept-is-answering">Which Precept is answering</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

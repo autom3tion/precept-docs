@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" data-page="execution-model">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Execution model · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html" class="active">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="execution-model">Execution model</h1>
+<p>Tests are grouped by declaring class, and <code>MaxParallelism</code> bounds how many units of work are in flight at once. <code>ParallelScope</code> decides what a unit is:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th><code>ParallelScope</code></th>
+<th>One unit is</th>
+<th>Tests of one class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;Class&quot;</code> (default)</td>
+<td>a whole class</td>
+<td>run one after another</td>
+</tr>
+<tr>
+<td><code>&quot;Test&quot;</code></td>
+<td>a single test</td>
+<td>may run at the same time</td>
+</tr>
+</tbody>
+</table></div>
+<p>Anything marked <code>[NonParallelizable]</code> runs afterwards, one class at a time, whichever scope is set — a single non-parallelizable test takes its whole class into that phase, so its <code>[BeforeSuite]</code>/<code>[AfterSuite]</code> pair stays in one piece.</p>
+<h2 id="why-a-high-maxparallelism-can-look-ignored">Why a high <code>MaxParallelism</code> can look ignored<a class="anchor" href="#why-a-high-maxparallelism-can-look-ignored" aria-label="Link to this section">#</a></h2>
+<p>Because the default unit is a class, and the Reqnroll generator emits <strong>one class per <code>.feature</code> file</strong>, a suite of two feature files never puts more than two units in flight — <code>&quot;MaxParallelism&quot;: 8</code> leaves six slots empty and the run is as slow as its longest feature. Precept says so at the start of a run when the gap is large enough to matter.</p>
+<p>Setting <code>&quot;ParallelScope&quot;: &quot;Test&quot;</code> schedules every scenario individually, so few-but-long feature files can use the whole limit. What you give up is ordering <em>within</em> a feature:</p>
+<ul>
+<li>Scenarios of one feature no longer see each other's leftovers in a fixed order — a static field, a row a previous scenario inserted, a value stashed in a step-definition field.</li>
+<li>Reqnroll takes a pooled runner per scenario, so its own <code>[BeforeFeature]</code>/<code>[AfterFeature]</code> hooks run once per runner rather than once per feature. This is how Reqnroll behaves under every parallel-capable provider.</li>
+<li>Precept's own <code>[BeforeSuite]</code> still completes before the class's first test starts, and <code>[AfterSuite]</code> still runs after its last one finishes.</li>
+</ul>
+<p>Put <code>[NonParallelizable]</code> on the few classes that genuinely need the old ordering and leave the rest test-scoped, rather than holding the whole run back for them.</p>
+<h2 id="retries-timeouts-and-reporting">Retries, timeouts and reporting<a class="anchor" href="#retries-timeouts-and-reporting" aria-label="Link to this section">#</a></h2>
+<p><code>[Retry(n)]</code> counts <strong>reruns, not runs</strong>: a test always runs once, and <code>n</code> is how many further goes it gets while it keeps failing. <code>[Retry(1)]</code> runs a failing test twice, <code>[Retry(0)]</code> is the same as no attribute at all. <code>&quot;DefaultRetries&quot;</code> in <code>precept.json</code> says the same for tests carrying no attribute, and defaults to <code>0</code>.</p>
+<p>Retry only reruns hard failures — a skip or an inconclusive verdict will not change on a rerun. Timeouts are enforced with a linked cancellation token and reported as <code>TimeoutException</code>. Each result carries timing information, category metadata and artifact paths through to the platform's reporters.</p>
+<p>A test that was actually rerun keeps every attempt in its output, each block headed by the attempt it belongs to and how that attempt ended:</p>
+<pre><code>[Attempt 1 of 3] Failed: Expected status 200 but received 503.
+Given the catalogue service is reachable
+When the client requests the catalogue
+[Attempt 2 of 3] Passed
+Given the catalogue service is reachable
+When the client requests the catalogue</code></pre>
+
+<p>Without it a scenario that failed twice and passed on the third reported one clean green run, with nothing to say what had gone wrong. The header appears only when a rerun actually happened, so a test that passes first time reads as it always did. A test's duration covers every attempt it made, including the <code>DelayMilliseconds</code> between them.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="containers.html"><span>Previous</span>Containers</a><a class="next" href="filtering.html"><span>Next</span>Filtering</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#why-a-high-maxparallelism-can-look-ignored">Why a high MaxParallelism can look ignored</a></li>
+<li><a href="#retries-timeouts-and-reporting">Retries, timeouts and reporting</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

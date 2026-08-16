@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en" data-page="writing-tests">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing tests · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html" class="active">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="writing-tests">Writing tests</h1>
+<h2 id="gherkin">Gherkin<a class="anchor" href="#gherkin" aria-label="Link to this section">#</a></h2>
+<pre data-lang="gherkin"><code><span class="tok-attr">@smoke</span>
+<span class="tok-keyword">Scenario Outline:</span> Adding many pairs of numbers
+<span class="tok-keyword">	Given</span> I have entered <span class="tok-number">&lt;left&gt;</span> into the calculator
+<span class="tok-keyword">	When</span> I press add
+<span class="tok-keyword">	Then</span> the result should be <span class="tok-number">&lt;total&gt;</span> on the screen
+
+<span class="tok-keyword">	Examples:</span>
+		| left | right | total |
+		| 1    | 2     | 3     |</code></pre>
+
+<p>Step definitions are ordinary Reqnroll <code>[Binding]</code> classes. Everything Reqnroll supports — data tables, <code>ScenarioContext</code>, constructor injection, hooks — works unchanged.</p>
+<h2 id="plain-c">Plain C#<a class="anchor" href="#plain-c" aria-label="Link to this section">#</a></h2>
+<pre data-lang="csharp"><code><span class="tok-attr">[TestSuite(&quot;Checkout&quot;)]</span>
+<span class="tok-attr">[TestCategory(&quot;smoke&quot;)]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> CheckoutTests
+{
+<span class="tok-attr">    [Test(&quot;A customer can check out&quot;)]</span>
+<span class="tok-attr">    [Retry(2, DelayMilliseconds = 200)]</span>
+    <span class="tok-keyword">public</span> <span class="tok-keyword">async</span> Task Checkout()
+    {
+        <span class="tok-keyword">var</span> response = <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/orders&quot;</span>)
+            .WithJsonBody(<span class="tok-keyword">new</span> { sku = <span class="tok-str">&quot;ABC&quot;</span>, quantity = <span class="tok-number">2</span> })
+            .SendAsync();
+
+        <span class="tok-keyword">await</span> Assert.That(response).ToHaveStatusAsync(HttpStatusCode.Created);
+        <span class="tok-keyword">await</span> Assert.That(response).ToHaveJsonValueAsync(<span class="tok-str">&quot;status&quot;</span>, <span class="tok-str">&quot;created&quot;</span>);
+    }
+}</code></pre>
+<h2 id="attributes">Attributes<a class="anchor" href="#attributes" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[TestSuite]</code></td>
+<td>Marks a class as holding tests. Discovery skips a class without it.</td>
+</tr>
+<tr>
+<td><code>[Test]</code></td>
+<td>Marks a method as a test. Optional when <code>[TestCase]</code> is present.</td>
+</tr>
+<tr>
+<td><code>[TestCase(...)]</code></td>
+<td>One test case per row; values are coerced to the parameter types. Implies <code>[Test]</code>.</td>
+</tr>
+<tr>
+<td><code>[TestCategory]</code></td>
+<td>Tag for filtering and reporting.</td>
+</tr>
+<tr>
+<td><code>[Ignore]</code></td>
+<td>Report as skipped without running.</td>
+</tr>
+<tr>
+<td><code>[Retry(n)]</code></td>
+<td>Rerun on failure <code>n</code> further times, so <code>[Retry(1)]</code> gives a failing test one more go.</td>
+</tr>
+<tr>
+<td><code>[Timeout(ms)]</code></td>
+<td>Fail if the test overruns.</td>
+</tr>
+<tr>
+<td><code>[NonParallelizable]</code></td>
+<td>Run alone, with nothing else in flight.</td>
+</tr>
+<tr>
+<td><code>[TestSource(file, line)]</code></td>
+<td>Where the test was written, for test explorer navigation. Emitted by the Reqnroll generator; lives in <code>Precept.Generated</code> and is rarely written by hand.</td>
+</tr>
+<tr>
+<td><code>[BeforeSuite]</code> / <code>[AfterSuite]</code></td>
+<td>Static, once per class.</td>
+</tr>
+<tr>
+<td><code>[BeforeTest]</code> / <code>[AfterTest]</code></td>
+<td>Per test; the after-hook runs even on failure.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="outcomes">Outcomes<a class="anchor" href="#outcomes" aria-label="Link to this section">#</a></h2>
+<p>Throw <code>PreceptIgnoreException</code> to skip at runtime, <code>PreceptPendingException</code> for unimplemented work, <code>PreceptInconclusiveException</code> when the environment cannot produce a verdict, and <code>PreceptAssertionException</code> for assertion failures — which is what <a href="assertions.html#assertions">assertions</a> throw.</p>
+<h2 id="test-explorer-navigation">Test explorer navigation<a class="anchor" href="#test-explorer-navigation" aria-label="Link to this section">#</a></h2>
+<p>Every discovered test reports the file and line it was written at, so &quot;Go to test&quot; in Visual Studio, Rider or the VS Code Testing pane opens the source — and for a Gherkin test that source is the <code>.feature</code> file, at the <code>Scenario:</code> line, not the generated code-behind. An <code>Examples</code> row navigates to its own line in the table.</p>
+<p>Nothing needs to be configured for this. Precept reads the test assembly's portable PDB and takes the first sequence point of each test method; Reqnroll's code-behind carries <code>#line</code> directives back into the feature file, so that sequence point already names the Gherkin. Async and iterator methods are followed onto their state machine, where the compiler actually put the body.</p>
+<p>The generated classes also carry <code>[TestSource(&quot;Features/Checkout.feature&quot;, 12)]</code>, which takes precedence and keeps navigation working for a build without symbols. The path is project-relative so generated code stays free of machine-specific directories; the runner puts the directory back from the PDB, or by searching upwards from the test binary.</p>
+<p>Two things turn navigation off:</p>
+<ul>
+<li><code>&lt;DebugType&gt;none&lt;/DebugType&gt;</code>, or any build that does not put a <code>.pdb</code> beside the test binary. Embedded PDBs (<code>&lt;DebugType&gt;embedded&lt;/DebugType&gt;</code>) are read too. Plain C# tests then have no location at all; Gherkin tests fall back to the attribute.</li>
+<li>A deterministic build (<code>ContinuousIntegrationBuild=true</code>) rewrites source paths to a placeholder root. Precept checks that a path from the PDB exists before believing it, so Gherkin tests still resolve through the attribute — but plain C# tests will not resolve on the build agent. This does not affect a developer machine.</li>
+</ul>
+<p>Apply <code>Precept.Generated.TestSourceAttribute</code> by hand when a test is generated by something other than Reqnroll and should point at whatever produced it. It is public for that reason and no other: it sits in its own namespace, out of IntelliSense, so it does not crowd the attributes tests are written with.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="running.html"><span>Previous</span>Running</a><a class="next" href="assertions.html"><span>Next</span>Assertions</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#gherkin">Gherkin</a></li>
+<li><a href="#plain-c">Plain C#</a></li>
+<li><a href="#attributes">Attributes</a></li>
+<li><a href="#outcomes">Outcomes</a></li>
+<li><a href="#test-explorer-navigation">Test explorer navigation</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

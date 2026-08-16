@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-page="configuration">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configuration · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html" class="active">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="configuration">Configuration</h1>
+<p><code>precept.json</code> beside the test binary, overlaid in turn by <code>precept.{environment}.json</code> and <code>PRECEPT_*</code> environment variables — each one winning over the last:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;MaxParallelism&quot;</span>: <span class="tok-number">8</span>,
+  <span class="tok-key">&quot;ParallelScope&quot;</span>: <span class="tok-str">&quot;Class&quot;</span>,
+  <span class="tok-key">&quot;DefaultTimeoutMilliseconds&quot;</span>: <span class="tok-number">60000</span>,
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://staging.example.com&quot;</span>, <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span>, <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span> },
+  <span class="tok-key">&quot;Api&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://api.staging.example.com&quot;</span> },
+  <span class="tok-key">&quot;ConnectionStrings&quot;</span>: { <span class="tok-key">&quot;Default&quot;</span>: <span class="tok-str">&quot;Host=localhost;Database=app&quot;</span> }
+}</code></pre>
+
+<p>Comments and trailing commas are allowed in these files; .NET's JSON configuration provider skips them.</p>
+<p>Every setting in these files can also be set from the environment — <code>Web:Headless</code> is
+<code>PRECEPT_WEB__HEADLESS</code> — which is how a pipeline overrides a run and how a credential stays out of
+source control. <a href="environment-variables.html">Environment variables</a> is the complete
+list, with each default.</p>
+<p><code>Precept.TestPlatform</code> copies <code>precept.json</code> and every <code>precept.*.json</code> beside it to the output directory, so adding one of these files is all there is to it — no <code>&lt;None Update&gt;</code> to write. Set <code>&lt;EnablePreceptSettingsCopy&gt;false&lt;/EnablePreceptSettingsCopy&gt;</code> to take that over yourself; a file the project already gives <code>CopyToOutputDirectory</code> is left alone either way.</p>
+<p>You do not have to write the first one. A project that builds with no <code>precept*.json</code> in it gets a commented <code>precept.json</code> from the package — created and copied to the output directory in that same build, then yours to edit and commit. The file is only ever written when the project has none at all, so an existing one is never touched and a suite that keeps nothing but an overlay is left alone. Deleting the file, though, is not remembered: the next build writes it again unless the project says otherwise.</p>
+<pre data-lang="xml"><code><span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>false<span class="tok-keyword">&lt;/EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>
+<span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span></code></pre>
+<h2 id="your-own-settings">Your own settings<a class="anchor" href="#your-own-settings" aria-label="Link to this section">#</a></h2>
+<p>Precept does not try to model everything a suite might need to configure — auth, tenants, feature flags, a service address. Put those in the same file under a section of your own, and bind them onto a class you write:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Api&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://api.staging.example.com&quot;</span> },
+  <span class="tok-key">&quot;Auth&quot;</span>: { <span class="tok-key">&quot;TokenEndpoint&quot;</span>: <span class="tok-str">&quot;https://id.example.com/token&quot;</span>, <span class="tok-key">&quot;ClientId&quot;</span>: <span class="tok-str">&quot;test-runner&quot;</span> }
+}</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> AuthSettings
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">string</span>? TokenEndpoint { <span class="tok-keyword">get</span>; <span class="tok-keyword">set</span>; }
+    <span class="tok-keyword">public</span> <span class="tok-keyword">string</span>? ClientId { <span class="tok-keyword">get</span>; <span class="tok-keyword">set</span>; }
+    <span class="tok-keyword">public</span> <span class="tok-keyword">string</span>? ClientSecret { <span class="tok-keyword">get</span>; <span class="tok-keyword">set</span>; }
+    <span class="tok-keyword">public</span> <span class="tok-keyword">int</span> TimeoutMilliseconds { <span class="tok-keyword">get</span>; <span class="tok-keyword">set</span>; } = <span class="tok-number">10_000</span>;
+}
+
+<span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> Startup : IPreceptStartup
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings)
+    {
+        services.AddPreceptSettings&lt;AuthSettings&gt;();
+        services.AddSingleton&lt;ITokenProvider, TokenProvider&gt;();
+    }
+}</code></pre>
+
+<p><code>AuthSettings</code> is then a singleton like any other, injected into step definitions, page objects and fixtures:</p>
+<pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> AuthSteps(AuthSettings auth, ITokenProvider tokens) { }</code></pre>
+
+<p>The section name defaults to the type's name without a <code>Precept</code> prefix or a <code>Settings</code>/<code>Options</code> suffix — <code>AuthSettings</code> reads <code>&quot;Auth&quot;</code>. Pass one explicitly for anything else, including nested sections:</p>
+<pre data-lang="csharp"><code>services.AddPreceptSettings&lt;AuthSettings&gt;(<span class="tok-str">&quot;Tenants:Primary&quot;</span>);
+services.AddPreceptSettings&lt;AuthSettings&gt;(configure: a =&gt; a.ClientSecret = Vault.Read(<span class="tok-str">&quot;client-secret&quot;</span>));</code></pre>
+
+<p>Custom sections get the same treatment as the built-in ones: overlaid by <code>precept.{environment}.json</code>, then overridden by environment variables — <code>PRECEPT_AUTH__CLIENTSECRET</code> sets <code>Auth:ClientSecret</code>, which is how a secret stays out of source control. Properties absent from configuration keep their defaults, so a section is optional. A <code>configure</code> callback runs after binding and wins.</p>
+<p>To read a section without registering it — to branch on it while wiring services, say — use <code>settings.GetSection&lt;T&gt;()</code>. The raw <code>IConfiguration</code> is on <code>settings.Configuration</code> if you need it.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="assertions.html"><span>Previous</span>Assertions</a><a class="next" href="environment-variables.html"><span>Next</span>Environment variables</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

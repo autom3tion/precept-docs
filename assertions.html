@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en" data-page="assertions">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assertions · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html" class="active">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="assertions">Assertions</h1>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(order.Total).ToBeEqualAsync(<span class="tok-number">42.00m</span>);</code></pre>
+
+<p>Every assertion is awaited, and reads as the sentence its failure prints:</p>
+<pre><code>Expected order.Total to be equal to 42.00, but found 41.50.</code></pre>
+
+<p>The subject names itself from the expression the test wrote, so nothing has to be repeated in a message. Pass a name when the expression is not the point: <code>Assert.That(total, &quot;the basket total&quot;)</code>.</p>
+<p>The <code>await</code> is the design. An assertion over a value in hand completes synchronously, but the same sentence also has to cover an element that is not on the page <em>yet</em> and a job that finishes <em>eventually</em> — so waiting lives inside the assertion instead of in a sleep in front of it, and the caller does not have to know which kind it just wrote.</p>
+<h2 id="what-ships">What ships<a class="anchor" href="#what-ships" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Any value</td>
+<td><code>ToBeEqualAsync(x)</code>, <code>ToBeSameAsAsync(x)</code>, <code>ToBeNullAsync()</code>, <code>ToBeOneOfAsync(a, b)</code>, <code>ToSatisfyAsync(predicate, &quot;be …&quot;)</code></td>
+</tr>
+<tr>
+<td><code>bool</code></td>
+<td><code>ToBeTrueAsync()</code>, <code>ToBeFalseAsync()</code></td>
+</tr>
+<tr>
+<td><code>IComparable</code></td>
+<td><code>ToBeGreaterThanAsync(x)</code>, <code>ToBeGreaterThanOrEqualAsync(x)</code>, <code>ToBeLessThanAsync(x)</code>, <code>ToBeLessThanOrEqualAsync(x)</code>, <code>ToBeInRangeAsync(a, b)</code></td>
+</tr>
+<tr>
+<td><code>string</code></td>
+<td><code>ToContainAsync(s)</code>, <code>ToStartWithAsync(s)</code>, <code>ToEndWithAsync(s)</code>, <code>ToMatchAsync(pattern)</code>, <code>ToBeEmptyAsync()</code></td>
+</tr>
+<tr>
+<td>Collections</td>
+<td><code>ToContainAsync(item)</code>, <code>ToHaveCountAsync(n)</code>, <code>ToBeEmptyAsync()</code>, <code>ToOnlyContainAsync(predicate, &quot;be …&quot;)</code></td>
+</tr>
+<tr>
+<td>Actions</td>
+<td><code>ToThrowAsync&lt;TException&gt;()</code> (returns the exception), <code>ToCompleteAsync()</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Each takes the modifiers in front of it:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(basket.Items).Not.ToBeEmptyAsync();
+<span class="tok-keyword">await</span> Assert.That(total).Because(<span class="tok-str">&quot;the promo code is 10% off&quot;</span>).ToBeEqualAsync(<span class="tok-number">90m</span>);</code></pre>
+
+<p><code>Assert.MultipleAsync</code> collects failures instead of stopping at the first, so one run reports every field that is wrong:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.MultipleAsync(<span class="tok-keyword">async</span> () =&gt;
+{
+    <span class="tok-keyword">await</span> Assert.That(summary.Name).ToBeEqualAsync(<span class="tok-str">&quot;Ada Lovelace&quot;</span>);
+    <span class="tok-keyword">await</span> Assert.That(summary.Email).ToBeEqualAsync(<span class="tok-str">&quot;ada@example.com&quot;</span>);
+    <span class="tok-keyword">await</span> Assert.That(summary.Orders).ToHaveCountAsync(<span class="tok-number">3</span>);
+});</code></pre>
+<h2 id="waiting-for-something-to-become-true">Waiting for something to become true<a class="anchor" href="#waiting-for-something-to-become-true" aria-label="Link to this section">#</a></h2>
+<p><code>Assert.Eventually</code> takes a way to <em>get</em> the value rather than the value, and re-reads it until the expectation holds or the timeout passes:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.Eventually(() =&gt; Rest.Get(<span class="tok-str">$&quot;/jobs/{id}&quot;</span>).SendAsync())
+            .Within(TimeSpan.FromMinutes(<span class="tok-number">2</span>))
+            .ToHaveJsonValueAsync(<span class="tok-str">&quot;state&quot;</span>, <span class="tok-str">&quot;Completed&quot;</span>);
+
+<span class="tok-keyword">await</span> Assert.Eventually(() =&gt; Db.ScalarAsync&lt;<span class="tok-keyword">long</span>&gt;(<span class="tok-str">&quot;select count(*) from outbox where sent = 0&quot;</span>))
+            .ToBeEqualAsync(<span class="tok-number">0L</span>);</code></pre>
+
+<p>Every assertion works this way — the waiting belongs to the subject, not to the expectation. A provider that throws counts as &quot;not there yet&quot; and is retried; if the deadline passes it becomes the failure's cause. Defaults are in <code>precept.json</code>:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Assertions&quot;</span>: {
+    <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">5000</span>,
+    <span class="tok-key">&quot;PollIntervalMilliseconds&quot;</span>: <span class="tok-number">100</span>
+  }
+}</code></pre>
+<h2 id="on-a-page">On a page<a class="anchor" href="#on-a-page" aria-label="Link to this section">#</a></h2>
+<p><code>Precept.Web</code> maps Playwright's web-first assertions onto the same sentence. The retrying is Playwright's — Precept never polls on top of it — so these need no wait in front of them:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> page = <span class="tok-keyword">await</span> Browser.PageAsync();
+
+<span class="tok-keyword">await</span> Assert.That(page).ToHaveTitleAsync(<span class="tok-keyword">new</span> Regex(<span class="tok-str">&quot;Checkout&quot;</span>));
+<span class="tok-keyword">await</span> Assert.That(page.GetByRole(AriaRole.Alert)).Not.ToBeVisibleAsync();
+<span class="tok-keyword">await</span> Assert.That(page.GetByTestId(<span class="tok-str">&quot;total&quot;</span>), <span class="tok-str">&quot;the basket total&quot;</span>)
+            .Within(TimeSpan.FromSeconds(<span class="tok-number">10</span>))
+            .ToHaveTextAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);</code></pre>
+
+<p><code>ToBeVisibleAsync</code>, <code>ToBeHiddenAsync</code>, <code>ToBeAttachedAsync</code>, <code>ToBeEnabledAsync</code>, <code>ToBeDisabledAsync</code>, <code>ToBeEditableAsync</code>, <code>ToBeCheckedAsync</code>, <code>ToBeFocusedAsync</code>, <code>ToBeEmptyAsync</code>, <code>ToBeInViewportAsync</code>, <code>ToHaveTextAsync</code>, <code>ToContainTextAsync</code>, <code>ToHaveValueAsync</code>, <code>ToHaveAttributeAsync</code>, <code>ToHaveClassAsync</code>, <code>ToContainClassAsync</code>, <code>ToHaveIdAsync</code>, <code>ToHaveCssAsync</code>, <code>ToHaveCountAsync</code> and <code>ToHaveAccessibleNameAsync</code> cover locators; <code>ToHaveUrlAsync</code> and <code>ToHaveTitleAsync</code> cover the page. Anything not mirrored — and anything Playwright adds later — goes through <code>ToSatisfyAsync</code>:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(page.Locator(<span class="tok-str">&quot;main&quot;</span>)).ToSatisfyAsync(
+    <span class="tok-str">&quot;match the aria snapshot&quot;</span>,
+    expect =&gt; expect.ToMatchAriaSnapshotAsync(snapshot));</code></pre>
+
+<p>A failed web assertion keeps Playwright's call log, which is the part that says what the page actually looked like on each retry:</p>
+<pre><code>Expected the heading to have the text &quot;Sign out&quot;, but found &#39;Sign in&#39;.
+Because the page has loaded.
+Call log:
+  - Expect &quot;ToHaveTextAsync&quot; with timeout 700ms
+  - waiting for Locator(&quot;#heading&quot;)
+    8 &#215; locator resolved to &lt;h1 id=&quot;heading&quot;&gt;Sign in&lt;/h1&gt;
+      - unexpected value &quot;Sign in&quot;</code></pre>
+
+<p>The wait is <code>Web.AssertionTimeoutMilliseconds</code> (5 s), separate from <code>Web.TimeoutMilliseconds</code> — how long an <em>action</em> waits for an element is usually far longer than a check should hang around for. <code>.Within(…)</code> overrides it per assertion.</p>
+<h2 id="on-a-response">On a response<a class="anchor" href="#on-a-response" aria-label="Link to this section">#</a></h2>
+<p><code>Precept.Api</code> adds <code>ToHaveStatusAsync</code>, <code>ToBeSuccessfulAsync</code>, <code>ToHaveHeaderAsync</code>, <code>ToContainAsync</code>, <code>ToHaveJsonValueAsync</code> and <code>ToRespondWithinAsync</code>, plus narrowing helpers that hand the rest of the response to the general assertions:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> response = <span class="tok-keyword">await</span> Rest.Get(<span class="tok-str">&quot;/orders/42&quot;</span>).SendAsync();
+
+<span class="tok-keyword">await</span> Assert.That(response).ToBeSuccessfulAsync();
+<span class="tok-keyword">await</span> Assert.That(response).JsonAt(<span class="tok-str">&quot;customer.email&quot;</span>).ToEndWithAsync(<span class="tok-str">&quot;@example.com&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(response).Json&lt;Order&gt;().ToSatisfyAsync(o =&gt; o.Lines.Count == <span class="tok-number">2</span>, <span class="tok-str">&quot;have two lines&quot;</span>);</code></pre>
+
+<p>Every failure carries the request line and the body, because that is always the next question.</p>
+<h2 id="writing-your-own">Writing your own<a class="anchor" href="#writing-your-own" aria-label="Link to this section">#</a></h2>
+<p>An assertion is an extension method on <code>Subject&lt;T&gt;</code> that hands an <code>Expectation&lt;T&gt;</code> to the engine. There is no registration, no base class, and no difference between one you write and one Precept ships:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">using</span> Precept.Assertions;
+
+<span class="tok-keyword">public</span> <span class="tok-keyword">static</span> <span class="tok-keyword">class</span> InvoiceAssertions
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">static</span> Task ToBeOverdueAsync(<span class="tok-keyword">this</span> Subject&lt;Invoice&gt; subject) =&gt;
+        subject.ExpectAsync(Expectation.For&lt;Invoice&gt;(
+            <span class="tok-str">&quot;be overdue&quot;</span>,                                                  <span class="tok-comment">// completes &quot;Expected … to …&quot;</span>
+            invoice =&gt; !invoice.Paid &amp;&amp; invoice.DueDate &lt; DateTime.UtcNow,
+            invoice =&gt; <span class="tok-str">$&quot;an invoice due {invoice.DueDate:d} that was {(invoice.Paid ? &quot;</span>paid<span class="tok-str">&quot; : &quot;</span>unpaid<span class="tok-str">&quot;)}&quot;</span>));
+}</code></pre>
+<pre><code>Expected invoice to be overdue, but found an invoice due 12/08/2026 that was unpaid.</code></pre>
+
+<p>That one method now supports everything the built-in assertions do — <code>.Not</code> inverts it, <code>Assert.Eventually</code> retries it, <code>.Because</code> and <code>.Within</code> reach it, and <code>Assert.MultipleAsync</code> collects it — because those live in the engine rather than in the assertion.</p>
+<p>Two more pieces are there when a module needs them:</p>
+<ul>
+<li><strong><code>subject.Map(selector, name)</code></strong> narrows a subject to a part of itself, keeping every modifier and the re-reading. <code>Assert.That(response).Status()</code> is one line of <code>Map</code>, and it composes: <code>Assert.Eventually(…).JsonAt(&quot;state&quot;).ToBeEqualAsync(&quot;Done&quot;)</code> re-reads the whole response and re-selects the field on every attempt.</li>
+<li><strong><code>new Expectation&lt;T&gt;(description, evaluate)</code></strong> is the raw form, for a check that waits on its own or writes its own failure text. It sees <code>AssertionContext.IsNegated</code> and <code>.Timeout</code> and answers with <code>AssertionOutcome.Satisfied</code> or <code>AssertionOutcome.Failed(actual, detail)</code> — which is exactly how <code>Precept.Web</code> hands negation and the timeout down to Playwright's <code>Expect()</code> and keeps its call log.</li>
+</ul>
+<p>For a one-off, <code>ToSatisfyAsync(predicate, &quot;be …&quot;)</code> needs no method at all.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="writing-tests.html"><span>Previous</span>Writing tests</a><a class="next" href="configuration.html"><span>Next</span>Configuration</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#what-ships">What ships</a></li>
+<li><a href="#waiting-for-something-to-become-true">Waiting for something to become true</a></li>
+<li><a href="#on-a-page">On a page</a></li>
+<li><a href="#on-a-response">On a response</a></li>
+<li><a href="#writing-your-own">Writing your own</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

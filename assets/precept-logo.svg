@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 168" width="540" height="168" role="img" aria-label="Precept — a .NET test automation framework">
+  <title>Precept</title>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#8384C4"/>
+      <stop offset="0.55" stop-color="#6667AB"/>
+      <stop offset="1" stop-color="#54559A"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(24 28) scale(0.875)">
+    <rect x="4" y="4" width="120" height="120" rx="30" fill="url(#tile)"/>
+    <g fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+      <path d="M44 30 H32 V98 H44"/>
+      <path d="M84 30 H96 V98 H84"/>
+    </g>
+    <path d="M46 65 L58 78 L82 47" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!--
+    The wordmark is a tint of Very Peri rather than #6667AB itself: the README this
+    banner heads is packed into every NuGet package, so it is read on a white page
+    and on GitHub's dark one, and these two values clear 4:1 against both.
+  -->
+  <g font-family="'Segoe UI Semibold','Segoe UI',-apple-system,'Helvetica Neue',Arial,sans-serif">
+    <text x="152" y="96" font-size="66" font-weight="600" letter-spacing="-1.5" fill="#7273BC">Precept</text>
+    <text x="155" y="131" font-size="20" font-weight="400" letter-spacing="0.6" fill="#6E7191">A .NET test automation framework</text>
+  </g>
+</svg>

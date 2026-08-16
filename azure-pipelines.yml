@@ -1,0 +1,210 @@
+# Precept on Azure Pipelines — the entry pipeline.
+#
+# Copy this file and templates/precept-test-job.yml into a suite's repository, point
+# `testProject` at your .csproj, and the "Run pipeline" dialog becomes the run configuration:
+# environment, filter, parallelism, retries and which dashboards hear about the run.
+#
+# Everything here is documented in azure-devops.md — read that before changing the
+# environment-variable names, which are Precept's configuration keys spelled the way
+# Microsoft.Extensions.Configuration reads them and not free-form.
+
+# A test suite is not a build: nothing here should run on every push to a feature branch. Trigger
+# it from the branch policy of the code under test, from a release, from the schedule below, or by
+# hand.
+trigger: none
+pr: none
+
+schedules:
+  # A scheduled run cannot override parameters — it gets the defaults below and nothing else. A
+  # nightly that needs different ones is a second pipeline file extending the same job template;
+  # see "Scheduling a different configuration" in azure-devops.md.
+  - cron: '0 2 * * *'
+    displayName: Nightly regression
+    branches:
+      include: [main]
+    always: true
+
+parameters:
+  # ---------------------------------------------------------------------------------------------
+  # What to run it against
+  # ---------------------------------------------------------------------------------------------
+
+  - name: environment
+    displayName: Environment
+    type: string
+    default: test
+    # Each of these names a precept.{environment}.json overlay beside the test binary, and a
+    # testdata.{environment}.json beside every Precept.TestData file. A name with no overlay is not
+    # an error — the run says so and uses precept.json alone, which is what catches a typo.
+    values:
+      - dev
+      - test
+      - auto
+      - stage
+      - prod
+
+  # ---------------------------------------------------------------------------------------------
+  # Which tests
+  # ---------------------------------------------------------------------------------------------
+
+  - name: filter
+    displayName: 'Filter — selects among the tests that exist, e.g. smoke and not slow'
+    type: string
+    default: ' '
+    # Precept's expression language: tag / name: / class: operands, and/or/not, parentheses,
+    # * and ? wildcards. Left blank the whole suite runs.
+    #
+    # The value must not START with @ — Microsoft.Testing.Platform reads a leading @ as a response
+    # file name. Write "smoke and not @slow", or parenthesise: "(@smoke and not @slow)". The job
+    # template refuses a leading @ rather than letting the platform fail with a file-not-found.
+
+  - name: excludeFilter
+    displayName: 'Exclude — removes tests from the run entirely, before discovery'
+    type: string
+    default: ' '
+    # This is the other filter: PRECEPT_FILTER__EXCLUDE overrides the Filter section of
+    # precept.json, and what it removes is gone before discovery publishes anything — not reported
+    # as skipped, not selectable by the filter above. Use it for tests this environment cannot
+    # have, and the filter above for choosing a pack.
+
+  # ---------------------------------------------------------------------------------------------
+  # How to run it
+  # ---------------------------------------------------------------------------------------------
+
+  - name: maxParallelism
+    displayName: 'Max parallelism (0 = the agent processor count)'
+    type: number
+    default: 0
+
+  - name: parallelScope
+    displayName: 'Parallel scope — a class is one unit, or a single test is'
+    type: string
+    default: Class
+    values:
+      - Class
+      - Test
+    # Reqnroll emits one class per .feature file, so with the default scope a suite of four
+    # features never puts more than four units in flight however high the limit. Switch to Test
+    # when few-but-long features are what is holding the run back, and read the trade-off in
+    # execution-model.md#why-a-high-maxparallelism-can-look-ignored first.
+
+  - name: defaultRetries
+    displayName: 'Default retries — reruns of a failing test, not runs. 0 reruns nothing'
+    type: number
+    default: 0
+
+  - name: defaultTimeoutMinutes
+    displayName: 'Per-test timeout in minutes (0 = no default timeout)'
+    type: number
+    default: 2
+
+  - name: browsers
+    displayName: 'Browsers — one job per entry. Leave as [chromium] for a non-web suite'
+    type: object
+    default:
+      - chromium
+
+  # ---------------------------------------------------------------------------------------------
+  # Where the results go
+  # ---------------------------------------------------------------------------------------------
+
+  - name: reportPortal
+    displayName: Report to ReportPortal
+    type: boolean
+    default: true
+
+  - name: reportPortalLaunchMode
+    displayName: 'ReportPortal launch mode — DEBUG keeps it out of the project statistics'
+    type: string
+    default: DEFAULT
+    values:
+      - DEFAULT
+      - DEBUG
+
+  - name: teams
+    displayName: Post a summary card to Teams
+    type: boolean
+    default: true
+
+  - name: teamsNotifyOn
+    displayName: 'Teams — which runs are worth a message'
+    type: string
+    default: FailureOrFlaky
+    values:
+      - Always
+      - Failure
+      - FailureOrFlaky
+
+  - name: azureDevOps
+    displayName: File results against Azure DevOps test cases
+    type: boolean
+    default: true
+
+  - name: testPlanId
+    displayName: 'Test plan id (0 = an unplanned run, which keeps the unmapped tests)'
+    type: number
+    default: 0
+
+  - name: testSuiteId
+    displayName: 'Test suite id within that plan (0 = every suite the plan holds the case in)'
+    type: number
+    default: 0
+
+  - name: onlyMappedTests
+    displayName: 'Azure DevOps — report only tests that name a Test Case work item'
+    type: boolean
+    default: false
+
+variables:
+  # Endpoints, project names and anything else that is not a credential belong in precept.json in
+  # the suite's repository. This group holds the three credentials only:
+  #
+  #   reportPortalApiKey   secret   ReportPortal → user profile → API key
+  #   teamsWebhookUrl      secret   the channel's Workflows connector
+  #
+  # The Azure DevOps token is not in here: the job uses the build's own $(System.AccessToken).
+  - group: precept-secrets
+
+  - name: buildConfiguration
+    value: Release
+
+  # The two paths a suite has to say for itself.
+  - name: testProject
+    value: tests/Acme.Tests/Acme.Tests.csproj
+  - name: testProjectDirectory
+    value: tests/Acme.Tests
+
+stages:
+  - stage: Test
+    displayName: 'Precept — ${{ parameters.environment }}'
+    jobs:
+      # One job per browser. A suite that drives no browser leaves the parameter at its single
+      # default and gets one job, named for a browser it never opens — harmless, and cheaper than
+      # a second template for the non-web case.
+      - ${{ each browser in parameters.browsers }}:
+          - template: templates/precept-test-job.yml
+            parameters:
+              jobSuffix: ${{ browser }}
+              browser: ${{ browser }}
+
+              testProject: $(testProject)
+              testProjectDirectory: $(testProjectDirectory)
+              buildConfiguration: $(buildConfiguration)
+
+              environment: ${{ parameters.environment }}
+              filter: ${{ parameters.filter }}
+              excludeFilter: ${{ parameters.excludeFilter }}
+
+              maxParallelism: ${{ parameters.maxParallelism }}
+              parallelScope: ${{ parameters.parallelScope }}
+              defaultRetries: ${{ parameters.defaultRetries }}
+              defaultTimeoutMinutes: ${{ parameters.defaultTimeoutMinutes }}
+
+              reportPortal: ${{ parameters.reportPortal }}
+              reportPortalLaunchMode: ${{ parameters.reportPortalLaunchMode }}
+              teams: ${{ parameters.teams }}
+              teamsNotifyOn: ${{ parameters.teamsNotifyOn }}
+              azureDevOps: ${{ parameters.azureDevOps }}
+              testPlanId: ${{ parameters.testPlanId }}
+              testSuiteId: ${{ parameters.testSuiteId }}
+              onlyMappedTests: ${{ parameters.onlyMappedTests }}

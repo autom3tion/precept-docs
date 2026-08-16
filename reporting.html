@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en" data-page="reporting">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporting · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html" class="active">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="reporting">Reporting</h1>
+<p>A TRX is a file on the agent. Reporting is the other direction: the run's results going out to somewhere people already look — a ReportPortal dashboard, a Teams channel, the Test Case work items in Azure DevOps — or somewhere only your team has.</p>
+<p>Three integrations ship, and the interface behind them is the same one you would implement yourself.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Sends</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Precept.Reporting.ReportPortal</code></td>
+<td>A launch per run, a suite per feature, a test item per scenario, with logs and captured files attached.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.Teams</code></td>
+<td>One Adaptive Card at the end of a run: the verdict, the counts, the pass rate, and a link to the build.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.AzureDevOps</code></td>
+<td>A test run whose results are filed against the Test Case work items your scenarios name, in their titles or in a tag.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Reference the package and register it in your <a href="startup.html#startup">startup</a>; everything else is configuration:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> Startup : IPreceptStartup
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings)
+    {
+        services.AddPreceptReportPortalReporting();
+        services.AddPreceptTeamsReporting();
+        services.AddPreceptAzureDevOpsReporting();
+    }
+}</code></pre>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-key">&quot;ReportPortal&quot;</span>: { <span class="tok-key">&quot;Endpoint&quot;</span>: <span class="tok-str">&quot;https://rp.example.com&quot;</span>, <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-str">&quot;acme_regression&quot;</span> },
+    <span class="tok-key">&quot;Teams&quot;</span>: { <span class="tok-key">&quot;Variant&quot;</span>: <span class="tok-str">&quot;Pipeline&quot;</span>, <span class="tok-key">&quot;NotifyOn&quot;</span>: <span class="tok-str">&quot;Failure&quot;</span> },
+    <span class="tok-key">&quot;AzureDevOps&quot;</span>: { <span class="tok-key">&quot;OrganizationUrl&quot;</span>: <span class="tok-str">&quot;https://dev.azure.com/acme&quot;</span>, <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-str">&quot;Web&quot;</span>, <span class="tok-key">&quot;TestPlanId&quot;</span>: <span class="tok-number">412</span> }
+  }
+}</code></pre>
+
+<p>Endpoints belong in <code>precept.json</code>; keys and webhook URLs do not. They are credentials, and the environment-variable override is what keeps them out of source control — <code>PRECEPT_REPORTING__REPORTPORTAL__APIKEY</code>, <code>PRECEPT_REPORTING__TEAMS__WEBHOOKURL</code>, <code>PRECEPT_REPORTING__AZUREDEVOPS__PERSONALACCESSTOKEN</code>.</p>
+<p>Each package's page documents its own settings: <a href="Precept.Reporting.ReportPortal.html">ReportPortal</a>, <a href="Precept.Reporting.Teams.html">Teams</a>, <a href="Precept.Reporting.AzureDevOps.html">Azure DevOps</a>. What a pipeline has to pass them, and where the credentials come from, is <a href="azure-devops.html">Running a suite on CI</a>.</p>
+<h2 id="what-the-teams-card-looks-like">What the Teams card looks like<a class="anchor" href="#what-the-teams-card-looks-like" aria-label="Link to this section">#</a></h2>
+<p>A channel is where a run is <em>noticed</em>. It is not where it is diagnosed — a stack trace pasted into one buries the next suite's card and is unreadable where it lands. So the card answers the questions a channel actually asks, and links to the place that answers the rest:</p>
+<pre><code>┌──────────────────────────────────────────────┐
+│ ❌  Checkout regression                       │   ← tinted green or red, edge to edge
+│     4 of 133 failed &#183; 7 m 24 s                │
+├──────────────────────────────────────────────┤
+│    126        4         3         2           │
+│  Passed    Failed   Skipped    Flaky          │
+│                                               │
+│  Pass rate                  97% &#183; 126 of 130  │
+│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░  │
+│                                               │
+│  Environment   staging                        │
+│  [ Open build 20260814.3 ]                    │
+└──────────────────────────────────────────────┘</code></pre>
+
+<p>Four layouts ship, and <code>Variant</code> picks one — in code, in <code>precept.json</code>, or as <code>PRECEPT_REPORTING__TEAMS__VARIANT</code> for a single run:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Card</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Summary</code> <em>(default)</em></td>
+<td>The above: verdict, counts, pass rate, environment. No failure messages.</td>
+</tr>
+<tr>
+<td><code>Compact</code></td>
+<td>One line — verdict, pass rate, duration, button. For a channel that hears from a dozen suites a day.</td>
+</tr>
+<tr>
+<td><code>Detailed</code></td>
+<td><code>Summary</code>, then the failed tests and their messages. This is the old card's content, capped by <code>MaxFailuresListed</code> and <code>MaxFailureMessageLength</code>.</td>
+</tr>
+<tr>
+<td><code>Pipeline</code></td>
+<td><code>Summary</code>, then the build: pipeline, build number, branch, commit, who queued it.</td>
+</tr>
+</tbody>
+</table></div>
+<pre data-lang="csharp"><code>services.AddPreceptTeamsReporting(teams =&gt; teams.Variant = PreceptTeamsCardVariant.Pipeline);</code></pre>
+
+<p><strong>The build the card points at is the agent's, not a setting.</strong> <code>BUILD_BUILDID</code> and the collection and project variables address an Azure DevOps build; <code>GITHUB_RUN_ID</code> and the repository address a workflow run. Both are things the agent already knows and a test project cannot, so <code>RunUrl</code> is only for pointing somewhere else — a dashboard of your own — and the <code>Pipeline</code> variant's facts come from the same place. Off an agent there is no build to describe, and that variant renders the summary it is built on rather than a table of blanks.</p>
+<p>Flaky and inconclusive tiles appear only when the run had any, a count of zero is stated in grey rather than shouted in red, and the pass rate leaves skipped tests out of both sides — a suite that skips half its scenarios against an environment is not 50% broken.</p>
+<p>An image is optional and yours: a pipeline's status badge, a team logo, a shield for the environment.</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-key">&quot;Teams&quot;</span>: {
+      <span class="tok-key">&quot;ImageUrl&quot;</span>: <span class="tok-str">&quot;https://dev.azure.com/acme/Web/_apis/build/status/nightly&quot;</span>,
+      <span class="tok-key">&quot;ImagePlacement&quot;</span>: <span class="tok-str">&quot;Banner&quot;</span>
+    }
+  }
+}</code></pre>
+
+<p><code>ImagePlacement</code> takes <code>Thumbnail</code> (the default, beside the heading), <code>Banner</code> (full width, under it) or <code>None</code> — which is how an overlay drops the image for one environment without deleting the URL from the shared file. The address has to be one every reader's Teams client can fetch without signing in: the card is rendered in their client, not on the agent, so a link into a private artifact store renders as a broken image for the whole channel.</p>
+<h2 id="linking-a-runs-reports-to-each-other">Linking a run's reports to each other<a class="anchor" href="#linking-a-runs-reports-to-each-other" aria-label="Link to this section">#</a></h2>
+<p>A run that reports to ReportPortal <em>and</em> to Teams should say so on the card:</p>
+<pre><code>[ Open Azure DevOps ]  [ Open ReportPortal ]</code></pre>
+
+<p>Those buttons need no configuration, and could not have any: a launch id is assigned by ReportPortal when the launch is opened, and a test run id by Azure DevOps when the run is created. So each reporter posts what it opened to <code>PreceptRunLinks</code> — a noticeboard registered for every run — and the Teams card renders whatever is on it. Register the reporters and the buttons appear; <code>&quot;LinkToOtherReports&quot;: false</code> turns them off.</p>
+<p><strong>One button per service, not one per URL.</strong> The agent's build and the test run filed against it are two ways into the same Azure DevOps, so the detected build gives way when a reporter has posted a link into the same host — the test run holds the results, the messages and the screenshots this card leaves out, and its build is one click further on. Without the Azure DevOps reporter registered there is nothing to give way to, and the card links the build as before. A <code>RunUrl</code> you configured by hand is never the one dropped: you asked for it.</p>
+<p>It is a noticeboard rather than a protocol, and the distinction is visible in one place. Reporters run on pumps of their own, so nothing orders ReportPortal opening its launch against Teams building its card; each destination posts its address as soon as it has one — at the <em>start</em> of the run, not the end — and the card renders whatever is there when it is written. A run long enough to be worth a card has always had both. The alternative was a reporter that waits on another reporter's web service before the first test runs, and that is a worse trade than a button that is very occasionally one short.</p>
+<p>A reporter of your own can post to the same board, and is then linked from the card exactly like the shipped ones — see <a href="#writing-a-reporter">writing a reporter</a>.</p>
+<h2 id="ci-and-local-runs">CI and local runs<a class="anchor" href="#ci-and-local-runs" aria-label="Link to this section">#</a></h2>
+<p><strong>The three shipped reporters only report from a build agent.</strong> A launch, a test run and a channel message all belong to a pipeline; a developer's machine has neither the credentials for them nor a reason to add its runs to the project's statistics. So the registration above is the whole story on CI, and on a laptop the same suite reports nothing and asks for nothing — the reporters are never started, which is why a missing API key is not an error there either. One line says what happened, and it is not a warning:</p>
+<pre><code>[Precept] ReportPortal, Teams, AzureDevOps reporting is CI-only and this run is not on a build agent, so nothing is sent.</code></pre>
+
+<p>A run counts as CI when the agent's own variable is set — <code>TF_BUILD</code>, <code>GITHUB_ACTIONS</code>, <code>GITLAB_CI</code>, <code>JENKINS_URL</code>, <code>TEAMCITY_VERSION</code>, <code>BUILDKITE</code> and the rest, or a <code>CI</code> that does not say <code>false</code>. Nothing to configure on the pipeline: the agent has already said so.</p>
+<p>To report from your own machine — checking a card's layout, or filling a dashboard while writing the integration — one key in <code>precept.local.json</code> brings them all in:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;Reporting&quot;</span>: { <span class="tok-key">&quot;CiOnly&quot;</span>: <span class="tok-keyword">false</span> } }</code></pre>
+
+<p><code>PRECEPT_REPORTING__CIONLY=false</code> does the same for a single run, and <code>Reporting:&lt;Reporter&gt;:CiOnly</code> for a single reporter. From there the settings are ordinary settings again: a missing key <em>is</em> an error, because you have just asked this machine to report.</p>
+<p>The detection itself is a setting as well, at the top level rather than under <code>Reporting</code>: <code>PRECEPT_ISCONTINUOUSINTEGRATION=true</code> makes a local run behave as a CI one throughout, and <code>&quot;IsContinuousIntegration&quot;: false</code> in an overlay takes an agent back out of it.</p>
+<p>This is a different axis from the <a href="configuration.html#configuration">environment</a>, which says <em>what</em> is under test. A pipeline running against staging and a developer running against staging want the same <code>precept.staging.json</code> and different reporting, which is exactly what the two separate switches give.</p>
+<p>A reporter you write yourself is not CI-only unless it says so — a CSV file or a local dashboard keeps working everywhere. Return <code>true</code> from <code>CiOnly</code>, or bind a setting to it, when it needs a credential. <code>Reporting:CiOnly</code> overrides every reporter either way, in both directions.</p>
+<p>Each reporter also keeps an <code>Enabled</code> flag of its own, for switching one off outright:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;Reporting&quot;</span>: { <span class="tok-key">&quot;ReportPortal&quot;</span>: { <span class="tok-key">&quot;Enabled&quot;</span>: <span class="tok-keyword">false</span> } } }</code></pre>
+<h2 id="linking-scenarios-to-azure-devops-test-cases">Linking scenarios to Azure DevOps test cases<a class="anchor" href="#linking-scenarios-to-azure-devops-test-cases" aria-label="Link to this section">#</a></h2>
+<p>The mapping lives beside the scenario rather than in a spreadsheet, and a scenario can carry it either in its title or in a tag:</p>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> [41207] A customer checks out with a stored card</code></pre>
+<pre data-lang="gherkin"><code><span class="tok-attr">@smoke</span> <span class="tok-attr">@tc:41207</span>
+<span class="tok-keyword">Scenario:</span> A customer checks out with a stored card</code></pre>
+
+<p>Either way that result is filed against Test Case 41207, which is what makes the work item show its own latest automated outcome and a test plan report coverage from the run. A scenario covering two test cases names both — <code>[41207][41208]</code>, or two tags — and is reported against each; naming one work item in both places still files one result.</p>
+<p>The title is read with <code>TestCaseTitlePattern</code>, a regular expression with a group named <code>id</code>, so the convention is yours:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-key">&quot;AzureDevOps&quot;</span>: {
+      <span class="tok-key">&quot;TestCaseTitlePattern&quot;</span>: <span class="tok-str">&quot;^\\s*(?&lt;id&gt;\\d+)\\s*[:-]\\s*&quot;</span>,
+      <span class="tok-key">&quot;TestCaseTagPrefix&quot;</span>: <span class="tok-str">&quot;&quot;</span>
+    }
+  }
+}</code></pre>
+
+<p>The default, <code>^\s*(?:\[(?&lt;id&gt;\d+)\]\s*)+</code>, is anchored at the start of the title deliberately: an unanchored pattern also finds ids nobody wrote — <code>Scenario: The cart shows [3] items</code> — and Azure DevOps rejects a whole batch of results when one of them names a work item that is not a Test Case. Set either setting to <code>&quot;&quot;</code> to switch that source off; a test that names no work item at all is still part of the run unless <code>OnlyMappedTests</code> says otherwise.</p>
+<h3 id="who-a-run-belongs-to">Who a run belongs to<a class="anchor" href="#who-a-run-belongs-to" aria-label="Link to this section">#</a></h3>
+<p>Azure DevOps shows a run's <em>Run by</em> as <code>Unassigned</code> unless it is told who ran it — it does not take that from the token that posted the results. Precept asks the organization who the token is and files the run and every result under that identity: your own account from a laptop, the build service from a pipeline. It is one call at the start of the run, and a token not allowed to make it leaves the field empty rather than failing the run.</p>
+<p><code>RunBy</code> attributes a run to somebody else — an identity GUID, or a unique name for Azure DevOps to resolve:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;Reporting&quot;</span>: { <span class="tok-key">&quot;AzureDevOps&quot;</span>: { <span class="tok-key">&quot;RunBy&quot;</span>: <span class="tok-str">&quot;qa@acme.com&quot;</span> } } }</code></pre>
+
+<p>This is unrelated to <code>BuildId</code>, which associates the run with a build so it appears on that build's <strong>Tests</strong> tab and nothing more.</p>
+<h3 id="running-against-a-test-plan">Running against a test plan<a class="anchor" href="#running-against-a-test-plan" aria-label="Link to this section">#</a></h3>
+<p><code>TestPlanId</code> turns the run into a <em>planned</em> one, and Azure DevOps then accepts a result only when it names the <strong>test point</strong> it fills — a test case in a suite, under a configuration — rather than just the Test Case work item. Precept resolves those points from the ids the scenarios already carry, so the mapping stays in the feature files:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-key">&quot;AzureDevOps&quot;</span>: { <span class="tok-key">&quot;TestPlanId&quot;</span>: <span class="tok-number">412</span>, <span class="tok-key">&quot;TestSuiteId&quot;</span>: <span class="tok-number">413</span> }
+  }
+}</code></pre>
+
+<p><code>TestSuiteId</code> is optional and narrows the run. Without it, a test case the plan holds in two suites — or under two configurations — is two planned slots, and the scenario covering it is reported into each; naming a suite files only that suite's point. Reading the plan's points is a test API, so <code>Test Management (read &amp; write)</code> is still the whole requirement.</p>
+<p>A planned result also has to carry the test case's revision, and <em>that</em> is a work item read — a scope a token filing test results does not otherwise need. Precept asks for it, takes a refusal as the answer, and files revision 1 rather than failing the run; Azure DevOps records the number it is given without checking it. Add <code>Work Items (read)</code> to the token for the real one. Either way the run says which it did.</p>
+<p>What a planned run cannot hold is a result that fills no slot: a test naming no work item, or naming one that is not in the plan, is left out of it. That is not silent — the count and the reason are written into the run's comment when it completes:</p>
+<pre><code>Precept run 3f2a…, 240 tests against &#39;staging&#39;. 12 test(s) named no Test Case work item and were
+left out of this planned run. 3 result(s) named a Test Case with no test point in plan 412.</code></pre>
+
+<p>Leave <code>TestPlanId</code> unset if that is not what you want. The link to the work item comes from the result's test case, not from the plan, so an unplanned run still updates each Test Case's latest automated outcome — and it keeps the unmapped tests.</p>
+<h2 id="writing-a-reporter">Writing a reporter<a class="anchor" href="#writing-a-reporter" aria-label="Link to this section">#</a></h2>
+<p><code>IPreceptReporter</code> has four events and a default implementation for each, so a reporter overrides only what it needs:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> SlowTestReporter : IPreceptReporter
+{
+    <span class="tok-keyword">private</span> <span class="tok-keyword">readonly</span> List&lt;PreceptTestReport&gt; _slow = [];
+
+    <span class="tok-keyword">public</span> <span class="tok-keyword">string</span> Name =&gt; <span class="tok-str">&quot;SlowTests&quot;</span>;
+
+    <span class="tok-keyword">public</span> Task OnTestFinishedAsync(PreceptTestReport test, CancellationToken cancellationToken)
+    {
+        <span class="tok-keyword">if</span> (test.Duration &gt; TimeSpan.FromSeconds(<span class="tok-number">30</span>))
+        {
+            _slow.Add(test);
+        }
+
+        <span class="tok-keyword">return</span> Task.CompletedTask;
+    }
+
+    <span class="tok-keyword">public</span> <span class="tok-keyword">async</span> Task OnRunFinishedAsync(PreceptRunSummary run, CancellationToken cancellationToken) =&gt;
+        <span class="tok-keyword">await</span> File.WriteAllLinesAsync(<span class="tok-str">&quot;slow-tests.txt&quot;</span>, _slow.Select(t =&gt; <span class="tok-str">$&quot;{t.Duration:mm\\:ss} {t.DisplayName}&quot;</span>), cancellationToken);
+}</code></pre>
+<pre data-lang="csharp"><code>services.AddPreceptReporter&lt;SlowTestReporter&gt;();</code></pre>
+
+<p>A reporter is resolved from the container, so it can take dependencies — including settings of its own, bound from a subsection of <code>Reporting</code> by the overload that takes them:</p>
+<pre data-lang="csharp"><code>services.AddPreceptReporter&lt;SlowTestReporter, SlowTestSettings&gt;();   <span class="tok-comment">// binds Reporting:SlowTest</span></code></pre>
+
+<p><code>PreceptTestReport</code> carries the verdict, the timings, the attempt count, the categories, the lines the test logged, the files it captured and the exception itself. It names the test twice over: <code>ClassName</code> and <code>MethodName</code> are the code behind it, while <code>SuiteName</code> and <code>DisplayName</code> are what it is called — the Gherkin feature and scenario titles for a generated test, so a dashboard groups by &quot;Checkout&quot; rather than by <code>Acme.Tests.CheckoutFeature</code>. <code>SuiteName</code> falls back to <code>ClassName</code> for a class whose <code>[TestSuite]</code> was given no title, and <code>SuiteDescription</code> carries the feature narrative — the lines under the <code>Feature:</code> heading, dedented so a destination that renders markdown does not read them as a code block — or <code>null</code> when there is none. <code>PreceptRunSummary</code> carries the counts, the wall-clock duration, and the failures — up to <code>MaxTrackedFailures</code> of them — because accumulating those is otherwise the first thing every summary notifier has to write.</p>
+<p>A reporter that opens something with an address of its own — a launch, a test run, a dashboard page — can post it to <code>PreceptRunLinks</code>, which is registered for every run and injectable like any other dependency. That is how the Teams card carries a button to the ReportPortal launch without either package knowing about the other; see <a href="#linking-a-runs-reports-to-each-other">linking a run's reports to each other</a>.</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> DashboardReporter(PreceptRunLinks links) : IPreceptReporter
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">string</span> Name =&gt; <span class="tok-str">&quot;Dashboard&quot;</span>;
+
+    <span class="tok-keyword">public</span> <span class="tok-keyword">async</span> Task OnRunStartingAsync(PreceptRunStarting run, CancellationToken cancellationToken) =&gt;
+        links.Add(<span class="tok-str">&quot;Dashboard&quot;</span>, <span class="tok-keyword">await</span> OpenPageAsync(run, cancellationToken));
+}</code></pre>
+
+<p>Return <code>IsEnabled =&gt; false</code> when a reporter has nothing to do; it is then never given a queue at all. Return <code>CiOnly =&gt; true</code> when it belongs to a pipeline rather than to a machine — see <a href="#ci-and-local-runs">CI and local runs</a> — and it is left out of a developer's run before it is ever started. Throw from <code>OnRunStartingAsync</code> when it is switched on but has no endpoint or credential to talk to: that is the moment somebody is still watching the console, and by then the run has already established that this reporter was meant to report from here.</p>
+<h2 id="what-reporting-costs-a-run">What reporting costs a run<a class="anchor" href="#what-reporting-costs-a-run" aria-label="Link to this section">#</a></h2>
+<p>Nothing on the test's thread, by construction.</p>
+<p>Each reporter gets a bounded queue and a pump task of its own. Publishing a result is one small record and a non-blocking write per reporter, so a destination that takes two seconds to answer, or has stopped answering altogether, delays no test and no other reporter. A reporter is called one event at a time and in order, which is also why it needs no locking of its own.</p>
+<p>The consequences of never blocking are worth knowing about:</p>
+<ul>
+<li><strong>A queue that fills drops events.</strong> Backpressure here would mean a test thread waiting on somebody's web service. Drops are counted and reported at the end of the run, so a short report says it is short instead of looking complete. Raise <code>QueueCapacity</code>, or batch inside the reporter, as <code>Precept.Reporting.AzureDevOps</code> does.</li>
+<li><strong>A reporter that throws is contained.</strong> The first failure is a warning; after <code>MaxFailures</code> of them the reporter is dropped for the rest of the run, so an endpoint that is down costs one message rather than one per test.</li>
+<li><strong>The run waits at the end, but not forever.</strong> After the last test the queues are drained under <code>ShutdownTimeoutSeconds</code>, shared across all reporters. Whatever has not gone out by then is abandoned and said to be abandoned.</li>
+</ul>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Reporting:Enabled</code></td>
+<td><code>true</code></td>
+<td><code>false</code> builds no pipeline at all</td>
+</tr>
+<tr>
+<td><code>Reporting:CiOnly</code></td>
+<td>unset</td>
+<td>overrides every reporter: <code>false</code> reports from anywhere, <code>true</code> from a build agent only</td>
+</tr>
+<tr>
+<td><code>Reporting:&lt;Reporter&gt;:CiOnly</code></td>
+<td><code>true</code> for the shipped three</td>
+<td>where that one reporter runs</td>
+</tr>
+<tr>
+<td><code>Reporting:QueueCapacity</code></td>
+<td><code>4096</code></td>
+<td>events one reporter may have waiting</td>
+</tr>
+<tr>
+<td><code>Reporting:ShutdownTimeoutSeconds</code></td>
+<td><code>60</code></td>
+<td>how long the run waits for reporters to flush</td>
+</tr>
+<tr>
+<td><code>Reporting:MaxFailures</code></td>
+<td><code>10</code></td>
+<td>throws before a reporter is dropped</td>
+</tr>
+<tr>
+<td><code>Reporting:MaxTrackedFailures</code></td>
+<td><code>100</code></td>
+<td>failures kept on <code>PreceptRunSummary.Failures</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>A run with no reporters registered, or with <code>Reporting:Enabled</code> set to <code>false</code>, constructs nothing and starts no queue — and neither does a discovery request or <code>--list-tests</code>, so listing the tests in an IDE never opens a launch or posts to a channel.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="artifacts-and-logging.html"><span>Previous</span>Artifacts and logging</a><a class="next" href="azure-devops.html"><span>Next</span>Running a Precept suite on Azure Pipelines</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#what-the-teams-card-looks-like">What the Teams card looks like</a></li>
+<li><a href="#linking-a-runs-reports-to-each-other">Linking a run&#39;s reports to each other</a></li>
+<li><a href="#ci-and-local-runs">CI and local runs</a></li>
+<li><a href="#linking-scenarios-to-azure-devops-test-cases">Linking scenarios to Azure DevOps test cases</a></li>
+<li><a href="#writing-a-reporter">Writing a reporter</a></li>
+<li><a href="#what-reporting-costs-a-run">What reporting costs a run</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

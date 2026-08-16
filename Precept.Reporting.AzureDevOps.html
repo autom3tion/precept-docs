@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" data-page="Precept.Reporting.AzureDevOps">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precept.Reporting.AzureDevOps · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html" class="active">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="precept.reporting.azuredevops">Precept.Reporting.AzureDevOps</h1>
+<p>Azure DevOps reporting for Precept: a test run per suite execution, with results filed against the
+Test Case work items the scenarios name — in their titles, or in a tag.</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Reporting.AzureDevOps</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> Startup : IPreceptStartup
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings) =&gt;
+        services.AddPreceptAzureDevOpsReporting();
+}</code></pre>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> [41207] A customer checks out with a stored card</code></pre>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-key">&quot;AzureDevOps&quot;</span>: {
+      <span class="tok-key">&quot;OrganizationUrl&quot;</span>: <span class="tok-str">&quot;https://dev.azure.com/acme&quot;</span>,
+      <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-str">&quot;Web&quot;</span>
+    }
+  }
+}</code></pre>
+
+<p>That scenario's result is filed against Test Case work item 41207, so the work item shows its own
+latest automated outcome and a test plan reports coverage from the run. A <code>@tc:41207</code> tag does the
+same for a suite that prefers tags. A scenario covering two test cases names both — <code>[41207][41208]</code>,
+or two tags — and is reported against each. Unmapped tests are still part of the run — set
+<code>&quot;OnlyMappedTests&quot;: true</code> if the run should contain nothing else.</p>
+<p>Add <code>&quot;TestPlanId&quot;: 412</code> — and optionally <code>&quot;TestSuiteId&quot;</code> — to file the run under a test plan. Precept
+then resolves the test point each scenario's work item occupies in that plan, which is what Azure
+DevOps requires of a planned result; a test that fills no point in the plan is left out of the run
+and counted in its comment. It needs no scope beyond <code>Test Management</code>, though <code>Work Items (read)</code>
+lets each planned result carry its test case's real revision. See
+<a href="reporting.html#running-against-a-test-plan">running against a test plan</a>.</p>
+<p>The title is read with <code>TestCaseTitlePattern</code>, a regular expression with a group named <code>id</code>
+(<code>^\s*(?:\[(?&lt;id&gt;\d+)\]\s*)+</code> by default), so <code>41207: A customer checks out</code> or <code>TC-41207 …</code> is a
+pattern away. See
+<a href="reporting.html#linking-scenarios-to-azure-devops-test-cases">linking scenarios to test cases</a>.</p>
+<p>This is the Test Results API rather than a <code>.trx</code> published by the <code>PublishTestResults</code> task; the
+difference is that link to the work item. Results are batched, so a thousand-scenario suite costs
+about ten requests, and a failing test's screenshots are uploaded as attachments of its result.</p>
+<p>From a pipeline, pass the build's own token:</p>
+<pre data-lang="yaml"><code><span class="tok-key">- script</span>: dotnet test
+<span class="tok-key">  env</span>:
+<span class="tok-key">    PRECEPT_REPORTING__AZUREDEVOPS__PERSONALACCESSTOKEN</span>: $(System.AccessToken)
+<span class="tok-key">    PRECEPT_REPORTING__AZUREDEVOPS__BUILDID</span>: $(Build.BuildId)</code></pre>
+
+<p>The job needs <em>Allow scripts to access the OAuth token</em>, and the build service identity needs test
+management rights on the project.</p>
+<p><strong>Test runs are created from a build agent only</strong>, so a test plan's latest outcome is the pipeline's
+and not whatever a developer last ran while writing the scenario. A local run files nothing and asks
+for nothing — the reporter is never started, so a missing token is not an error there. Add
+<code>{ &quot;Reporting&quot;: { &quot;CiOnly&quot;: false } }</code> to <code>precept.local.json</code> to file from your own machine, and
+see <a href="reporting.html#ci-and-local-runs">CI and local runs</a> for how a run is
+recognised as CI.</p>
+<p>The test run's page is posted to the run's <code>PreceptRunLinks</code> as soon as Azure DevOps creates it, so a
+run that also reports to Teams gets an <strong>Open Azure DevOps</strong> button on its card — see
+<a href="reporting.html#linking-a-runs-reports-to-each-other">linking a run's reports to each other</a>.</p>
+<hr />
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+Full documentation: <a href="azure-devops.html#reporting">reporting</a> ·
+<a href="configuration.html#configuration">configuration</a> ·
+<a href="artifacts-and-logging.html#artifacts-and-logging">artifacts</a></p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="Precept.Reporting.Teams.html"><span>Previous</span>Precept.Reporting.Teams</a><a class="next" href="Precept.Templates.html"><span>Next</span>Precept.Templates</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

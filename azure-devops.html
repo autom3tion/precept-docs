@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en" data-page="azure-devops">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Running a Precept suite on Azure Pipelines · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html" class="active">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="running-a-precept-suite-on-azure-pipelines">Running a Precept suite on Azure Pipelines</h1>
+<p>Two files, meant to be copied into the repository that holds your tests:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="azure-pipelines.yml"><code>azure-pipelines.yml</code></a></td>
+<td>The entry pipeline. Its <code>parameters</code> block is what the <strong>Run pipeline</strong> dialog shows: environment, filter, parallelism, retries, which dashboards hear about the run.</td>
+</tr>
+<tr>
+<td><a href="templates/precept-test-job.yml"><code>templates/precept-test-job.yml</code></a></td>
+<td>One Precept run as a job. Restores, builds, installs browsers, runs the suite, publishes the TRX and the captured artifacts.</td>
+</tr>
+</tbody>
+</table></div>
+<p>They are split because the schedule, the triggers and the dialog belong to a pipeline while the run
+itself does not: a nightly, a per-release smoke check and an on-demand regression are three entry
+files over one job template.</p>
+<ul>
+<li><a href="#before-the-first-run">Before the first run</a></li>
+<li><a href="#the-run-dialog">The run dialog</a></li>
+<li><a href="#how-a-pipeline-sets-any-precept-setting">How a pipeline sets any Precept setting</a></li>
+<li><a href="#environments">Environments</a></li>
+<li><a href="#the-two-filters">The two filters</a></li>
+<li><a href="#parallelism-and-retries">Parallelism and retries</a></li>
+<li><a href="#reporting">Reporting</a></li>
+<li><a href="#azure-devops-test-plans">Azure DevOps test plans</a></li>
+<li><a href="#results-attachments-and-exit-codes">Results, attachments and exit codes</a></li>
+<li><a href="#scheduling-a-different-configuration">Scheduling a different configuration</a></li>
+<li><a href="#gating-a-deployment-on-the-suite">Gating a deployment on the suite</a></li>
+<li><a href="#when-it-goes-wrong">When it goes wrong</a></li>
+</ul>
+<h2 id="before-the-first-run">Before the first run<a class="anchor" href="#before-the-first-run" aria-label="Link to this section">#</a></h2>
+<h3 id="the-test-project">The test project<a class="anchor" href="#the-test-project" aria-label="Link to this section">#</a></h3>
+<pre data-lang="xml"><code><span class="tok-keyword">&lt;Project</span> Sdk=<span class="tok-str">&quot;Microsoft.NET.Sdk&quot;</span><span class="tok-keyword">&gt;</span>
+
+  <span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
+    <span class="tok-keyword">&lt;TargetFramework</span><span class="tok-keyword">&gt;</span>net10.0<span class="tok-keyword">&lt;/TargetFramework</span><span class="tok-keyword">&gt;</span>
+  <span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span>
+
+  <span class="tok-keyword">&lt;ItemGroup</span><span class="tok-keyword">&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.TestPlatform&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reqnroll&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Web&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Api&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+
+    <span class="tok-comment">&lt;!-- The TRX is what Azure DevOps&#39; Tests tab is built from, and it is an extension rather
+         than part of the platform: without this package --report-trx is not an option and the
+         pipeline&#39;s publish step finds nothing. --&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Microsoft.Testing.Extensions.TrxReport&quot;</span> Version=<span class="tok-str">&quot;2.3.3&quot;</span> <span class="tok-keyword">/&gt;</span>
+
+    <span class="tok-comment">&lt;!-- Only for the reporters the suite actually uses. --&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reporting.ReportPortal&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reporting.Teams&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reporting.AzureDevOps&quot;</span> Version=<span class="tok-str">&quot;0.3.0&quot;</span> <span class="tok-keyword">/&gt;</span>
+  <span class="tok-keyword">&lt;/ItemGroup</span><span class="tok-keyword">&gt;</span>
+
+<span class="tok-keyword">&lt;/Project</span><span class="tok-keyword">&gt;</span></code></pre>
+<h3 id="global.json"><code>global.json</code><a class="anchor" href="#global.json" aria-label="Link to this section">#</a></h3>
+<p><code>dotnet test</code> on the .NET 10 SDK has to be told to drive Microsoft.Testing.Platform. The job
+template uses <code>dotnet test</code>, so this file must be beside the project or above it:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;test&quot;</span>: { <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span> }
+}</code></pre>
+
+<p>Without it the run fails with <em>&quot;Testing with VSTest target is no longer supported&quot;</em>.</p>
+<h3 id="the-startup">The startup<a class="anchor" href="#the-startup" aria-label="Link to this section">#</a></h3>
+<p>Reporters are registered in code, once. Nothing in the pipeline turns them on — they are
+<a href="reporting.html#ci-and-local-runs">CI-only</a> by default, so they wake up on the agent because it
+sets <code>TF_BUILD</code>, and stay asleep on a developer's machine without asking for the credentials that
+machine has no business holding.</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> Startup : IPreceptStartup
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings)
+    {
+        services.AddPreceptReportPortalReporting();
+        services.AddPreceptTeamsReporting();
+        services.AddPreceptAzureDevOpsReporting();
+    }
+}</code></pre>
+<h3 id="precept.json-and-its-overlays"><code>precept.json</code> and its overlays<a class="anchor" href="#precept.json-and-its-overlays" aria-label="Link to this section">#</a></h3>
+<p>What is not a credential belongs in the repository, and the environment overlays are what make one
+pipeline serve five environments:</p>
+<pre><code>precept.json          the defaults, and the endpoints that never change
+precept.dev.json
+precept.test.json
+precept.auto.json
+precept.stage.json
+precept.prod.json</code></pre>
+<pre data-lang="jsonc"><code><span class="tok-comment">// precept.json</span>
+{
+  <span class="tok-key">&quot;Environment&quot;</span>: <span class="tok-str">&quot;local&quot;</span>,
+  <span class="tok-key">&quot;MaxParallelism&quot;</span>: <span class="tok-number">8</span>,
+  <span class="tok-key">&quot;DefaultTimeoutMilliseconds&quot;</span>: <span class="tok-number">60000</span>,
+
+  <span class="tok-key">&quot;Web&quot;</span>:  { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span>, <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span> },
+  <span class="tok-key">&quot;Api&quot;</span>:  { <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span> },
+
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-comment">// Endpoints and project names, yes. Keys and webhook URLs, no — those come from the</span>
+    <span class="tok-comment">// variable group as PRECEPT_* variables.</span>
+    <span class="tok-key">&quot;ReportPortal&quot;</span>: { <span class="tok-key">&quot;Endpoint&quot;</span>: <span class="tok-str">&quot;https://rp.acme.com&quot;</span>, <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-str">&quot;acme_regression&quot;</span> },
+    <span class="tok-key">&quot;Teams&quot;</span>:        { <span class="tok-key">&quot;Variant&quot;</span>: <span class="tok-str">&quot;Pipeline&quot;</span>, <span class="tok-key">&quot;NotifyOn&quot;</span>: <span class="tok-str">&quot;FailureOrFlaky&quot;</span> },
+    <span class="tok-key">&quot;AzureDevOps&quot;</span>:  { <span class="tok-key">&quot;TestCaseTagPrefix&quot;</span>: <span class="tok-str">&quot;tc:&quot;</span> }
+  }
+}</code></pre>
+<pre data-lang="jsonc"><code><span class="tok-comment">// precept.prod.json — production is read-only and has no test tenancy</span>
+{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://acme.com&quot;</span> },
+  <span class="tok-key">&quot;Api&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://api.acme.com&quot;</span> },
+  <span class="tok-key">&quot;Filter&quot;</span>: {
+    <span class="tok-key">&quot;Exclude&quot;</span>: <span class="tok-str">&quot;destructive or seeded-data or @wip&quot;</span>
+  }
+}</code></pre>
+
+<p><code>Precept.TestPlatform</code> copies <code>precept*.json</code> to the output directory on build, so there is no
+<code>&lt;None Update&gt;</code> to write.</p>
+<h3 id="the-variable-group">The variable group<a class="anchor" href="#the-variable-group" aria-label="Link to this section">#</a></h3>
+<p>Create a variable group named <code>precept-secrets</code> (Pipelines → Library) holding the two credentials,
+both marked secret:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>From</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reportPortalApiKey</code></td>
+<td>ReportPortal → your profile → API key</td>
+</tr>
+<tr>
+<td><code>teamsWebhookUrl</code></td>
+<td>the channel's <strong>Workflows</strong> connector</td>
+</tr>
+</tbody>
+</table></div>
+<p>A secret variable is not put into the environment automatically — that is the whole point of the
+explicit <code>env:</code> mapping in the job template. If a name here does not match, the value arrives at
+the test process as the literal string <code>$(reportPortalApiKey)</code> and the reporter fails
+authenticating rather than silently doing nothing.</p>
+<h3 id="the-azure-devops-token">The Azure DevOps token<a class="anchor" href="#the-azure-devops-token" aria-label="Link to this section">#</a></h3>
+<p>The Azure DevOps reporter uses the build's own token, so there is no third secret to create — but
+two things have to be true:</p>
+<ol>
+<li>The job must be allowed to see it. That is what
+<code>PRECEPT_REPORTING__AZUREDEVOPS__PERSONALACCESSTOKEN: $(System.AccessToken)</code> in the template
+does; on a classic pipeline it is the <strong>Allow scripts to access the OAuth token</strong> checkbox.</li>
+<li>The build service identity — <em>&quot; Build Service ()&quot;</em> — needs test
+management rights on the project. Without them the run is created and the results are refused.</li>
+</ol>
+<p>A personal access token with <code>Test Management (read &amp; write)</code> works instead, and is what you need
+if the results should be filed into a <em>different</em> project from the one running the pipeline. Add
+<code>Work Items (read)</code> as well when the run is against a test plan; see
+<a href="#azure-devops-test-plans">test plans</a> for what it buys.</p>
+<h2 id="the-run-dialog">The run dialog<a class="anchor" href="#the-run-dialog" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Reaches Precept as</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Environment</strong></td>
+<td><code>--precept-environment</code></td>
+<td>Picks <code>precept.{env}.json</code> and <code>testdata.{env}.json</code>.</td>
+</tr>
+<tr>
+<td><strong>Filter</strong></td>
+<td><code>--precept-filter</code></td>
+<td>Selects among the tests that exist. Must not start with <code>@</code>.</td>
+</tr>
+<tr>
+<td><strong>Exclude</strong></td>
+<td><code>Filter:Exclude</code></td>
+<td>Removes tests before discovery. Blank leaves the overlay's own alone.</td>
+</tr>
+<tr>
+<td><strong>Max parallelism</strong></td>
+<td><code>MaxParallelism</code></td>
+<td><code>0</code> means the agent's processor count.</td>
+</tr>
+<tr>
+<td><strong>Parallel scope</strong></td>
+<td><code>ParallelScope</code></td>
+<td><code>Class</code> (default) or <code>Test</code>.</td>
+</tr>
+<tr>
+<td><strong>Default retries</strong></td>
+<td><code>DefaultRetries</code></td>
+<td>Reruns, not runs.</td>
+</tr>
+<tr>
+<td><strong>Per-test timeout</strong></td>
+<td><code>DefaultTimeoutMilliseconds</code></td>
+<td>The dialog asks for minutes; the template converts.</td>
+</tr>
+<tr>
+<td><strong>Browsers</strong></td>
+<td><code>Web:Browser</code></td>
+<td>One job per entry, run in parallel.</td>
+</tr>
+<tr>
+<td><strong>Report to ReportPortal</strong></td>
+<td><code>Reporting:ReportPortal:Enabled</code></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>ReportPortal launch mode</strong></td>
+<td><code>Reporting:ReportPortal:LaunchMode</code></td>
+<td><code>DEBUG</code> keeps a run out of the project's statistics — what an experiment wants.</td>
+</tr>
+<tr>
+<td><strong>Post to Teams</strong></td>
+<td><code>Reporting:Teams:Enabled</code></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Teams — which runs</strong></td>
+<td><code>Reporting:Teams:NotifyOn</code></td>
+<td><code>Always</code>, <code>Failure</code>, <code>FailureOrFlaky</code>.</td>
+</tr>
+<tr>
+<td><strong>Teams — card layout</strong></td>
+<td><code>Reporting:Teams:Variant</code></td>
+<td><code>Summary</code> (default), <code>Compact</code>, <code>Detailed</code>, <code>Pipeline</code>.</td>
+</tr>
+<tr>
+<td><strong>File against Azure DevOps</strong></td>
+<td><code>Reporting:AzureDevOps:Enabled</code></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Test plan id / suite id</strong></td>
+<td><code>Reporting:AzureDevOps:TestPlanId</code> / <code>TestSuiteId</code></td>
+<td><code>0</code> means an unplanned run.</td>
+</tr>
+<tr>
+<td><strong>Only mapped tests</strong></td>
+<td><code>Reporting:AzureDevOps:OnlyMappedTests</code></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p>Parameters are a compile-time thing in Azure Pipelines, which is why adding one is an edit to
+<code>azure-pipelines.yml</code> and never to the template — and why a <strong>scheduled</strong> run cannot have its own.</p>
+<h2 id="how-a-pipeline-sets-any-precept-setting">How a pipeline sets any Precept setting<a class="anchor" href="#how-a-pipeline-sets-any-precept-setting" aria-label="Link to this section">#</a></h2>
+<p>The table above is not the limit. Every setting Precept has can be set from a pipeline, because the
+last source in the configuration chain is the environment:</p>
+<pre><code>precept.json  →  precept.{environment}.json  →  PRECEPT_* environment variables</code></pre>
+
+<p>The variable name is the configuration key with <code>:</code> written as <code>__</code>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Variable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MaxParallelism</code></td>
+<td><code>PRECEPT_MAXPARALLELISM</code></td>
+</tr>
+<tr>
+<td><code>Web:Headless</code></td>
+<td><code>PRECEPT_WEB__HEADLESS</code></td>
+</tr>
+<tr>
+<td><code>Web:VideoOnFailure</code></td>
+<td><code>PRECEPT_WEB__VIDEOONFAILURE</code></td>
+</tr>
+<tr>
+<td><code>Api:BaseUrl</code></td>
+<td><code>PRECEPT_API__BASEURL</code></td>
+</tr>
+<tr>
+<td><code>Api:DefaultHeaders:X-Tenant</code></td>
+<td><code>PRECEPT_API__DEFAULTHEADERS__X-TENANT</code></td>
+</tr>
+<tr>
+<td><code>ConnectionStrings:Default</code></td>
+<td><code>PRECEPT_CONNECTIONSTRINGS__DEFAULT</code></td>
+</tr>
+<tr>
+<td><code>Filter:Include</code></td>
+<td><code>PRECEPT_FILTER__INCLUDE</code></td>
+</tr>
+<tr>
+<td><code>Reporting:CiOnly</code></td>
+<td><code>PRECEPT_REPORTING__CIONLY</code></td>
+</tr>
+<tr>
+<td><code>Reporting:ReportPortal:ApiKey</code></td>
+<td><code>PRECEPT_REPORTING__REPORTPORTAL__APIKEY</code></td>
+</tr>
+<tr>
+<td><code>Reporting:ReportPortal:Attributes:build</code></td>
+<td><code>PRECEPT_REPORTING__REPORTPORTAL__ATTRIBUTES__BUILD</code></td>
+</tr>
+<tr>
+<td><code>Reporting:Teams:WebhookUrl</code></td>
+<td><code>PRECEPT_REPORTING__TEAMS__WEBHOOKURL</code></td>
+</tr>
+<tr>
+<td><code>Reporting:Teams:Variant</code></td>
+<td><code>PRECEPT_REPORTING__TEAMS__VARIANT</code></td>
+</tr>
+<tr>
+<td><code>Reporting:Teams:Facts:Branch</code></td>
+<td><code>PRECEPT_REPORTING__TEAMS__FACTS__BRANCH</code></td>
+</tr>
+<tr>
+<td><code>Reporting:AzureDevOps:TestPlanId</code></td>
+<td><code>PRECEPT_REPORTING__AZUREDEVOPS__TESTPLANID</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>That table is a selection. <a href="environment-variables.html">Environment variables</a> is the
+complete list — every setting Precept has, with its default and what it does.</p>
+<p>The rule holds for <a href="configuration.html#your-own-settings">settings of your own</a> too — an <code>AuthSettings</code>
+class bound to the <code>Auth</code> section reads <code>PRECEPT_AUTH__CLIENTSECRET</code>, which is how a client secret
+reaches the suite from a variable group without ever being in the repository. A dictionary's last
+segment is the key, which is what makes <code>ATTRIBUTES__BUILD</code> add an attribute named <code>build</code>.</p>
+<p>Two things are deliberately <em>not</em> settings and so are not spelled this way: <code>--precept-environment</code>
+and <code>--precept-filter</code> are command-line options, because they say what this run is rather than how
+the suite behaves. <code>PRECEPT_ENVIRONMENT</code> does work as a fallback for the first of them; there is no
+<code>PRECEPT_FILTER</code> for the second, and the name would be misleading if there were — <code>Filter</code> is the
+section holding <code>Filter:Include</code> and <code>Filter:Exclude</code>, which is the <em>other</em> filter.</p>
+<p><strong><code>PRECEPT_</code> is a namespace with an owner.</strong> The settings loader strips the prefix and binds
+everything after it as a configuration key, so a variable put there is read into the run whether
+you meant it as a setting or not — and one that collides with a real key changes the run silently.
+The job template keeps its own working variables — the filter it was handed, the project path, the
+TRX file name — under <code>SUITE_*</code> for that reason, and only the real settings are <code>PRECEPT_*</code>. Follow
+the same split in anything you add.</p>
+<p><strong>One trap.</strong> An environment variable wins over the overlay whatever its value, and an empty string
+is a value. Setting <code>PRECEPT_FILTER__EXCLUDE</code> to nothing does not mean &quot;the pipeline has no opinion&quot;
+— it means &quot;this run excludes nothing&quot;, and it will resurrect every test <code>precept.prod.json</code> was
+keeping out. The job template sets that variable from inside the run script, only when the
+parameter is non-blank, for exactly this reason. Apply the same care to any variable you add.</p>
+<h2 id="environments">Environments<a class="anchor" href="#environments" aria-label="Link to this section">#</a></h2>
+<p>The environment is resolved once per run, first source to say anything winning:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>--precept-environment</code> — what the pipeline passes</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>PRECEPT_ENVIRONMENT</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>DOTNET_ENVIRONMENT</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>the build configuration, via the <code>PreceptEnvironment</code> MSBuild property</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>&quot;Environment&quot;</code> in <code>precept.json</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>local</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>The pipeline uses (1) so it is in charge whatever a developer's machine or the project file says.
+A name with no overlay is not an error, and the run says so:</p>
+<pre><code>[Precept] Environment &#39;stage&#39;. Filter excluded 5 of 233 tests.
+[Precept] There is no &#39;precept.stag.json&#39; beside the test binary, so the run is using
+          &#39;precept.json&#39; alone.</code></pre>
+
+<p>Watch for that line the first time a new environment name is added to the parameter list — it is
+what a typo looks like, and a suite quietly running on defaults against production is the failure
+mode it exists to catch.</p>
+<p><code>Precept.TestData</code> follows the same name: <code>testdata.stage.json</code> overlays <code>testdata.json</code>.</p>
+<p><strong>The environment is not the same axis as CI.</strong> A pipeline against <code>stage</code> and a developer against
+<code>stage</code> want the same overlay and different reporting, which is why
+<a href="reporting.html#ci-and-local-runs"><code>IsContinuousIntegration</code></a> is a separate switch that the agent
+sets by itself.</p>
+<h2 id="the-two-filters">The two filters<a class="anchor" href="#the-two-filters" aria-label="Link to this section">#</a></h2>
+<p>Both take the same expression language — <code>tag</code> / <code>name:</code> / <code>class:</code> operands, <code>and</code>/<code>or</code>/<code>not</code>,
+parentheses, <code>*</code> and <code>?</code> wildcards, quoting for anything with spaces — and they do different jobs.</p>
+<p><strong><code>--precept-filter</code></strong> selects among the tests a run has. It is the <em>Filter</em> parameter, and it is
+what &quot;run the smoke pack against stage&quot; means:</p>
+<pre><code>smoke and not slow
+(@api or @web) and not @wip
+name:*checkout* and tag:regression
+class:*.PaymentTests</code></pre>
+
+<p><strong><code>Filter:Include</code> / <code>Filter:Exclude</code></strong> decide which tests the run has at all. What they remove is
+gone before discovery publishes anything: absent from the run, from the report and from a test
+explorer's tree, not reported as skipped, not reachable by the filter above — and when a class
+loses every test it had, its <code>[BeforeSuite]</code>/<code>[AfterSuite]</code> hooks never run either. That is the
+environment's own policy, and it belongs in <code>precept.{environment}.json</code>, with the <em>Exclude</em>
+parameter there for a one-off.</p>
+<p>The leading <code>@</code> restriction is Microsoft.Testing.Platform's, not Precept's: a command-line argument
+beginning with <code>@</code> is read as a response file name. Write <code>smoke and not @slow</code>, or wrap the whole
+thing in parentheses. The job template refuses the value up front so the failure names the
+parameter rather than a file nobody wrote.</p>
+<h2 id="parallelism-and-retries">Parallelism and retries<a class="anchor" href="#parallelism-and-retries" aria-label="Link to this section">#</a></h2>
+<p><code>MaxParallelism</code> bounds how many units of work are in flight, and <code>ParallelScope</code> says what a unit
+is — a whole class by default, or a single test.</p>
+<p>The default matters more than it looks. <strong>The Reqnroll generator emits one class per <code>.feature</code>
+file</strong>, so a suite of six features never puts more than six units in flight however high the limit,
+and the run is as slow as its longest feature. Precept says so at the start of a run when the gap
+is large enough to matter. Setting the scope to <code>Test</code> schedules every scenario individually; what
+you give up is ordering within a feature, and the classes that genuinely need it take
+<code>[NonParallelizable]</code>. The full trade-off is in
+<a href="execution-model.html#why-a-high-maxparallelism-can-look-ignored">README.md</a>.</p>
+<p>Retries count <strong>reruns</strong>: <code>0</code> reruns nothing, <code>2</code> means a test may run three times in all. Only hard
+failures are rerun — a skip or an inconclusive verdict will not change. A test that was actually
+rerun keeps every attempt in its output, each headed by how that attempt ended, so a scenario that
+failed twice and passed on the third does not report one clean green run.</p>
+<p>Turning retries up on a pipeline hides flakiness rather than fixing it. <code>FailureOrFlaky</code> on the
+Teams card is the counterweight: the channel hears about a test that only passed on a rerun.</p>
+<h2 id="reporting">Reporting<a class="anchor" href="#reporting" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Sends</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Precept.Reporting.ReportPortal</code></td>
+<td>A launch per run, a suite per feature, a test item per scenario, with logs and captured files attached.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.Teams</code></td>
+<td>One Adaptive Card at the end of a run, listing what failed.</td>
+</tr>
+<tr>
+<td><code>Precept.Reporting.AzureDevOps</code></td>
+<td>A test run whose results are filed against the Test Case work items the scenarios name.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Reporting never touches the execution path: each reporter gets a bounded queue and a pump task of
+its own, so a hung dashboard delays no test and no other reporter. What it costs a run is one
+record and a non-blocking write per test.</p>
+<p>The ReportPortal launch description carries a link back to the Azure DevOps build, built from the
+agent's own variables — <code>BUILD_BUILDID</code>, <code>SYSTEM_TEAMFOUNDATIONCOLLECTIONURI</code>, <code>SYSTEM_TEAMPROJECT</code>.
+Nothing to configure: a launch someone opened from a chat message leads back to the pipeline that
+produced it.</p>
+<p>To try a card's layout or fill a dashboard from your own machine, one key in <code>precept.local.json</code>
+brings every reporter in — <code>{ &quot;Reporting&quot;: { &quot;CiOnly&quot;: false } }</code> — and from there a missing API key
+<em>is</em> an error, because you have just asked that machine to report.</p>
+<h2 id="azure-devops-test-plans">Azure DevOps test plans<a class="anchor" href="#azure-devops-test-plans" aria-label="Link to this section">#</a></h2>
+<p>The mapping from scenario to Test Case work item lives beside the scenario, in its title or in a
+tag:</p>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> [41207] A customer checks out with a stored card</code></pre>
+<pre data-lang="gherkin"><code><span class="tok-attr">@smoke</span> <span class="tok-attr">@tc:41207</span>
+<span class="tok-keyword">Scenario:</span> A customer checks out with a stored card</code></pre>
+
+<p>Either files that result against Test Case 41207, which is what makes the work item show its own
+latest automated outcome. A scenario covering two test cases names both and is reported against
+each.</p>
+<p>Setting <strong>Test plan id</strong> makes it a <em>planned</em> run, and Azure DevOps then accepts a result only when
+it names the <strong>test point</strong> it fills — a test case in a suite, under a configuration. Precept
+resolves those points from the ids the scenarios already carry, so there is no mapping file. What a
+planned run cannot hold is a result that fills no slot: a test naming no work item, or naming one
+with no point in the plan, is left out. That is not silent — the count and the reason go into the
+run's comment:</p>
+<pre><code>Precept run 3f2a…, 240 tests against &#39;stage&#39;. 12 test(s) named no Test Case work item and were
+left out of this planned run. 3 result(s) named a Test Case with no test point in plan 412.</code></pre>
+
+<p><strong>Test suite id</strong> narrows it. Without one, a test case the plan holds in two suites — or under two
+configurations — is two planned slots and the scenario is reported into each.</p>
+<p>Leave the plan at <code>0</code> if that is not what you want: an unplanned run still updates each Test Case's
+latest automated outcome, and it keeps the unmapped tests.</p>
+<p>A planned result also carries the test case's revision, and that is a <em>work item</em> read rather than
+a test one. Precept asks, takes a refusal as the answer and files revision 1 rather than failing
+the run; add <code>Work Items (read)</code> to the identity for the real number. Either way the run says which
+it did.</p>
+<h2 id="results-attachments-and-exit-codes">Results, attachments and exit codes<a class="anchor" href="#results-attachments-and-exit-codes" aria-label="Link to this section">#</a></h2>
+<p><code>--report-trx</code> needs the <code>Microsoft.Testing.Extensions.TrxReport</code> package. Precept implements the
+platform's TRX capability, so the file carries the declaring class, each test's categories, the
+lines it logged — the Gherkin step trace included — and its failure split into message and stack
+trace.</p>
+<p>Recorded files (screenshots, Playwright traces, videos) are copied next to the <code>.trx</code> and listed as
+<code>&lt;ResultFile&gt;</code> entries, which is what <code>publishRunAttachments: true</code> uploads. The template also
+publishes the raw artifact directory as a pipeline artifact, because a Playwright trace is worth
+downloading whole and opening in the trace viewer.</p>
+<p>Exit codes worth knowing:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Everything passed.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>At least one test failed.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>No test ran.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Code 8 is the one to think about. A filter that matches nothing, or an overlay <code>Filter</code> that
+removes everything, produces it — and it is right that it fails, because a green run of zero tests
+is exactly what a pipeline should never report as success. The template adds a message naming the
+filter, since the platform's own says only that nothing ran.</p>
+<p>Add <code>--minimum-expected-tests 200</code> after the <code>--</code> for a suite whose size you know: it turns &quot;the
+filter quietly matched twelve of two hundred tests&quot; into a failure as well.</p>
+<h2 id="scheduling-a-different-configuration">Scheduling a different configuration<a class="anchor" href="#scheduling-a-different-configuration" aria-label="Link to this section">#</a></h2>
+<p>A scheduled run takes the parameter <em>defaults</em> and nothing else — Azure Pipelines has nowhere to
+put per-schedule values. A nightly that needs a different configuration is therefore a second entry
+file over the same job template, and that is the whole file:</p>
+<pre data-lang="yaml"><code><span class="tok-comment"># azure-pipelines.nightly.yml</span>
+<span class="tok-key">trigger</span>: none
+<span class="tok-key">pr</span>: none
+
+<span class="tok-key">schedules</span>:
+<span class="tok-key">  - cron</span>: <span class="tok-str">&#39;0 2 * * *&#39;</span>
+<span class="tok-key">    displayName</span>: Nightly full regression against stage
+<span class="tok-key">    branches</span>:
+<span class="tok-key">      include</span>: [main]
+<span class="tok-key">    always</span>: true
+
+<span class="tok-key">variables</span>:
+<span class="tok-key">  - group</span>: precept-secrets
+
+<span class="tok-key">stages</span>:
+<span class="tok-key">  - stage</span>: Test
+<span class="tok-key">    jobs</span>:
+<span class="tok-key">      - template</span>: templates/precept-test-job.yml
+<span class="tok-key">        parameters</span>:
+<span class="tok-key">          jobSuffix</span>: nightly
+<span class="tok-key">          testProject</span>: tests/Acme.Tests/Acme.Tests.csproj
+<span class="tok-key">          testProjectDirectory</span>: tests/Acme.Tests
+<span class="tok-key">          environment</span>: stage
+<span class="tok-key">          excludeFilter</span>: <span class="tok-str">&#39;wip&#39;</span>
+<span class="tok-key">          maxParallelism</span>: <span class="tok-number">12</span>
+<span class="tok-key">          parallelScope</span>: Test
+<span class="tok-key">          defaultRetries</span>: <span class="tok-number">1</span>
+<span class="tok-key">          teamsNotifyOn</span>: FailureOrFlaky
+<span class="tok-key">          testPlanId</span>: <span class="tok-number">412</span></code></pre>
+
+<p>The same shape gives a per-PR smoke pipeline: <code>filter: 'smoke'</code>, <code>environment: dev</code>,
+<code>reportPortal: false</code>, and a <code>pr:</code> trigger instead of a schedule.</p>
+<h2 id="gating-a-deployment-on-the-suite">Gating a deployment on the suite<a class="anchor" href="#gating-a-deployment-on-the-suite" aria-label="Link to this section">#</a></h2>
+<p>Put the test stage after the deployment stage and let the exit code do the work — a job that fails
+fails the stage, and a stage that fails stops the ones after it:</p>
+<pre data-lang="yaml"><code><span class="tok-key">stages</span>:
+<span class="tok-key">  - stage</span>: DeployStage
+<span class="tok-key">    jobs</span>: [ ... ]
+
+<span class="tok-key">  - stage</span>: VerifyStage
+<span class="tok-key">    dependsOn</span>: DeployStage
+<span class="tok-key">    jobs</span>:
+<span class="tok-key">      - template</span>: templates/precept-test-job.yml
+<span class="tok-key">        parameters</span>:
+<span class="tok-key">          jobSuffix</span>: smoke
+<span class="tok-key">          environment</span>: stage
+<span class="tok-key">          filter</span>: <span class="tok-str">&#39;smoke&#39;</span>
+<span class="tok-key">          testProject</span>: tests/Acme.Tests/Acme.Tests.csproj
+<span class="tok-key">          testProjectDirectory</span>: tests/Acme.Tests
+
+<span class="tok-key">  - stage</span>: DeployProd
+<span class="tok-key">    dependsOn</span>: VerifyStage
+<span class="tok-key">    condition</span>: succeeded()
+<span class="tok-key">    jobs</span>: [ ... ]</code></pre>
+
+<p>For production, use an Azure DevOps <strong>environment</strong> with an approval check rather than a pipeline
+parameter — a run against <code>prod</code> should be something a person signed off, not something anyone with
+queue permission can select from a dropdown.</p>
+<h2 id="when-it-goes-wrong">When it goes wrong<a class="anchor" href="#when-it-goes-wrong" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>&quot;Testing with VSTest target is no longer supported&quot;</em></td>
+<td>No <code>global.json</code> with <code>&quot;test&quot;: { &quot;runner&quot;: &quot;Microsoft.Testing.Platform&quot; }</code>.</td>
+</tr>
+<tr>
+<td><code>--report-trx</code> is not a known option</td>
+<td>The <code>Microsoft.Testing.Extensions.TrxReport</code> package is not referenced.</td>
+</tr>
+<tr>
+<td>The run fails opening a response file named after your tags</td>
+<td>The filter starts with <code>@</code>. Drop the leading one or wrap the expression in parentheses.</td>
+</tr>
+<tr>
+<td>Exit code 8, no tests ran</td>
+<td>The filter matched nothing, or the overlay's <code>Filter</code> removed everything.</td>
+</tr>
+<tr>
+<td><code>[Precept] … reporting is CI-only and this run is not on a build agent</code></td>
+<td>Expected on a laptop. On an agent it means no CI variable was set — a container job without <code>TF_BUILD</code>; set <code>PRECEPT_ISCONTINUOUSINTEGRATION=true</code>.</td>
+</tr>
+<tr>
+<td>ReportPortal rejects the key</td>
+<td>The variable group name or the variable name does not match, so the literal <code>$(reportPortalApiKey)</code> was sent.</td>
+</tr>
+<tr>
+<td>Azure DevOps creates the run but refuses the results</td>
+<td>The build service identity has no test management rights on the project.</td>
+</tr>
+<tr>
+<td>A planned run is missing most of its tests</td>
+<td>Those scenarios name no Test Case work item, or the plan holds no point for them. The run's comment says which.</td>
+</tr>
+<tr>
+<td><code>MaxParallelism</code> looks ignored</td>
+<td>One class per <code>.feature</code> file, so the suite has fewer units than the limit. Set <code>ParallelScope</code> to <code>Test</code>.</td>
+</tr>
+<tr>
+<td>A test explorer or IDE ignores the environment</td>
+<td>It has nowhere to type a runner argument. Use a build configuration bound to <code>PreceptEnvironment</code>, or <code>testconfig.json</code>. <code>.runsettings</code> is VSTest-only and does nothing here.</td>
+</tr>
+<tr>
+<td>Attachments missing from the TRX, artifact present on disk</td>
+<td>The path went past 260 characters on a Windows agent. Keep <code>ArtifactDirectory</code> short — the template puts it under the agent temp directory.</td>
+</tr>
+<tr>
+<td>Every scenario discovered twice</td>
+<td>A <code>.feature</code> file under <code>bin</code> was globbed. Precept's targets drop those; check nothing re-added them.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The full framework reference is <a href="index.html"><code>README.md</code></a>.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="reporting.html"><span>Previous</span>Reporting</a><a class="next" href="Precept.TestPlatform.html"><span>Next</span>Precept.TestPlatform</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#before-the-first-run">Before the first run</a></li>
+<li><a href="#the-run-dialog">The run dialog</a></li>
+<li><a href="#how-a-pipeline-sets-any-precept-setting">How a pipeline sets any Precept setting</a></li>
+<li><a href="#environments">Environments</a></li>
+<li><a href="#the-two-filters">The two filters</a></li>
+<li><a href="#parallelism-and-retries">Parallelism and retries</a></li>
+<li><a href="#reporting">Reporting</a></li>
+<li><a href="#azure-devops-test-plans">Azure DevOps test plans</a></li>
+<li><a href="#results-attachments-and-exit-codes">Results, attachments and exit codes</a></li>
+<li><a href="#scheduling-a-different-configuration">Scheduling a different configuration</a></li>
+<li><a href="#gating-a-deployment-on-the-suite">Gating a deployment on the suite</a></li>
+<li><a href="#when-it-goes-wrong">When it goes wrong</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

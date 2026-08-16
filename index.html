@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en" data-page="index">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precept · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.3.0</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html" class="active">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="precept">Precept</h1>
+<p>A .NET 10 test automation framework with its own test runner and Gherkin authoring.</p>
+<p>Precept implements <code>ITestFramework</code> on <a href="https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro">Microsoft.Testing.Platform</a>, so it owns discovery, scheduling, lifecycle and reporting — while still working with <code>dotnet test</code>, <code>dotnet run</code>, IDE test explorers and TRX reporting. Feature files are compiled by <a href="https://reqnroll.net">Reqnroll</a> through a custom generator plugin that emits Precept-attributed classes.</p>
+<pre><code>.feature file
+    │  Reqnroll parser + generator
+    │  Precept.Reqnroll.Generator  (IUnitTestGeneratorProvider)
+    ▼
+[TestSuite] class with [Test] methods
+    │  Precept.TestPlatform  (ITestFramework)
+    ▼
+Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
+<h2 id="start-here">Start here<a class="anchor" href="#start-here" aria-label="Link to this section">#</a></h2>
+<ul class="cards">
+<li><a href="installing.html"><strong>Installing</strong><span>Which package to reference, a complete test project, and the one line <code>global.json</code> needs.</span></a></li>
+<li><a href="project-templates.html"><strong>Project templates</strong><span><code>dotnet new precept-web</code> — a suite that already has environments and a first test.</span></a></li>
+<li><a href="writing-tests.html"><strong>Writing tests</strong><span>Gherkin scenarios, plain C# tests, the attributes, and the outcomes a test can report.</span></a></li>
+<li><a href="assertions.html"><strong>Assertions</strong><span>One awaited shape for a value in hand, an element not on the page yet, and a job that finishes eventually.</span></a></li>
+</ul>
+<h2 id="what-a-test-looks-like">What a test looks like<a class="anchor" href="#what-a-test-looks-like" aria-label="Link to this section">#</a></h2>
+<pre data-lang="csharp"><code><span class="tok-attr">[TestSuite(&quot;Checkout&quot;)]</span>
+<span class="tok-attr">[TestCategory(&quot;smoke&quot;)]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> CheckoutTests
+{
+<span class="tok-attr">    [Test(&quot;A customer can check out&quot;)]</span>
+<span class="tok-attr">    [Retry(2, DelayMilliseconds = 200)]</span>
+    <span class="tok-keyword">public</span> <span class="tok-keyword">async</span> Task Checkout()
+    {
+        <span class="tok-keyword">var</span> response = <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/orders&quot;</span>)
+            .WithJsonBody(<span class="tok-keyword">new</span> { sku = <span class="tok-str">&quot;ABC&quot;</span>, quantity = <span class="tok-number">2</span> })
+            .SendAsync();
+
+        <span class="tok-keyword">await</span> Assert.That(response).ToHaveStatusAsync(HttpStatusCode.Created);
+        <span class="tok-keyword">await</span> Assert.That(response).ToHaveJsonValueAsync(<span class="tok-str">&quot;status&quot;</span>, <span class="tok-str">&quot;created&quot;</span>);
+    }
+}</code></pre>
+
+<p>The same suite written in Gherkin compiles to the same thing, and lands in the test explorer at the
+<code>Scenario:</code> line of the <code>.feature</code> file rather than in generated code — see
+<a href="writing-tests.html">writing tests</a> and <a href="writing-tests.html#test-explorer-navigation">test explorer navigation</a>.</p>
+<h2 id="what-comes-with-it">What comes with it<a class="anchor" href="#what-comes-with-it" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Module</th>
+<th>What it adds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="Precept.Api.html"><code>Precept.Api</code></a></td>
+<td>A fluent HTTP client and response assertions, logged into the test's report.</td>
+</tr>
+<tr>
+<td><a href="Precept.Web.html"><code>Precept.Web</code></a></td>
+<td>Playwright, isolated per scenario, capturing screenshots, traces and video on failure.</td>
+</tr>
+<tr>
+<td><a href="Precept.Data.html"><code>Precept.Data</code></a></td>
+<td>Provider-agnostic ADO.NET for seeding and asserting against a database.</td>
+</tr>
+<tr>
+<td><a href="Precept.TestData.html"><code>Precept.TestData</code></a></td>
+<td>Environment-specific data sets, generated values, factories, and pooled records.</td>
+</tr>
+<tr>
+<td><a href="Precept.Grpc.html"><code>Precept.Grpc</code></a></td>
+<td>Pooled channels, typed clients, and assertions over status codes and streaming.</td>
+</tr>
+<tr>
+<td><a href="Precept.Containers.html"><code>Precept.Containers</code></a></td>
+<td>Docker dependencies for a run, overridable by configuration.</td>
+</tr>
+<tr>
+<td><a href="reporting.html">Reporting</a></td>
+<td>ReportPortal, Teams and Azure DevOps test cases, off the test's thread.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Every module depends only on <code>Precept.Core</code> and is registered from one
+<a href="startup.html">startup class</a>; nothing is on unless a suite asks for it.</p>
+<h2 id="how-a-run-is-put-together">How a run is put together<a class="anchor" href="#how-a-run-is-put-together" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><a href="configuration.html">Configuration</a> — <code>precept.json</code>, overlays, and settings of your own.</li>
+<li><a href="environments.html">Environments</a> — how one is chosen, and how to switch from an IDE without editing a file.</li>
+<li><a href="execution-model.html">Execution model</a> — what runs in parallel, and why a high <code>MaxParallelism</code> can look ignored.</li>
+<li><a href="filtering.html">Filtering</a> — selecting a subset, and removing tests from an environment entirely.</li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a> — what reaches a TRX, a test explorer and a report.</li>
+<li><a href="azure-devops.html">Running a suite on CI</a> — a complete Azure Pipelines example.</li>
+</ul>
+
+    </article>
+
+    <nav class="pager">
+      <a class="next" href="layout.html"><span>Next</span>Layout</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.3.0 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#start-here">Start here</a></li>
+<li><a href="#what-a-test-looks-like">What a test looks like</a></li>
+<li><a href="#what-comes-with-it">What comes with it</a></li>
+<li><a href="#how-a-run-is-put-together">How a run is put together</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>
