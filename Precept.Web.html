@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html" class="active">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -125,19 +127,24 @@ isolation and automatic screenshot, trace and video capture on failure.</p>
 Playwright's — Precept never polls on top of it — so these need no wait in front of them. A failure
 keeps Playwright's call log, which is the part that says what the page actually looked like on each
 attempt.</p>
-<p>The module needs Playwright's browsers on the machine. After the first build:</p>
+<p>A test can hold more than one session — <code>Browser.StartAsync(&quot;alice&quot;)</code> alongside
+<code>Browser.StartAsync(&quot;bob&quot;)</code>, two signed-in users in one scenario sharing a browser and nothing else —
+and a suite can sign in once for the whole run rather than once per test.</p>
+<p>The module needs Playwright's browsers on the machine, and installs the one it is configured for the
+first time a launch finds nothing to drive. To install by hand instead, after the first build:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>
 <hr />
 <p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
 Full documentation: <a href="assertions.html#on-a-page">assertions on a page</a> ·
 <a href="dependency-injection.html#page-objects">page objects</a> ·
 <a href="browsers.html#browsers">installing browsers</a> ·
+<a href="browsers.html#signing-in-once">signing in once</a> ·
 <a href="artifacts-and-logging.html#artifacts-and-logging">artifacts and logging</a></p>
 
     </article>
 
     <nav class="pager">
-      <a class="prev" href="Precept.Api.html"><span>Previous</span>Precept.Api</a><a class="next" href="Precept.Data.html"><span>Next</span>Precept.Data</a>
+      <a class="prev" href="Precept.Api.html"><span>Previous</span>Precept.Api</a><a class="next" href="Precept.Screenplay.html"><span>Next</span>Precept.Screenplay</a>
     </nav>
 
     <footer>

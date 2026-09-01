@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -158,11 +160,6 @@ files over one job template.</p>
     <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reqnroll&quot;</span> Version=<span class="tok-str">&quot;0.4.1&quot;</span> <span class="tok-keyword">/&gt;</span>
     <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Web&quot;</span> Version=<span class="tok-str">&quot;0.4.1&quot;</span> <span class="tok-keyword">/&gt;</span>
     <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Api&quot;</span> Version=<span class="tok-str">&quot;0.4.1&quot;</span> <span class="tok-keyword">/&gt;</span>
-
-    <span class="tok-comment">&lt;!-- The TRX is what Azure DevOps&#39; Tests tab is built from, and it is an extension rather
-         than part of the platform: without this package --report-trx is not an option and the
-         pipeline&#39;s publish step finds nothing. --&gt;</span>
-    <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Microsoft.Testing.Extensions.TrxReport&quot;</span> Version=<span class="tok-str">&quot;2.3.3&quot;</span> <span class="tok-keyword">/&gt;</span>
 
     <span class="tok-comment">&lt;!-- Only for the reporters the suite actually uses. --&gt;</span>
     <span class="tok-keyword">&lt;PackageReference</span> Include=<span class="tok-str">&quot;Precept.Reporting.ReportPortal&quot;</span> Version=<span class="tok-str">&quot;0.4.1&quot;</span> <span class="tok-keyword">/&gt;</span>
@@ -604,7 +601,8 @@ a test one. Precept asks, takes a refusal as the answer and files revision 1 rat
 the run; add <code>Work Items (read)</code> to the identity for the real number. Either way the run says which
 it did.</p>
 <h2 id="results-attachments-and-exit-codes">Results, attachments and exit codes<a class="anchor" href="#results-attachments-and-exit-codes" aria-label="Link to this section">#</a></h2>
-<p><code>--report-trx</code> needs the <code>Microsoft.Testing.Extensions.TrxReport</code> package. Precept implements the
+<p><code>--report-trx</code> is available in every Precept suite: the TRX writer is a dependency of
+<code>Precept.TestPlatform</code>, so there is nothing to install for it. Precept implements the
 platform's TRX capability, so the file carries the declaring class, each test's categories, the
 lines it logged — the Gherkin step trace included — and its failure split into message and stack
 trace.</p>
@@ -718,7 +716,7 @@ queue permission can select from a dropdown.</p>
 </tr>
 <tr>
 <td><code>--report-trx</code> is not a known option</td>
-<td>The <code>Microsoft.Testing.Extensions.TrxReport</code> package is not referenced.</td>
+<td>A Precept.TestPlatform older than the release that made the TRX writer one of its dependencies. Upgrade, or reference <code>Microsoft.Testing.Extensions.TrxReport</code> in the test project.</td>
 </tr>
 <tr>
 <td>The run fails opening a response file named after your tags</td>

@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -351,14 +353,19 @@ takes.</p>
 <td>Slow each Playwright operation down, for debugging.</td>
 </tr>
 <tr>
+<td><code>PRECEPT_WEB__RESOLUTION</code></td>
+<td>unset</td>
+<td>The <a href="browsers.html#viewport-size">viewport as one value</a>: <code>720p</code>, <code>900p</code>, <code>1080p</code>, <code>1440p</code>, <code>2160p</code>, the aliases <code>hd</code>, <code>fhd</code>, <code>qhd</code>, <code>uhd</code>, <code>4k</code>, or a pair such as <code>1366x768</code>. Decides the viewport outright when set, so a pipeline naming one need not also clear the two numbers below. An unrecognised value fails the run rather than picking a size for you.</td>
+</tr>
+<tr>
 <td><code>PRECEPT_WEB__VIEWPORTWIDTH</code></td>
 <td><code>1280</code></td>
-<td>Viewport width in pixels.</td>
+<td>Viewport width in pixels. Used when no resolution is named.</td>
 </tr>
 <tr>
 <td><code>PRECEPT_WEB__VIEWPORTHEIGHT</code></td>
 <td><code>800</code></td>
-<td>Viewport height in pixels.</td>
+<td>Viewport height in pixels. Used when no resolution is named.</td>
 </tr>
 <tr>
 <td><code>PRECEPT_WEB__SCREENSHOTONFAILURE</code></td>

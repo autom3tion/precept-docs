@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -109,11 +111,255 @@
   <main id="content">
     <article class="prose">
       <h1 id="browsers">Browsers</h1>
-<p>The web module needs Playwright's browsers on the machine. After the first build:</p>
+<p>The web module needs Playwright's browsers on the machine, and the package carries the driver rather
+than the browsers themselves. A launch that finds nothing to drive installs what it needs and
+launches again:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;InstallBrowsers&quot;</span>: <span class="tok-str">&quot;Auto&quot;</span> }
+}</code></pre>
+
+<p><code>Auto</code> is the default, so a new machine and a fresh agent image both run a web test without a
+separate step. It costs nothing on a machine that already has the browser — the install only happens
+off a launch that has already failed, once per run, under the same lock that launches the browser —
+and the download is reported into the test's own log rather than the console.</p>
+<p><code>Never</code> fails instead, in Playwright's own words. That is what an air-gapped agent wants, and what an
+image that was supposed to bake the browsers in should say when it did not. <code>Always</code> installs before
+launching every time, which costs a driver round trip per run to confirm what is usually already
+there.</p>
+<p>To install by hand — under <code>Never</code>, or to warm an image before the suite runs:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> samples/Precept.Sample.Tests/bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>
 
 <p>Without PowerShell, invoke the bundled driver directly:</p>
 <pre data-lang="bash"><code>samples/Precept.Sample.Tests/bin/Debug/net10.0/.playwright/node/darwin-arm64/node samples/Precept.Sample.Tests/bin/Debug/net10.0/.playwright/package/cli.js install chromium</code></pre>
+<h2 id="which-browser">Which browser<a class="anchor" href="#which-browser" aria-label="Link to this section">#</a></h2>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span> }
+}</code></pre>
+
+<p><code>chromium</code>, <code>firefox</code> and <code>webkit</code> are Playwright's own builds, downloaded into its cache. <code>chrome</code>
+and <code>edge</code> are the browsers <em>the machine</em> has installed, driven through Chromium — which is what
+&quot;does it work in real Edge&quot; actually asks, and what Playwright's bundled Chromium cannot answer.
+Their pre-release channels are named the way the vendors name them: <code>chrome-beta</code>, <code>chrome-dev</code>,
+<code>chrome-canary</code>, <code>edge-beta</code>, <code>edge-dev</code>, <code>edge-canary</code>. <code>safari</code> is accepted as a name for WebKit.</p>
+<p>A channel can also be set on its own, which is how a pipeline moves an otherwise unchanged suite onto
+the agent's browser:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span>, <span class="tok-key">&quot;Channel&quot;</span>: <span class="tok-str">&quot;msedge&quot;</span> }
+}</code></pre>
+
+<p><code>Channel</code> wins when both are given. Anything that is neither an engine nor a channel fails the run
+against <code>Web:Browser</code> rather than reaching Playwright, whose failure would name a browser the
+consumer will not find in their settings file.</p>
+<p><code>InstallBrowsers</code> covers the engines only. Installing one fills Playwright's own cache; installing a channel
+runs the vendor's installer against the machine, which is more than an unattended recovery from a
+failed launch should do by itself — so a missing Chrome or Edge fails with the path Playwright looked
+in, and installing it takes either <code>Always</code> or a line in the image build.</p>
+<h2 id="emulating-a-device">Emulating a device<a class="anchor" href="#emulating-a-device" aria-label="Link to this section">#</a></h2>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Device&quot;</span>: <span class="tok-str">&quot;iPhone 15&quot;</span> }
+}</code></pre>
+
+<p>The names are Playwright's own — <code>iPhone 15</code>, <code>Pixel 7</code>, <code>iPad Mini landscape</code>, <code>Desktop Safari</code> —
+and are matched however they were typed. One name sets the viewport, the user agent, the device scale
+factor and the touch and mobile flags together, which is the combination that makes a page serve its
+mobile layout rather than a narrow desktop one.</p>
+<p>Emulation is what the page is told about itself, not which engine renders it: a device Playwright
+associates with WebKit is still driven by whatever <code>Browser</code> says. One setting quietly deciding
+another is how a run ends up in an engine nobody chose, and the mobile layout — the reason to emulate
+a phone at all — does not depend on the engine. Name <code>webkit</code> as well when the engine is the point.</p>
+<p>A device that is not in the registry fails the run against <code>Web:Device</code>.</p>
+<h2 id="more-than-one-user-in-a-scenario">More than one user in a scenario<a class="anchor" href="#more-than-one-user-in-a-scenario" aria-label="Link to this section">#</a></h2>
+<p><code>Browser.StartAsync()</code> is the test's own session. A name opens another one beside it, in the same browser and sharing nothing else — its own context, its own cookies, its own storage:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> alice = <span class="tok-keyword">await</span> Browser.StartAsync(<span class="tok-str">&quot;alice&quot;</span>);
+<span class="tok-keyword">var</span> bob = <span class="tok-keyword">await</span> Browser.StartAsync(<span class="tok-str">&quot;bob&quot;</span>);
+
+<span class="tok-keyword">await</span> alice.Page.GetByRole(AriaRole.Button, <span class="tok-keyword">new</span>() { Name = <span class="tok-str">&quot;Share&quot;</span> }).ClickAsync();
+<span class="tok-keyword">await</span> Assert.That(bob.Page.GetByText(<span class="tok-str">&quot;Alice shared a document&quot;</span>)).ToBeVisibleAsync();</code></pre>
+
+<p>Every member of <code>Browser</code> takes the name, so <code>Browser.PageAsync(&quot;bob&quot;)</code> and <code>Browser.GoToAsync(&quot;/inbox&quot;, &quot;bob&quot;)</code> reach the same session; asking for a name twice in one test hands back the session that name already has. Each is disposed with the test, and each files its artifacts under its own name — <code>failure-alice.png</code>, <code>trace-bob.zip</code> — so two users failing in one scenario do not overwrite each other's evidence.</p>
+<h3 id="page-objects-for-two-users">Page objects for two users<a class="anchor" href="#page-objects-for-two-users" aria-label="Link to this section">#</a></h3>
+<p>Page objects read <code>IPageContext.Page</code> on every use, and that property is assignable — so acting as another user is pointing the context at their page:</p>
+<pre data-lang="csharp"><code>context.Page = (<span class="tok-keyword">await</span> Browser.StartAsync(<span class="tok-str">&quot;bob&quot;</span>)).Page;
+<span class="tok-keyword">await</span> signIn.SignInAsync(<span class="tok-str">&quot;bob&quot;</span>, password);              <span class="tok-comment">// every page object is now Bob&#39;s</span>
+
+context.Page = alice.Page;                              <span class="tok-comment">// and back again</span></code></pre>
+
+<p>There is one context per test and every page object follows it together, which is what keeps this to an assignment rather than a second set of objects to keep track of. The cost is that the context points at one page at a time, so three things are the suite's own to handle:</p>
+<ul>
+<li><strong>Two users acting at the same moment</strong> — a wait armed on Bob's page while Alice clicks — needs Bob's <code>IPage</code> directly, since one property cannot be two pages.</li>
+<li><strong>A page object holding state</strong> holds it for the test, not for a user. Two users sharing one instance share whatever it remembers.</li>
+<li><strong>Restoring after a failure.</strong> An assertion that throws between the two assignments leaves the context on the wrong user for the rest of the scenario, including its <code>[AfterTest]</code> hook. Put the restore in a <code>finally</code>, or a Reqnroll <code>[AfterScenario]</code>, where it matters.</li>
+</ul>
+<p>A suite where that first cost bites often — two users acting at once, rather than a scenario handing control between them — can give each user an actor instead of sharing one context. See <a href="screenplay.html">Screenplay</a>, which drives these same named sessions.</p>
+<p>A test that starts only named sessions has no default session for the injected context to fall back to, and is told so by name rather than being told it never opened a browser:</p>
+<pre><code>No browser session has been started for this test. … This test has started &#39;alice&#39; and &#39;bob&#39;,
+which the injected context does not follow until it is pointed at one:
+context.Page = (await Browser.StartAsync(&quot;bob&quot;)).Page.</code></pre>
+<h2 id="signing-in-once">Signing in once<a class="anchor" href="#signing-in-once" aria-label="Link to this section">#</a></h2>
+<p>A suite that signs in per test spends most of its run signing in. Playwright's storage state — the cookies and local storage of a signed-in context — is how that becomes one sign-in for the whole run, and <code>IPreceptStartup.BeforeRunAsync</code> is where it happens:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">async</span> Task BeforeRunAsync(IServiceProvider services)
+{
+    <span class="tok-keyword">await</span> <span class="tok-keyword">using</span> <span class="tok-keyword">var</span> session = <span class="tok-keyword">await</span> services.GetRequiredService&lt;BrowserFactory&gt;().NewSessionAsync();
+
+    <span class="tok-keyword">await</span> session.Page.GotoAsync(<span class="tok-str">&quot;/sign-in&quot;</span>);
+    <span class="tok-keyword">await</span> session.Page.GetByLabel(<span class="tok-str">&quot;Email&quot;</span>).FillAsync(<span class="tok-str">&quot;qa@example.com&quot;</span>);
+    <span class="tok-keyword">await</span> session.Page.GetByLabel(<span class="tok-str">&quot;Password&quot;</span>).FillAsync(Environment.GetEnvironmentVariable(<span class="tok-str">&quot;QA_PASSWORD&quot;</span>));
+    <span class="tok-keyword">await</span> session.Page.GetByRole(AriaRole.Button, <span class="tok-keyword">new</span>() { Name = <span class="tok-str">&quot;Sign in&quot;</span> }).ClickAsync();
+
+    <span class="tok-keyword">await</span> session.SaveStorageStateAsync();
+}</code></pre>
+
+<p>Every session started from then on begins signed in. <code>BeforeRunAsync</code> has no test to belong to, which is why the session comes from <code>BrowserFactory.NewSessionAsync()</code> rather than from <code>Browser</code>: it records nothing — no trace, no video, no screenshot — because there is no test to attach any of it to.</p>
+<p>The state is filed under the session's name, and a session starts from the state filed under <em>its</em> name. That is what gives a suite two identities:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> <span class="tok-keyword">using</span> <span class="tok-keyword">var</span> admin = <span class="tok-keyword">await</span> factory.NewSessionAsync(<span class="tok-str">&quot;admin&quot;</span>);
+<span class="tok-comment">// sign in as an administrator, then:</span>
+<span class="tok-keyword">await</span> admin.SaveStorageStateAsync();</code></pre>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> admin = <span class="tok-keyword">await</span> Browser.StartAsync(<span class="tok-str">&quot;admin&quot;</span>);   <span class="tok-comment">// already signed in as one</span></code></pre>
+
+<p>A state produced somewhere else — by a previous run, or by a tool outside the suite — is named as a file instead, and seeds the default identity:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;StorageState&quot;</span>: <span class="tok-str">&quot;auth.json&quot;</span> }
+}</code></pre>
+
+<p>The path is resolved against the working directory, which is normally the test project's output. A file that is not there fails the run: seeding silently from nothing would leave every test signed out and every failure worded as though the application had rejected the credentials.</p>
+<p>A saved state is never attached to the test as an artifact, whatever else the module attaches. It is a session cookie or a bearer token in a file — the credential itself, not a record of one — and an artifact goes wherever the report goes.</p>
+<h2 id="what-the-page-says-about-itself">What the page says about itself<a class="anchor" href="#what-the-page-says-about-itself" aria-label="Link to this section">#</a></h2>
+<p>Console errors and uncaught exceptions go into the test's own log, where they reach the TRX, a test explorer and every <a href="reporting.html#reporting">reporter</a> — rather than to a process console that belongs to no test:</p>
+<pre><code>[console:error] Failed to load resource: the server responded with a status of 500
+[page error] TypeError: order is undefined</code></pre>
+
+<p><code>LogConsole</code> adds everything else the page writes to its console. It is off by default because an application's own logging is normally noise, and occasionally the only account of what the page thought it was doing.</p>
+<p>Either can also decide the verdict:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;FailOnConsoleErrors&quot;</span>: <span class="tok-keyword">true</span>, <span class="tok-key">&quot;FailOnPageErrors&quot;</span>: <span class="tok-keyword">true</span> }
+}</code></pre>
+
+<p>Both are off by default, because an application with an error in its steady state would fail every test at once and teach the suite to be ignored. <code>FailOnPageErrors</code> is the narrower net and the stronger signal — an uncaught exception is a bug on the page rather than something the application chose to log. The check runs <a href="artifacts-and-logging.html#failing-a-test-after-its-last-line">after the test's last line</a>, so a test that passed every assertion and left a broken page still fails, and still gets its failure screenshot and trace.</p>
+<p>The errors are on the session as well, for a test that would rather assert on them than be failed by them:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(Browser.Current!.ConsoleErrors).ToBeEmptyAsync();</code></pre>
+<h2 id="files-the-page-produced">Files the page produced<a class="anchor" href="#files-the-page-produced" aria-label="Link to this section">#</a></h2>
+<p>A file the page downloads is saved into the test's artifacts and reported with it. Playwright deletes a download when its context closes — which is the end of the test — so without this the export a test just triggered is gone by the time anyone reads the report. Turn it off with <code>&quot;SaveDownloads&quot;: false</code>.</p>
+<p>The copy is waited for as the test tears down, for no longer than <code>TimeoutMilliseconds</code>. A download the server never finishes sending is logged as missing from the artifacts instead of holding the test open — by then the test's last line has run, and nothing is left to time it out.</p>
+<p><code>HarOnFailure</code> records the session's network traffic and attaches it to a failing test, deleting it after one that passed:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;HarOnFailure&quot;</span>: <span class="tok-keyword">true</span> }
+}</code></pre>
+
+<p>Off by default, because the Playwright trace already carries the requests for a failure being investigated in the trace viewer. A HAR is for the failure being investigated somewhere else — by an API team, in a browser's own network panel, or by a tool that reads HARs.</p>
+<h2 id="a-browser-somewhere-else">A browser somewhere else<a class="anchor" href="#a-browser-somewhere-else" aria-label="Link to this section">#</a></h2>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;WsEndpoint&quot;</span>: <span class="tok-str">&quot;ws://grid.internal:3000/&quot;</span> }
+}</code></pre>
+
+<p>A browser grid, or a vendor's cloud, is connected to rather than launched. <code>CdpEndpoint</code> connects to a running Chromium over the DevTools protocol instead — <code>http://localhost:9222</code>, for driving a browser that is already open — and is second choice where both would work, since that protocol is the browser's own rather than Playwright's and supports less of it. <code>WsEndpoint</code> wins when both are set.</p>
+<p>Connecting replaces launching, so everything about starting a process stops applying: <code>Headless</code>, <code>Args</code>, <code>Channel</code>, <code>Proxy</code> and <code>InstallBrowsers</code> all describe a browser this machine is no longer starting. What a context is opened with still applies, because the context is still the suite's to describe.</p>
+<h2 id="viewport-size">Viewport size<a class="anchor" href="#viewport-size" aria-label="Link to this section">#</a></h2>
+<p>Every test gets its own browser context, and each one is opened at a fixed viewport — the size the
+page believes it has, which is what a media query, a layout and a screenshot go by. It is not an
+operating-system window, so it means the same headless as headed, where the window around it is
+larger.</p>
+<p>Name it as a resolution:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Resolution&quot;</span>: <span class="tok-str">&quot;1080p&quot;</span> }
+}</code></pre>
+
+<p><code>720p</code>, <code>900p</code>, <code>1080p</code>, <code>1440p</code> and <code>2160p</code> are understood, as are the aliases a machine is
+normally described by — <code>hd</code>, <code>fhd</code>, <code>qhd</code>, <code>uhd</code> and <code>4k</code>. Names are matched however they were
+typed. Anything else is written as a pair, <code>1366x768</code>, which is how to reach a size no name covers:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Resolution&quot;</span>: <span class="tok-str">&quot;1366x768&quot;</span> }
+}</code></pre>
+
+<p>A value that is neither fails the run and says so against <code>Web:Resolution</code>. The alternative would be
+a suite that quietly ran at some other size, and a viewport is a setting whose effect is only
+visible in a screenshot taken after the run.</p>
+<p><code>Resolution</code> is unset by default, in which case <code>ViewportWidth</code> and <code>ViewportHeight</code> decide the
+viewport — 1280 by 800 unless a project says otherwise:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;ViewportWidth&quot;</span>: <span class="tok-number">1440</span>, <span class="tok-key">&quot;ViewportHeight&quot;</span>: <span class="tok-number">900</span> }
+}</code></pre>
+
+<p>When a resolution <em>is</em> named it decides both, and those two are ignored. That is what lets a
+pipeline set <code>PRECEPT_WEB__RESOLUTION</code> without knowing what the settings file already says: an
+overlay or an environment variable cannot clear numbers it cannot see, and a run should not end up
+a width from one file tall by a height from another.</p>
+<p>A <code>Device</code> outranks the numbers for the same reason — they have defaults, and a default cannot be
+told apart from a deliberate 1280 by 800 — while a named <code>Resolution</code> outranks the device. The most
+specific statement of a size wins, and the one an overlay can set wins over the ones it cannot see.</p>
+<h2 id="what-else-a-context-is-opened-with">What else a context is opened with<a class="anchor" href="#what-else-a-context-is-opened-with" aria-label="Link to this section">#</a></h2>
+<p>The context is opened for the test rather than by it, so anything the browser needs to be told before
+the first navigation is a setting rather than something test code can arrange.</p>
+<h3 id="locale-and-time">Locale and time<a class="anchor" href="#locale-and-time" aria-label="Link to this section">#</a></h3>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Locale&quot;</span>: <span class="tok-str">&quot;en-GB&quot;</span>, <span class="tok-key">&quot;TimezoneId&quot;</span>: <span class="tok-str">&quot;Europe/London&quot;</span>, <span class="tok-key">&quot;ColorScheme&quot;</span>: <span class="tok-str">&quot;dark&quot;</span> }
+}</code></pre>
+
+<p><code>Locale</code> is a BCP 47 tag; it decides the <code>Accept-Language</code> header and how the page formats dates and
+numbers. <code>TimezoneId</code> is an IANA name. Both are worth setting even where the application is
+single-language and single-region: unset, they are the machine's, so an assertion about a formatted
+date can pass on a laptop and fail on an agent elsewhere — with a failure that reads like a bug in
+the page. <code>ColorScheme</code> is <code>light</code>, <code>dark</code> or <code>no-preference</code>, and is what the page's
+<code>prefers-color-scheme</code> media queries see.</p>
+<h3 id="position-and-permissions">Position and permissions<a class="anchor" href="#position-and-permissions" aria-label="Link to this section">#</a></h3>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Geolocation&quot;</span>: <span class="tok-str">&quot;51.5074,-0.1278&quot;</span>, <span class="tok-key">&quot;Permissions&quot;</span>: <span class="tok-str">&quot;clipboard-read notifications&quot;</span> }
+}</code></pre>
+
+<p><code>Geolocation</code> is one value, <code>LATITUDE,LONGITUDE</code>, for the reason <code>Resolution</code> is one: a coordinate is
+a pair or it is nothing, and a variable that could set only the latitude would put a run somewhere
+neither file meant. Setting it also grants the <code>geolocation</code> permission — without it the page is
+refused the position rather than given it, and the setting looks ignored.</p>
+<p><code>Permissions</code> are separated by spaces or commas and granted to every context up front, which is what
+stops a permission prompt no test can click. The names are the browser's own and are passed through
+untouched, so one the browser does not recognise fails the context rather than being ignored.</p>
+<h3 id="reaching-a-protected-environment">Reaching a protected environment<a class="anchor" href="#reaching-a-protected-environment" aria-label="Link to this section">#</a></h3>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: {
+    <span class="tok-key">&quot;IgnoreHttpsErrors&quot;</span>: <span class="tok-keyword">true</span>,
+    <span class="tok-key">&quot;HttpCredentials&quot;</span>: { <span class="tok-key">&quot;Username&quot;</span>: <span class="tok-str">&quot;qa&quot;</span>, <span class="tok-key">&quot;Origin&quot;</span>: <span class="tok-str">&quot;https://staging.example.com&quot;</span> },
+    <span class="tok-key">&quot;Headers&quot;</span>: { <span class="tok-key">&quot;X-Test-Run&quot;</span>: <span class="tok-str">&quot;nightly&quot;</span> }
+  }
+}</code></pre>
+
+<p><code>IgnoreHttpsErrors</code> is what makes an environment behind a self-signed or internally-issued
+certificate reachable at all; leave it off where the certificate is real. <code>HttpCredentials</code> answers
+HTTP basic authentication, and its <code>Origin</code> is what keeps the credentials from being offered to a
+third-party host the page loads an asset from. <code>Headers</code> are added to every request the context
+makes — an API gateway key, a feature-flag override, the header a test environment identifies its
+callers by.</p>
+<p>The password belongs in <code>PRECEPT_WEB__HTTPCREDENTIALS__PASSWORD</code> rather than in a file the repository
+carries. See <a href="environment-variables.html#environment-variables">Environment variables</a> for how a
+setting maps onto a variable name.</p>
+<p><code>Headers</code> is a JSON object rather than the one-string treatment <code>Args</code> gets, because configuration
+keys an object by name: an overlay adding a header keeps the ones underneath it and replaces only the
+header it names. That is the merge <a href="configuration.html#configuration">an array cannot give</a>.</p>
+<h3 id="through-a-proxy">Through a proxy<a class="anchor" href="#through-a-proxy" aria-label="Link to this section">#</a></h3>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Proxy&quot;</span>: { <span class="tok-key">&quot;Server&quot;</span>: <span class="tok-str">&quot;http://proxy.internal:8080&quot;</span>, <span class="tok-key">&quot;Bypass&quot;</span>: <span class="tok-str">&quot;localhost,*.internal&quot;</span> } }
+}</code></pre>
+
+<p>Applied when the browser is launched rather than per context, because the browser is launched once
+for the run and a process-wide connection setting cannot be varied per test. <code>Username</code> and
+<code>Password</code> go alongside <code>Server</code> where the proxy authenticates. <code>Bypass</code> is normally where a
+container or a local stub goes, since a proxy cannot route to the agent's own loopback.</p>
+<h3 id="browser-switches">Browser switches<a class="anchor" href="#browser-switches" aria-label="Link to this section">#</a></h3>
+<p>Anything with no setting of its own, and only for Chromium, goes to the browser process as a command
+line:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Args&quot;</span>: <span class="tok-str">&quot;--disable-dev-shm-usage --lang=de-DE&quot;</span> }
+}</code></pre>
+
+<p>These reach the <em>process</em>, so they are run-wide — Precept launches one browser and gives each test
+its own context, and a process argument cannot be varied per context. They are the engine's own
+flags, passed through untouched: Playwright neither validates them nor translates them between
+engines, and Chromium ignores a switch it does not recognise rather than failing. A typo therefore
+costs a run that quietly did not do what the flag asked, which is worth knowing before reaching for
+this over a real setting.</p>
+<p>Quoting groups a value carrying spaces, and either quote character works —
+<code>--user-agent='Mozilla/5.0 (X11; Linux)'</code> arrives as one argument. Single quotes are worth reaching
+for first, since a double quote has to be escaped to survive JSON. A backslash is a path separator
+rather than an escape, because <code>--disk-cache-dir=C:\cache</code> means what it says. A quote that is never
+closed fails the run against <code>Web:Args</code> rather than reaching a browser as a mangled flag list.</p>
 
     </article>
 
@@ -128,7 +374,18 @@
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#which-browser">Which browser</a></li>
+<li><a href="#emulating-a-device">Emulating a device</a></li>
+<li><a href="#more-than-one-user-in-a-scenario">More than one user in a scenario</a></li>
+<li><a href="#signing-in-once">Signing in once</a></li>
+<li><a href="#what-the-page-says-about-itself">What the page says about itself</a></li>
+<li><a href="#files-the-page-produced">Files the page produced</a></li>
+<li><a href="#a-browser-somewhere-else">A browser somewhere else</a></li>
+<li><a href="#viewport-size">Viewport size</a></li>
+<li><a href="#what-else-a-context-is-opened-with">What else a context is opened with</a></li>
+</ul>
     </nav>
   </aside>
 </div>

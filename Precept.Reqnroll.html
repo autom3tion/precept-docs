@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html" class="active">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -113,12 +115,43 @@
 generator plugin that turns <code>.feature</code> files into Precept test classes and the runtime plugin that
 maps pending and ignored steps onto Precept outcomes — nothing else is needed for Gherkin.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Reqnroll</code></pre>
-<pre data-lang="gherkin"><code><span class="tok-attr">@smoke</span>
-<span class="tok-keyword">Scenario Outline:</span> Adding many pairs of numbers
-<span class="tok-keyword">	Given</span> I have entered <span class="tok-number">&lt;left&gt;</span> into the calculator
-<span class="tok-keyword">	When</span> I press add
-<span class="tok-keyword">	Then</span> the result should be <span class="tok-number">&lt;total&gt;</span></code></pre>
 
+<p>A feature file, and the bindings that make it run. The outline below produces two tests, one per row
+of its <code>Examples:</code> table:</p>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Feature:</span> Calculator
+
+<span class="tok-attr">@smoke</span>
+<span class="tok-keyword">Scenario Outline:</span> Adding two numbers
+<span class="tok-keyword">	Given</span> I have entered <span class="tok-number">&lt;left&gt;</span> into the calculator
+<span class="tok-keyword">	And</span> I have entered <span class="tok-number">&lt;right&gt;</span> into the calculator
+<span class="tok-keyword">	When</span> I press add
+<span class="tok-keyword">	Then</span> the result should be <span class="tok-number">&lt;total&gt;</span> on the screen
+
+<span class="tok-keyword">	Examples:</span>
+		| left | right | total |
+		| 1    | 2     | 3     |
+		| -5   | 5     | 0     |</code></pre>
+<pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> CalculatorSteps
+{
+    <span class="tok-keyword">private</span> <span class="tok-keyword">readonly</span> List&lt;<span class="tok-keyword">int</span>&gt; _operands = [];
+    <span class="tok-keyword">private</span> <span class="tok-keyword">int</span> _result;
+
+<span class="tok-attr">    [Given(&quot;I have entered {int} into the calculator&quot;)]</span>
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> GivenIHaveEntered(<span class="tok-keyword">int</span> number) =&gt; _operands.Add(number);
+
+<span class="tok-attr">    [When(&quot;I press add&quot;)]</span>
+    <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> WhenIPressAdd() =&gt; _result = _operands.Sum();
+
+<span class="tok-attr">    [Then(&quot;the result should be {int} on the screen&quot;)]</span>
+    <span class="tok-keyword">public</span> Task ThenTheResultShouldBe(<span class="tok-keyword">int</span> expected) =&gt;
+        Assert.That(_result, <span class="tok-str">&quot;the screen&quot;</span>).ToBeEqualAsync(expected);
+}</code></pre>
+
+<p>Step definitions are ordinary Reqnroll <code>[Binding]</code> classes, and everything Reqnroll supports — data
+tables, <code>ScenarioContext</code>, constructor injection, hooks — works unchanged. Reqnroll builds one
+instance per scenario, which is why the fields above hold a scenario's own state safely while
+scenarios run in parallel. The assertions are Precept's.</p>
 <p><code>.feature</code> files compile on their own once this package is referenced; there is no code-behind to
 check in. &quot;Go to test&quot; from a test explorer lands in the <code>.feature</code> file rather than the generated
 code, because the generator emits the source location of the scenario itself.</p>

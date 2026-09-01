@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en" data-page="screenplay">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screenplay · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.4.1</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html" class="active">Screenplay</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="screenplay">Screenplay</h1>
+<p>A screenplay suite is written as people doing things rather than as pages being driven. An <strong>actor</strong>
+holds the <strong>abilities</strong> they were granted, performs <strong>interactions</strong> against <strong>targets</strong>, and is
+asked <strong>questions</strong> about what they can see:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">using</span> Precept.Screenplay;
+<span class="tok-keyword">using</span> Precept.Screenplay.Web;
+<span class="tok-keyword">using</span> Precept.Web;
+
+<span class="tok-keyword">var</span> alice = <span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWebAsync();
+
+<span class="tok-keyword">await</span> alice.AttemptsToAsync(
+    Navigate.To(<span class="tok-str">&quot;/login&quot;</span>),
+    Enter.The(<span class="tok-str">&quot;ada@example.com&quot;</span>).Into(SignInPage.Email),
+    Enter.TheSecret(password).Into(SignInPage.Password),
+    Click.On(SignInPage.Submit));
+
+<span class="tok-keyword">await</span> Assert.That(alice.Sees(Dashboard.Greeting)).ToHaveTextAsync(<span class="tok-str">&quot;Hello, Ada&quot;</span>);</code></pre>
+
+<p>It is entirely optional and it replaces nothing — <a href="browsers.html">page objects</a> and screenplay can
+share a project. What it is <em>for</em> is structure. Screenplay is the shape a suite takes when the SOLID
+principles are applied to test code, which is the reason to reach for it: you want behaviour composed
+out of small, single-purpose, substitutable pieces rather than accumulated on page objects that grow
+a method every time a scenario needs something.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Single responsibility</td>
+<td>An interaction does one thing and is named after it. A page object tends towards being the page's entire API, edited by everyone and understood by nobody.</td>
+</tr>
+<tr>
+<td>Open/closed</td>
+<td>New behaviour is a new interaction or a new task. Nothing that already works is opened to make room for it.</td>
+</tr>
+<tr>
+<td>Liskov substitution</td>
+<td>Everything an actor performs is an <code>IInteraction</code>, so a built-in step, a task of your own and a composite of both are interchangeable wherever one is accepted — which is what lets tasks be built out of tasks.</td>
+</tr>
+<tr>
+<td>Interface segregation</td>
+<td><code>IInteraction</code> and <code>IQuestion&lt;T&gt;</code> have one member each, and abilities are granted one at a time, so nothing depends on more of an actor than it uses.</td>
+</tr>
+<tr>
+<td>Dependency inversion</td>
+<td>An interaction depends on an ability, not on Playwright. <code>BrowseTheWeb</code> is the only type here that knows a browser exists, so the same task can be performed through a different ability against a different interface.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Two people in one scenario is a <em>consequence</em> of that — an ability belongs to an actor, so two actors
+are two of everything — rather than the reason for it. A suite with exactly one user gets the whole
+of the structure above and none of the multi-user machinery it never asks for.</p>
+<p>It ships as a package of its own, <code>Precept.Screenplay</code>, which brings <code>Precept.Web</code> with it — a suite
+that drives a browser through page objects installs <code>Precept.Web</code> alone and is offered none of this:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Screenplay</code></pre>
+
+<p>The actor types live in <code>Precept.Screenplay</code> and the browser ones in <code>Precept.Screenplay.Web</code> —
+neither in the root <code>Precept</code> namespace the rest of the framework uses, so a suite that does not
+write screenplay is never offered any of it by an editor's completion list.</p>
+<h2 id="an-actor">An actor<a class="anchor" href="#an-actor" aria-label="Link to this section">#</a></h2>
+<p><code>Actor.Named(&quot;alice&quot;)</code> brings an actor on, and asking again in the same test gives the same one — so
+a hook can equip them and a step can simply use them:</p>
+<pre data-lang="csharp"><code><span class="tok-attr">[BeforeScenario(&quot;@web&quot;)]</span>
+<span class="tok-keyword">public</span> Task CastTheScenario() =&gt; Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWebAsync();</code></pre>
+
+<p>An actor belongs to the test that asked for them, and to the <em>attempt</em>: a
+<a href="execution-model.html#retries-timeouts-and-reporting">retry</a> runs in a new test context and therefore starts with an empty
+cast. That is deliberate. An actor carried into the second attempt would still be holding the page
+the first one failed on, which is the same staleness a page object avoids by reading its page where
+it uses it.</p>
+<p>Outside a test there is nowhere to file an actor that does not outlive the run, so <code>Actor.Named</code>
+says so rather than inventing one. A run-level hook that needs a browser opens a session directly
+instead — see <a href="browsers.html#signing-in-once">signing in once for the whole run</a>.</p>
+<h2 id="abilities">Abilities<a class="anchor" href="#abilities" aria-label="Link to this section">#</a></h2>
+<p>An ability is the only place an interaction touches the outside world, which is what keeps the
+interactions themselves free of any module: <code>Click.On(…)</code> is a sentence about intent, and
+<code>actor.Using&lt;BrowseTheWeb&gt;()</code> is where it becomes Playwright.</p>
+<p><code>BrowseTheWeb</code> is backed by a <a href="browsers.html">browser session</a> named after the actor, so <code>alice</code> and
+<code>bob</code> are two isolated identities — their own cookies, their own storage — without the scenario
+arranging anything. It also means an actor starts from whatever was last saved under their name, so a
+suite that signs its users in once gets that for free.</p>
+<pre data-lang="csharp"><code>Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWeb();          <span class="tok-comment">// the session is opened when something needs it</span>
+<span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;bob&quot;</span>).WhoCanBrowseTheWebAsync(); <span class="tok-comment">// opened now</span>
+Actor.Named(<span class="tok-str">&quot;auditor&quot;</span>).WhoCan(BrowseTheWeb.In(<span class="tok-str">&quot;admin&quot;</span>));  <span class="tok-comment">// an identity that is not their name</span></code></pre>
+
+<p>Asking an actor for an ability they were never granted names the actor, what they could not do, and
+what they <em>can</em> do — because the usual cause is a hook that equipped somebody else.</p>
+<h2 id="targets">Targets<a class="anchor" href="#targets" aria-label="Link to this section">#</a></h2>
+<p>A target is a named element, described once and resolved against whichever actor is looking:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">static</span> <span class="tok-keyword">class</span> SignInPage
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">static</span> <span class="tok-keyword">readonly</span> Target Email = Target.The(<span class="tok-str">&quot;the email box&quot;</span>, page =&gt; page.GetByLabel(<span class="tok-str">&quot;Email&quot;</span>));
+
+    <span class="tok-keyword">public</span> <span class="tok-keyword">static</span> <span class="tok-keyword">readonly</span> Target Submit = Target.The(
+        <span class="tok-str">&quot;the sign-in button&quot;</span>,
+        page =&gt; page.GetByRole(AriaRole.Button, <span class="tok-keyword">new</span>() { Name = <span class="tok-str">&quot;Sign in&quot;</span> }));
+}</code></pre>
+
+<p>It holds a recipe, not a locator, so one declared <code>static readonly</code> is safe to share across tests,
+actors and retries. The name is what a log line and a failure message say — &quot;clicks the sign-in
+button&quot; rather than a selector.</p>
+<h2 id="interactions">Interactions<a class="anchor" href="#interactions" aria-label="Link to this section">#</a></h2>
+<p>Each interaction is an immutable class with its factory on itself: <code>Click.On(target)</code> returns a
+<code>Click</code>. Because an interaction carries no page of its own, a step a suite repeats can be built once
+and kept:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">private</span> <span class="tok-keyword">static</span> <span class="tok-keyword">readonly</span> IInteraction OpenSignIn = Navigate.To(<span class="tok-str">&quot;/login&quot;</span>);</code></pre>
+
+<p>One that takes no parameters has nothing to tell two instances apart, so it is exposed as the single
+one there is ever a reason to have — <code>Reload.ThePage</code>.</p>
+<h3 id="what-the-module-ships">What the module ships<a class="anchor" href="#what-the-module-ships" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Going somewhere</td>
+<td><code>Navigate.To(url)</code>, <code>Navigate.Back</code>, <code>Navigate.Forward</code>, <code>Reload.ThePage</code></td>
+</tr>
+<tr>
+<td>Pointing</td>
+<td><code>Click.On(t)</code>, <code>DoubleClick.On(t)</code>, <code>Hover.Over(t)</code>, <code>Drag.The(a).Onto(b)</code>, <code>Scroll.To(t)</code></td>
+</tr>
+<tr>
+<td>Typing</td>
+<td><code>Enter.The(x).Into(t)</code>, <code>Enter.TheSecret(x).Into(t)</code>, <code>Enter.The(x).KeyByKeyInto(t)</code>, <code>Clear.The(t)</code>, <code>Press.The(&quot;Enter&quot;)</code>, <code>Press.The(&quot;Enter&quot;).On(t)</code></td>
+</tr>
+<tr>
+<td>Forms</td>
+<td><code>Select.TheOption(label).In(t)</code>, <code>Select.TheValue(v).In(t)</code>, <code>Select.TheOptions(…)</code>, <code>Select.TheValues(…)</code>, <code>Check.The(t)</code>, <code>Uncheck.The(t)</code>, <code>Upload.The(path).To(t)</code>, <code>Upload.These(…)</code>, <code>Upload.Nothing.To(t)</code></td>
+</tr>
+<tr>
+<td>Waiting</td>
+<td><code>Wait.For(t)</code>, <code>Wait.For(t).ToBe(WaitForSelectorState.Hidden)</code>, <code>Wait.ForTheUrl(&quot;**/orders/*&quot;)</code>, <code>Wait.ForTheLoadState(LoadState.NetworkIdle)</code></td>
+</tr>
+<tr>
+<td>Recording</td>
+<td><code>TakeScreenshot.OfThePage</code>, <code>TakeScreenshot.Of(t)</code>, either <code>.Named(&quot;after sign-in&quot;)</code></td>
+</tr>
+<tr>
+<td>Anything else</td>
+<td><code>Do.OnThePage(description, page =&gt; …)</code>, <code>Do.On(t, description, element =&gt; …)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>There is one interaction per Playwright method and no more. A right-click is a <code>Click</code> with a
+button, not an interaction of its own; a page that has to be signed into is a <a href="#tasks">task</a>, not a
+step. What decides is whether Playwright has a method for it.</p>
+<p><code>Enter.TheSecret</code> types the value unchanged and writes <code>••••••</code> to the log. Worth reaching for by
+default on a credential: a test's log is published as standard output and forwarded to every
+<a href="reporting.html">reporter</a>, so a password typed with <code>Enter.The</code> ends up in the TRX file and in
+ReportPortal.</p>
+<p>There is no wait for a fixed length of time, deliberately — a sleep long enough to be reliable is
+longer than the suite can afford across a thousand steps. <code>Wait</code> itself is needed far less often
+than it looks, because Playwright waits for an element before acting on it and a <a href="assertions.html#on-a-page">web
+assertion</a> waits for the state it asserts; what is left is waiting for
+something nothing is about to act on, such as a spinner going away before a value is read.</p>
+<p>A screenshot is attached to the running test exactly as
+<a href="browsers.html"><code>CaptureScreenshotAsync</code></a> attaches one, so it reaches the artifacts and every reporter,
+and an actor's carries their session's name — two actors in one scenario do not overwrite each
+other's.</p>
+<h3 id="playwrights-own-options">Playwright's own options<a class="anchor" href="#playwrights-own-options" aria-label="Link to this section">#</a></h3>
+<p>Every interaction takes them through <code>.With(…)</code>, which copies the options and hands back a new
+interaction. Precept does not restate a single one of Playwright's knobs:</p>
+<pre data-lang="csharp"><code>Click.On(Board.Card).With(<span class="tok-keyword">new</span>() { Button = MouseButton.Right });
+Click.On(Board.Card).With(<span class="tok-keyword">new</span>() { Modifiers = [KeyboardModifier.Shift] });
+Navigate.To(<span class="tok-str">&quot;/report&quot;</span>).With(<span class="tok-keyword">new</span>() { WaitUntil = WaitUntilState.NetworkIdle });
+Enter.The(query).KeyByKeyInto(Search.Box).With(<span class="tok-keyword">new</span>() { Delay = <span class="tok-number">50</span> });
+Upload.The(<span class="tok-str">&quot;fixtures/passport.png&quot;</span>).To(Profile.Avatar).With(<span class="tok-keyword">new</span>() { Timeout = <span class="tok-number">30_000</span> });</code></pre>
+
+<p>The options object is Playwright's own, and the target of the <code>new()</code> is whatever that method takes —
+<code>LocatorClickOptions</code> for a click, <code>PageGotoOptions</code> for a navigation. An interaction stays immutable
+through it, so one built once and shared is not changed by a test that adds a timeout to a copy.</p>
+<h3 id="anything-playwright-can-do">Anything Playwright can do<a class="anchor" href="#anything-playwright-can-do" aria-label="Link to this section">#</a></h3>
+<p><code>Do</code> is the escape hatch, and the reason the table above does not have to be exhaustive. It takes the
+log line first, because that line is the whole difference between a step and a lambda:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> alice.AttemptsToAsync(
+    Do.OnThePage(<span class="tok-str">&quot;dismisses the cookie banner&quot;</span>, page =&gt; page.EvaluateAsync(<span class="tok-str">&quot;localStorage.setItem(&#39;cookies&#39;, &#39;ok&#39;)&quot;</span>)),
+    Do.On(Player.Timeline, <span class="tok-str">&quot;scrubs to the middle&quot;</span>, timeline =&gt;
+        timeline.HoverAsync(<span class="tok-keyword">new</span>() { Position = <span class="tok-keyword">new</span>() { X = <span class="tok-number">120</span>, Y = <span class="tok-number">4</span> } })));</code></pre>
+
+<p>Write the description in the third person and without the actor's name, the way every other
+interaction does — the actor's name is put in front of it. A step used more than twice is worth
+promoting into a <a href="#tasks">task</a> or an interaction of your own; <code>Do</code> is for the one-off.</p>
+<h3 id="what-the-log-says">What the log says<a class="anchor" href="#what-the-log-says" aria-label="Link to this section">#</a></h3>
+<p>Every step is written to the test's log before it runs, under the name of whoever performed it:</p>
+<pre><code>alice signs in as ada@example.com
+  alice opens /login
+  alice enters &#39;ada@example.com&#39; into the email box
+  alice enters &#39;••••••&#39; into the password box
+  alice clicks the sign-in button</code></pre>
+
+<p>Before, not after, so a failed run's log ends <em>on</em> the step that failed rather than the one before
+it. The name in front of every line is what keeps two actors readable when they are acting at the
+same moment.</p>
+<h2 id="tasks">Tasks<a class="anchor" href="#tasks" aria-label="Link to this section">#</a></h2>
+<p>A task is an interaction made of interactions. There is no separate interface: implement
+<code>IInteraction</code> and hand the steps back to the actor, which is also what indents them under it in the
+log.</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> SignIn(<span class="tok-keyword">string</span> email, <span class="tok-keyword">string</span> password) : IInteraction
+{
+    <span class="tok-keyword">public</span> <span class="tok-keyword">string</span> Description =&gt; <span class="tok-str">$&quot;signs in as {email}&quot;</span>;
+
+    <span class="tok-keyword">public</span> Task PerformAsAsync(Actor actor) =&gt; actor.AttemptsToAsync(
+        Navigate.To(<span class="tok-str">&quot;/login&quot;</span>),
+        Enter.The(email).Into(SignInPage.Email),
+        Enter.TheSecret(password).Into(SignInPage.Password),
+        Click.On(SignInPage.Submit));
+}</code></pre>
+
+<p>A step that throws stops the ones after it — a task is a sequence, not a best effort.</p>
+<h2 id="questions-and-assertions">Questions and assertions<a class="anchor" href="#questions-and-assertions" aria-label="Link to this section">#</a></h2>
+<p><code>actor.Sees(target)</code> hands back the element that actor is looking at, so an assertion begins at
+<code>Assert.That</code> exactly as it does everywhere else and keeps Playwright's own waiting:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(alice.Sees(Dashboard.Greeting)).ToHaveTextAsync(<span class="tok-str">&quot;Hello, Ada&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(bob.Sees(Dashboard.AdminMenu)).Not.ToBeVisibleAsync();</code></pre>
+
+<p>Every <a href="assertions.html#on-a-page">web assertion</a> therefore applies unchanged, and screenplay adds no
+assertion vocabulary of its own. Nothing here polls: a Precept poll wrapped around a web-first
+assertion would multiply the two timeouts together.</p>
+<p>A <strong>question</strong> is for a value the test wants to <em>carry</em> somewhere else — compare against something it
+read earlier, hand to another actor, put in a message:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td><code>Text.Of(t)</code> trimmed, <code>Texts.Of(t)</code> for every element a target matches</td>
+</tr>
+<tr>
+<td>Inputs</td>
+<td><code>Value.Of(t)</code></td>
+</tr>
+<tr>
+<td>The markup</td>
+<td><code>HtmlAttribute.Called(&quot;href&quot;).Of(t)</code>, <code>null</code> where there is no such attribute</td>
+</tr>
+<tr>
+<td>The page</td>
+<td><code>Url.OfThePage</code>, <code>Title.OfThePage</code></td>
+</tr>
+<tr>
+<td>Counting and branching</td>
+<td><code>Count.Of(t)</code>, <code>Visibility.Of(t)</code> — both read the page as it stands, without waiting</td>
+</tr>
+<tr>
+<td>Anything else</td>
+<td><code>Ask.OnThePage(description, page =&gt; …)</code>, <code>Ask.About(t, description, element =&gt; …)</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>Questions are asserted about through the assertion engine's own entry points:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(<span class="tok-keyword">await</span> alice.AsksForAsync(Text.Of(Basket.Total))).ToBeEqualAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);
+
+<span class="tok-keyword">await</span> Assert.Eventually(() =&gt; alice.AsksForAsync(Text.Of(Basket.Total)), <span class="tok-str">&quot;the order total&quot;</span>)
+            .ToBeEqualAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);</code></pre>
+
+<p>The second re-reads until it holds, which is what a value the application is still working towards
+needs. A question is called again on every pass, so it must read and never act.</p>
+<p><code>Ask</code> is the questions' escape hatch, and takes its description as a noun phrase — it is what an
+<code>Assert.Eventually</code> failure says it was waiting for:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> colour = Ask.About(Basket.Total, <span class="tok-str">&quot;the total&#39;s colour&quot;</span>,
+    total =&gt; total.EvaluateAsync&lt;<span class="tok-keyword">string</span>&gt;(<span class="tok-str">&quot;el =&gt; getComputedStyle(el).color&quot;</span>));
+
+<span class="tok-keyword">await</span> Assert.Eventually(() =&gt; alice.AsksForAsync(colour), <span class="tok-str">&quot;the total&#39;s colour&quot;</span>)
+            .ToBeEqualAsync(<span class="tok-str">&quot;rgb(0, 128, 0)&quot;</span>);</code></pre>
+<h2 id="two-users-at-once">Two users at once<a class="anchor" href="#two-users-at-once" aria-label="Link to this section">#</a></h2>
+<p>Because an ability is granted per actor, two actors are two independent sets of everything: their own
+session, their own cookies, their own page. They can act at the same moment rather than a scenario
+switching a single browser between them:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> alice = <span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWebAsync();
+<span class="tok-keyword">var</span> bob = <span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;bob&quot;</span>).WhoCanBrowseTheWebAsync();
+
+<span class="tok-keyword">await</span> alice.AttemptsToAsync(<span class="tok-keyword">new</span> ShareTheDocument(with: <span class="tok-str">&quot;bob&quot;</span>));
+<span class="tok-keyword">await</span> Assert.That(bob.Sees(Notifications.Latest)).ToHaveTextAsync(<span class="tok-str">&quot;Alice shared a document&quot;</span>);</code></pre>
+
+<p>The sessions are the same ones <a href="browsers.html">named sessions</a> already provide — screenplay reaches
+them by a different door rather than adding a second mechanism.</p>
+<h2 id="with-gherkin">With Gherkin<a class="anchor" href="#with-gherkin" aria-label="Link to this section">#</a></h2>
+<p>Step definitions hold no state of their own. A scenario normally names the person once and then stops
+mentioning them, so the step that introduces them brings them on and every step after it asks for
+<code>Actor.Current</code>:</p>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> A driver books the earliest slot
+<span class="tok-keyword">  Given</span> the <span class="tok-str">&quot;ada&quot;</span> user is signed in
+<span class="tok-keyword">  When</span> the user opens the catalogue
+<span class="tok-keyword">  And</span> the user books the earliest slot
+<span class="tok-keyword">  Then</span> the user should see the booking confirmed</code></pre>
+<pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> BookingSteps
+{
+<span class="tok-attr">    [Given(&quot;the {string} user is signed in&quot;)]</span>
+    <span class="tok-keyword">public</span> Task SignedIn(<span class="tok-keyword">string</span> who) =&gt;
+        Actor.Named(who).WhoCanBrowseTheWeb().AttemptsToAsync(<span class="tok-keyword">new</span> SignIn(Users.For(who)));
+
+<span class="tok-attr">    [When(&quot;the user opens the catalogue&quot;)]</span>
+    <span class="tok-keyword">public</span> Task OpensTheCatalogue() =&gt; Actor.Current.AttemptsToAsync(<span class="tok-keyword">new</span> OpenTheCatalogue());
+
+<span class="tok-attr">    [Then(&quot;the user should see the booking confirmed&quot;)]</span>
+    <span class="tok-keyword">public</span> Task SeesTheConfirmation() =&gt;
+        Assert.That(Actor.Current.Sees(Booking.Confirmation)).ToBeVisibleAsync();
+}</code></pre>
+
+<p><code>Actor.Current</code> is whoever was last brought on by <code>Actor.Named</code> — the same person the scenario's
+reader has in mind. <code>Actor.Named</code> is what puts them there, so a <code>[Given]</code> that introduces somebody
+needs to do nothing else, and a <code>[BeforeScenario]</code> hook that casts the scenario works just as well.
+Their name is still on them, so a step can use it: <code>Actor.Current.Name</code>.</p>
+<p>Asking before anyone has been brought on says so and says where to do it, rather than acting as
+somebody the scenario never introduced.</p>
+<p>Where a scenario does name people — because it has more than one — take the name as a step argument
+and there is no current actor to think about. The same steps then serve however many users the
+scenario has:</p>
+<pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> A shared document reaches the other user
+<span class="tok-keyword">  Given</span> alice has signed in
+<span class="tok-keyword">  When</span> alice shares the document with bob
+<span class="tok-keyword">  Then</span> bob sees a notification</code></pre>
+<pre data-lang="csharp"><code><span class="tok-attr">[Given(&quot;{word} has signed in&quot;)]</span>
+<span class="tok-keyword">public</span> Task SignedIn(<span class="tok-keyword">string</span> who) =&gt;
+    Actor.Named(who).WhoCanBrowseTheWeb().AttemptsToAsync(<span class="tok-keyword">new</span> SignIn(Users.For(who)));
+
+<span class="tok-attr">[Then(&quot;{word} sees a notification&quot;)]</span>
+<span class="tok-keyword">public</span> Task Notified(<span class="tok-keyword">string</span> who) =&gt;
+    Assert.That(Actor.Named(who).Sees(Notifications.Latest)).ToBeVisibleAsync();</code></pre>
+
+<p>Name them in the steps of a scenario where two actors act at the same moment, too: two
+<code>AttemptsToAsync</code> calls inside one <code>Task.WhenAll</code> have no last-one-named between them.</p>
+<p>Because the cast is per test — and so is the current actor — two scenarios running in parallel each
+have their own <code>alice</code>, and a <a href="execution-model.html#retries-timeouts-and-reporting">retry</a> starts with
+nobody on. See <a href="execution-model.html">the execution model</a>.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="assertions.html"><span>Previous</span>Assertions</a><a class="next" href="configuration.html"><span>Next</span>Configuration</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.4.1 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#an-actor">An actor</a></li>
+<li><a href="#abilities">Abilities</a></li>
+<li><a href="#targets">Targets</a></li>
+<li><a href="#interactions">Interactions</a></li>
+<li><a href="#tasks">Tasks</a></li>
+<li><a href="#questions-and-assertions">Questions and assertions</a></li>
+<li><a href="#two-users-at-once">Two users at once</a></li>
+<li><a href="#with-gherkin">With Gherkin</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

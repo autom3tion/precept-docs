@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -110,6 +112,12 @@
     <article class="prose">
       <h1 id="artifacts-and-logging">Artifacts and logging</h1>
 <p><code>PreceptTestContext.Current</code> is ambient for the running test and flows across <code>await</code>. <code>Log(...)</code> lines become that test's standard output; <code>AttachAsync(...)</code> records files. <code>RegisterForDisposal(...)</code> ties a resource to the test — disposed after the after-scenario hook, so hooks can still capture diagnostics from it.</p>
+<h2 id="failing-a-test-after-its-last-line">Failing a test after its last line<a class="anchor" href="#failing-a-test-after-its-last-line" aria-label="Link to this section">#</a></h2>
+<p><code>RegisterVerification(...)</code> registers a check that runs after the test body <em>and</em> its after-scenario hook, and whose failure fails a test that would otherwise have passed:</p>
+<pre data-lang="csharp"><code>PreceptTestContext.Current?.RegisterVerification(() =&gt; session.VerifyNoErrorsAsync());</code></pre>
+
+<p>For a verdict a module reaches on the test's behalf rather than one the test asked for — a console error the page logged while nobody was looking, a request that failed after the last assertion passed. The test cannot check those itself, because the moment they matter is after the last line it wrote. <code>Precept.Web</code> uses it for <a href="browsers.html#what-the-page-says-about-itself"><code>FailOnConsoleErrors</code> and <code>FailOnPageErrors</code></a>.</p>
+<p>Checks run in the order they were registered, before anything registered for disposal is disposed — so a check still has the page or the connection it is checking — and the outcome is settled before disposal, so a failure decided here still gets that module's failure screenshot and trace captured on the way out. A test that already failed keeps its own failure and the check's is logged instead: the first thing to go wrong is the one worth reporting, and a console error is usually a symptom of it.</p>
 <p>What a test logged is reported as the platform's <code>StandardOutputProperty</code>, so it reaches a TRX as <code>&lt;StdOut&gt;</code>, a test explorer's output pane, and every <a href="reporting.html#reporting">reporter</a> — whether the test passed or failed. A failure additionally repeats the log under its message, so a failed test explains itself even where output is suppressed.</p>
 <h2 id="seeing-the-gherkin-steps-a-scenario-ran">Seeing the Gherkin steps a scenario ran<a class="anchor" href="#seeing-the-gherkin-steps-a-scenario-ran" aria-label="Link to this section">#</a></h2>
 <p>Reqnroll traces each step as it executes, and Precept routes that trace into the running test rather than to the process console. That is what puts the steps in the TRX, in a test explorer, and on a ReportPortal test item — and it is why two scenarios running in parallel no longer interleave their steps.</p>
@@ -147,7 +155,11 @@
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#failing-a-test-after-its-last-line">Failing a test after its last line</a></li>
+<li><a href="#seeing-the-gherkin-steps-a-scenario-ran">Seeing the Gherkin steps a scenario ran</a></li>
+</ul>
     </nav>
   </aside>
 </div>

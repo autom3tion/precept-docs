@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -166,6 +168,11 @@
 context.Page = popup;                      <span class="tok-comment">// or: await context.NewPageAsync();</span></code></pre>
 
 <p>Read <code>context.Page</code> per use rather than copying it into a field in the constructor — a stored page keeps pointing at the tab it was, which is the staleness this type exists to avoid.</p>
+<p>The same assignment is how a scenario with two signed-in users works. Each user is a <a href="browsers.html#more-than-one-user-in-a-scenario">session</a> of its own, and pointing the context at one of them points every page object at that user:</p>
+<pre data-lang="csharp"><code>context.Page = (<span class="tok-keyword">await</span> Browser.StartAsync(<span class="tok-str">&quot;bob&quot;</span>)).Page;
+<span class="tok-keyword">await</span> signIn.SignInAsync(<span class="tok-str">&quot;bob&quot;</span>, password);</code></pre>
+
+<p>One context per test means the page objects move together, and that they point at one user at a time — so two users acting at the same moment, rather than in turn, is a case for their <code>IPage</code>s directly.</p>
 <p>Precept never opens a browser on its own. A session belongs to the test that started it, so the suite decides which tests pay for one — normally a tagged hook:</p>
 <pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
 <span class="tok-keyword">public</span> <span class="tok-keyword">class</span> BrowserHooks

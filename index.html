@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -165,6 +167,10 @@ Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
 <td>Playwright, isolated per scenario, capturing screenshots, traces and video on failure.</td>
 </tr>
 <tr>
+<td><a href="Precept.Screenplay.html"><code>Precept.Screenplay</code></a></td>
+<td>The <a href="screenplay.html">screenplay pattern</a> over those modules: actors, abilities, interactions and questions.</td>
+</tr>
+<tr>
 <td><a href="Precept.Data.html"><code>Precept.Data</code></a></td>
 <td>Provider-agnostic ADO.NET for seeding and asserting against a database.</td>
 </tr>
@@ -187,7 +193,9 @@ Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
 </tbody>
 </table></div>
 <p>Every module depends only on <code>Precept.Core</code> and is registered from one
-<a href="startup.html">startup class</a>; nothing is on unless a suite asks for it.</p>
+<a href="startup.html">startup class</a>; nothing is on unless a suite asks for it. <code>Precept.Screenplay</code> is the
+one that sits on top of the others rather than beside them, and is a way of writing tests rather
+than something to register.</p>
 <h2 id="how-a-run-is-put-together">How a run is put together<a class="anchor" href="#how-a-run-is-put-together" aria-label="Link to this section">#</a></h2>
 <ul>
 <li><a href="configuration.html">Configuration</a> — <code>precept.json</code>, overlays, and settings of your own.</li>

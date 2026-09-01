@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html" class="active">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -111,14 +113,16 @@
       <h1 id="writing-tests">Writing tests</h1>
 <h2 id="gherkin">Gherkin<a class="anchor" href="#gherkin" aria-label="Link to this section">#</a></h2>
 <pre data-lang="gherkin"><code><span class="tok-attr">@smoke</span>
-<span class="tok-keyword">Scenario Outline:</span> Adding many pairs of numbers
+<span class="tok-keyword">Scenario Outline:</span> Adding two numbers
 <span class="tok-keyword">	Given</span> I have entered <span class="tok-number">&lt;left&gt;</span> into the calculator
+<span class="tok-keyword">	And</span> I have entered <span class="tok-number">&lt;right&gt;</span> into the calculator
 <span class="tok-keyword">	When</span> I press add
 <span class="tok-keyword">	Then</span> the result should be <span class="tok-number">&lt;total&gt;</span> on the screen
 
 <span class="tok-keyword">	Examples:</span>
 		| left | right | total |
-		| 1    | 2     | 3     |</code></pre>
+		| 1    | 2     | 3     |
+		| -5   | 5     | 0     |</code></pre>
 
 <p>Step definitions are ordinary Reqnroll <code>[Binding]</code> classes. Everything Reqnroll supports — data tables, <code>ScenarioContext</code>, constructor injection, hooks — works unchanged.</p>
 <h2 id="plain-c">Plain C#<a class="anchor" href="#plain-c" aria-label="Link to this section">#</a></h2>

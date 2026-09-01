@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html" class="active">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -188,10 +190,21 @@
             .Within(TimeSpan.FromSeconds(<span class="tok-number">10</span>))
             .ToHaveTextAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);</code></pre>
 
-<p><code>ToBeVisibleAsync</code>, <code>ToBeHiddenAsync</code>, <code>ToBeAttachedAsync</code>, <code>ToBeEnabledAsync</code>, <code>ToBeDisabledAsync</code>, <code>ToBeEditableAsync</code>, <code>ToBeCheckedAsync</code>, <code>ToBeFocusedAsync</code>, <code>ToBeEmptyAsync</code>, <code>ToBeInViewportAsync</code>, <code>ToHaveTextAsync</code>, <code>ToContainTextAsync</code>, <code>ToHaveValueAsync</code>, <code>ToHaveAttributeAsync</code>, <code>ToHaveClassAsync</code>, <code>ToContainClassAsync</code>, <code>ToHaveIdAsync</code>, <code>ToHaveCssAsync</code>, <code>ToHaveCountAsync</code> and <code>ToHaveAccessibleNameAsync</code> cover locators; <code>ToHaveUrlAsync</code> and <code>ToHaveTitleAsync</code> cover the page. Anything not mirrored — and anything Playwright adds later — goes through <code>ToSatisfyAsync</code>:</p>
+<p><code>ToBeVisibleAsync</code>, <code>ToBeHiddenAsync</code>, <code>ToBeAttachedAsync</code>, <code>ToBeEnabledAsync</code>, <code>ToBeDisabledAsync</code>, <code>ToBeEditableAsync</code>, <code>ToBeCheckedAsync</code>, <code>ToBeFocusedAsync</code>, <code>ToBeEmptyAsync</code>, <code>ToBeInViewportAsync</code>, <code>ToHaveTextAsync</code>, <code>ToContainTextAsync</code>, <code>ToHaveValueAsync</code>, <code>ToHaveValuesAsync</code>, <code>ToHaveAttributeAsync</code>, <code>ToHaveClassAsync</code>, <code>ToContainClassAsync</code>, <code>ToHaveIdAsync</code>, <code>ToHaveCssAsync</code>, <code>ToHaveJsPropertyAsync</code>, <code>ToHaveCountAsync</code>, <code>ToHaveRoleAsync</code>, <code>ToHaveAccessibleNameAsync</code>, <code>ToHaveAccessibleDescriptionAsync</code>, <code>ToHaveAccessibleErrorMessageAsync</code> and <code>ToMatchAriaSnapshotAsync</code> cover locators; <code>ToHaveUrlAsync</code>, <code>ToHaveTitleAsync</code> and <code>ToMatchAriaSnapshotAsync</code> cover the page.</p>
+<p><code>ToHaveTextAsync</code>, <code>ToContainTextAsync</code> and <code>ToHaveValuesAsync</code> take several values, in which case the locator has to resolve to one element per value, in that order — a list that grew an item fails rather than passing on the items that still match:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(page.GetByRole(AriaRole.Listitem)).ToHaveTextAsync(<span class="tok-str">&quot;Espresso&quot;</span>, <span class="tok-str">&quot;Cortado&quot;</span>);</code></pre>
+
+<p><code>ToMatchAriaSnapshotAsync</code> asserts a whole region's roles and names at once, in Playwright's YAML, which describes what the page means rather than how it is built:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(page.GetByRole(AriaRole.Navigation)).ToMatchAriaSnapshotAsync(<span class="tok-str">&quot;&quot;</span>&quot;
+    - list:
+      - listitem:
+        - link <span class="tok-str">&quot;Orders&quot;</span>
+    <span class="tok-str">&quot;&quot;</span>&quot;);</code></pre>
+
+<p>Anything not mirrored — an option Precept does not surface, and anything Playwright adds later — goes through <code>ToSatisfyAsync</code>:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(page.Locator(<span class="tok-str">&quot;main&quot;</span>)).ToSatisfyAsync(
-    <span class="tok-str">&quot;match the aria snapshot&quot;</span>,
-    expect =&gt; expect.ToMatchAriaSnapshotAsync(snapshot));</code></pre>
+    <span class="tok-str">&quot;be half in the viewport&quot;</span>,
+    expect =&gt; expect.ToBeInViewportAsync(<span class="tok-keyword">new</span>() { Ratio = <span class="tok-number">0.5f</span> }));</code></pre>
 
 <p>A failed web assertion keeps Playwright's call log, which is the part that says what the page actually looked like on each retry:</p>
 <pre><code>Expected the heading to have the text &quot;Sign out&quot;, but found &#39;Sign in&#39;.
@@ -237,7 +250,7 @@ Call log:
     </article>
 
     <nav class="pager">
-      <a class="prev" href="writing-tests.html"><span>Previous</span>Writing tests</a><a class="next" href="configuration.html"><span>Next</span>Configuration</a>
+      <a class="prev" href="writing-tests.html"><span>Previous</span>Writing tests</a><a class="next" href="screenplay.html"><span>Next</span>Screenplay</a>
     </nav>
 
     <footer>

@@ -58,6 +58,7 @@
 <ul>
 <li><a href="writing-tests.html">Writing tests</a></li>
 <li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
 </ul>
 <p class="nav-group">Configuring a suite</p>
 <ul>
@@ -88,6 +89,7 @@
 <li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
 <li><a href="Precept.Api.html">Precept.Api</a></li>
 <li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
@@ -124,7 +126,8 @@ overlays and a first test already wired.</p>
 <p>Each template includes:</p>
 <ul>
 <li><code>global.json</code> set to <code>Microsoft.Testing.Platform</code> for <code>dotnet test</code> on .NET 10.</li>
-<li><code>precept.json</code> with <code>Environment: local</code> and web defaults.</li>
+<li><code>precept.json</code> with <code>Environment: local</code> and web defaults: headless Chromium at a
+<a href="browsers.html#viewport-size">1080p viewport</a>.</li>
 <li><code>precept.staging.json</code> as an overlay for <code>staging</code>, reached with <code>--precept-environment staging</code>.</li>
 <li>A starter test (plain or <code>.feature</code> + steps).</li>
 </ul>
@@ -136,7 +139,8 @@ environment</a>.</p>
 with the local package source:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> build <span class="tok-attr">--source</span> artifacts/packages <span class="tok-attr">--source</span> https://api.nuget.org/v3/index.json</code></pre>
 
-<p><code>Precept.Web</code> uses Playwright; install the browser once in a new project:</p>
+<p><code>Precept.Web</code> uses Playwright, and installs the browser it is configured for the first time a launch
+finds nothing to drive — see <a href="browsers.html#browsers">Browsers</a>. To install it up front instead:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>
 
     </article>
