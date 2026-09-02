@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html" class="active">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -154,8 +155,8 @@
 </tbody>
 </table></div>
 <p>An <code>&quot;Environment&quot;</code> key in an overlay does nothing: the overlay is chosen before it is read.</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-environment</span> staging
-<span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> samples/Precept.Sample.Tests/Precept.Sample.Tests.csproj -- <span class="tok-attr">--precept-environment</span> staging</code></pre>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-environment</span> staging
+<span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> Checkout.Tests/Checkout.Tests.csproj -- <span class="tok-attr">--precept-environment</span> staging</code></pre>
 
 <p>Every run says which environment it used, and complains when the overlay for it is not there — the case where a typo quietly runs the suite against the defaults:</p>
 <pre><code>[Precept] Environment &#39;staging&#39;. Filter excluded 5 of 33 tests.
@@ -185,8 +186,8 @@
 <p>Reach for it over a build configuration only when you want one machine's override without touching the project file — it outranks <code>precept.json</code>, so gitignore it if that is what you are using it for.</p>
 </blockquote>
 <p>To run against two environments at once — a smoke pack against staging while a regression pack runs locally — use two shells rather than one IDE:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-environment</span> staging <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke&quot;</span> &amp;
-<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-environment</span> local <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;not smoke&quot;</span></code></pre>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-environment</span> staging <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke&quot;</span> &amp;
+<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-environment</span> local <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;not smoke&quot;</span></code></pre>
 
     </article>
 

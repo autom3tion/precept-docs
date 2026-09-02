@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -127,10 +128,10 @@ image that was supposed to bake the browsers in should say when it did not. <cod
 launching every time, which costs a driver round trip per run to confirm what is usually already
 there.</p>
 <p>To install by hand — under <code>Never</code>, or to warm an image before the suite runs:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> samples/Precept.Sample.Tests/bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>
+<pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> Checkout.Web.Tests/bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>
 
 <p>Without PowerShell, invoke the bundled driver directly:</p>
-<pre data-lang="bash"><code>samples/Precept.Sample.Tests/bin/Debug/net10.0/.playwright/node/darwin-arm64/node samples/Precept.Sample.Tests/bin/Debug/net10.0/.playwright/package/cli.js install chromium</code></pre>
+<pre data-lang="bash"><code>Checkout.Web.Tests/bin/Debug/net10.0/.playwright/node/darwin-arm64/node Checkout.Web.Tests/bin/Debug/net10.0/.playwright/package/cli.js install chromium</code></pre>
 <h2 id="which-browser">Which browser<a class="anchor" href="#which-browser" aria-label="Link to this section">#</a></h2>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span> }

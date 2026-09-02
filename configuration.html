@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html" class="active">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -131,6 +132,37 @@ list, with each default.</p>
 <pre data-lang="xml"><code><span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
   <span class="tok-keyword">&lt;EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>false<span class="tok-keyword">&lt;/EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>
 <span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span></code></pre>
+<h2 id="completion-in-an-editor">Completion in an editor<a class="anchor" href="#completion-in-an-editor" aria-label="Link to this section">#</a></h2>
+<p>Precept publishes a JSON schema for these files, generated from the settings classes themselves, so
+every key, its type, its default and its documentation are the ones this version of Precept actually
+reads. Name it at the top of the file and an editor completes the sections, offers the values an enum
+accepts, and shows each setting's description as you type:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;$schema&quot;</span>: <span class="tok-str">&quot;https://autom3tion.github.io/precept-docs/precept.schema.json&quot;</span>,
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span> }
+}</code></pre>
+
+<p>The templates and the scaffolded <code>precept.json</code> already carry that line, and it belongs in the
+<code>precept.{environment}.json</code> overlays too — they bind the same shape. Precept itself reads nothing
+from it; <code>$schema</code> is a key like any other that nothing is bound to.</p>
+<p>Sections and keys the schema does not name are <strong>allowed everywhere</strong>, at the top level and inside
+any block. A suite's <a href="#your-own-settings">own settings</a> are as legitimate as Precept's, so they
+complete nothing and warn about nothing. Two things follow from that, both worth knowing:</p>
+<ul>
+<li><p><strong>Completion is case-sensitive, and binding is not.</strong> <code>&quot;headless&quot;</code> binds exactly as <code>&quot;Headless&quot;</code>
+does, but the schema will not have suggested it and will not describe it. Nothing is underlined —
+it is simply a key the editor has nothing to say about.</p>
+</li>
+<li><p><strong>Comments come from the editor, not from the schema.</strong> Precept allows <code>//</code> comments and trailing
+commas in these files, and so does .NET's JSON configuration provider, but an editor that reads
+<code>precept.json</code> as strict JSON flags them anyway. Tell it otherwise once:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;files.associations&quot;</span>: { <span class="tok-key">&quot;precept*.json&quot;</span>: <span class="tok-str">&quot;jsonc&quot;</span> } }</code></pre>
+</li>
+</ul>
+<p>The schema is <a href="precept.schema.json">precept.schema.json</a>, and it is regenerated on every release, so
+a settings key added by a new version is offered as soon as the project is on it.
+<a href="settings-reference.html#every-setting">Every setting</a> is the same information as a file you can read
+top to bottom: one <code>precept.json</code> with every key at its default, generated from the same place.</p>
 <h2 id="where-a-section-comes-from">Where a section comes from<a class="anchor" href="#where-a-section-comes-from" aria-label="Link to this section">#</a></h2>
 <p>One file, but not one owner. The runner owns the top level — <code>MaxParallelism</code>, <code>ParallelScope</code>,
 <code>DefaultTimeoutMilliseconds</code>, <code>DefaultRetries</code>, <code>ArtifactDirectory</code>, <code>Environment</code>,
@@ -191,7 +223,7 @@ services.AddPreceptSettings&lt;AuthSettings&gt;(configure: a =&gt; a.ClientSecre
     </article>
 
     <nav class="pager">
-      <a class="prev" href="screenplay.html"><span>Previous</span>Screenplay</a><a class="next" href="environment-variables.html"><span>Next</span>Environment variables</a>
+      <a class="prev" href="screenplay.html"><span>Previous</span>Screenplay</a><a class="next" href="settings-reference.html"><span>Next</span>Every setting</a>
     </nav>
 
     <footer>
@@ -203,6 +235,7 @@ services.AddPreceptSettings&lt;AuthSettings&gt;(configure: a =&gt; a.ClientSecre
     <nav>
       <p class="toc-title">On this page</p>
 <ul>
+<li><a href="#completion-in-an-editor">Completion in an editor</a></li>
 <li><a href="#where-a-section-comes-from">Where a section comes from</a></li>
 <li><a href="#your-own-settings">Your own settings</a></li>
 </ul>

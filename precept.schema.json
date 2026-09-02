@@ -1,0 +1,833 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://autom3tion.github.io/precept-docs/precept.schema.json",
+  "title": "Precept settings",
+  "description": "Settings for a Precept test suite: precept.json beside the test binary and the precept.{environment}.json overlays next to it. Generated from Precept's own settings classes. Sections and keys this schema does not name are allowed everywhere — a suite's own settings sections are as valid here as Precept's.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "$schema": {
+      "description": "The schema this file is validated against. Read by editors, and by nothing in Precept.",
+      "type": "string",
+      "default": "https://autom3tion.github.io/precept-docs/precept.schema.json"
+    },
+    "Api": {
+      "description": "HTTP API settings, bound from the Api section of precept.json.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "BaseUrl": {
+          "description": "Base address that relative request paths are resolved against.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DefaultHeaders": {
+          "description": "Headers sent with every request.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "LogPayloads": {
+          "description": "Attach full request and response bodies to the test log.",
+          "type": "boolean",
+          "default": true
+        },
+        "TimeoutMilliseconds": {
+          "description": "Request timeout in milliseconds.",
+          "type": "integer",
+          "default": 30000
+        }
+      }
+    },
+    "ArtifactDirectory": {
+      "description": "Directory for run artifacts, relative to the test binary unless rooted.",
+      "type": "string",
+      "default": "PreceptArtifacts"
+    },
+    "Assertions": {
+      "description": "Settings for the assertion engine.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "PollIntervalMilliseconds": {
+          "description": "How long to wait between attempts, in milliseconds.",
+          "type": "integer",
+          "default": 100
+        },
+        "TimeoutMilliseconds": {
+          "description": "How long a waiting assertion keeps re-reading its value, in milliseconds.",
+          "type": "integer",
+          "default": 5000
+        }
+      }
+    },
+    "ConnectionStrings": {
+      "description": "Named database connection strings for the data module.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "DefaultRetries": {
+      "description": "How many times a failing test is rerun when it has no explicit RetryAttribute. 0 — the default — reruns nothing; 2 means a test may run three times in all.",
+      "type": "integer"
+    },
+    "DefaultTimeoutMilliseconds": {
+      "description": "Default per-test timeout in milliseconds; 0 disables the default timeout.",
+      "type": "integer"
+    },
+    "Environment": {
+      "description": "Name of the environment under test, used to pick the settings overlay file.",
+      "type": "string",
+      "default": "local"
+    },
+    "Filter": {
+      "description": "Tests that this run pretends do not exist. See PreceptFilterSettings.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "Exclude": {
+          "description": "Remove tests matching this expression, whatever Include says.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Include": {
+          "description": "Run only tests matching this expression. Empty runs everything.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "Grpc": {
+      "description": "gRPC settings, bound from the Grpc section of precept.json.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "Address": {
+          "description": "Default server address, for example https://localhost:5001.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AllowInsecure": {
+          "description": "Allow HTTP/2 without TLS. Needed for plaintext gRPC endpoints in test environments.",
+          "type": "boolean",
+          "default": true
+        },
+        "DeadlineMilliseconds": {
+          "description": "Default deadline applied to calls that do not set one, in milliseconds.",
+          "type": "integer",
+          "default": 30000
+        },
+        "LogMessages": {
+          "description": "Record request and response messages in the test log.",
+          "type": "boolean",
+          "default": true
+        },
+        "MaxReceiveMessageSize": {
+          "description": "Largest response message accepted, in bytes.",
+          "type": "integer",
+          "default": 4194304
+        }
+      }
+    },
+    "IsContinuousIntegration": {
+      "description": "Whether this run is on a build agent. Detected from the variables the common CI systems set, and overridable like any other setting — PRECEPT_ISCONTINUOUSINTEGRATION=true makes a developer's run behave as a CI one for the evening, without a file to edit and revert.",
+      "type": "boolean"
+    },
+    "MaxParallelism": {
+      "description": "How many units of work may be in flight at once, where a unit is whatever ParallelScope says it is. Defaults to the processor count. A run cannot exceed the number of units it actually has, so this is a ceiling and not a target.",
+      "type": "integer"
+    },
+    "ParallelScope": {
+      "description": "Whether a class or a single test is one unit of parallel work. Defaults to the class.",
+      "type": "string",
+      "enum": [
+        "Class",
+        "Test"
+      ],
+      "default": "Class"
+    },
+    "Reporting": {
+      "description": "Settings for the reporting pipeline. Each reporter's own settings live in a subsection of the same Reporting block and are bound separately — see PreceptReportingSettings.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "AzureDevOps": {
+          "description": "Azure DevOps reporting, bound from Reporting:AzureDevOps in precept.json.",
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "ApiVersion": {
+              "description": "REST API version the calls ask for.",
+              "type": "string",
+              "default": "7.1"
+            },
+            "AttachArtifacts": {
+              "description": "Upload each failed test's captured files as attachments of its result.",
+              "type": "boolean",
+              "default": true
+            },
+            "BatchSize": {
+              "description": "How many results are sent per call. Results are batched so that a thousand-scenario suite costs about ten requests rather than a thousand.",
+              "type": "integer",
+              "default": 100
+            },
+            "BuildId": {
+              "description": "Build the run is associated with, so it appears on that build's Tests tab.",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "CiOnly": {
+              "description": "File results only from a build agent, which is the default: a test run belongs to a pipeline, and results a developer produced while writing a scenario are not the ones a test plan should show as its latest. Set it to false — or Reporting:CiOnly, for every reporter at once — to file from your own machine.",
+              "type": "boolean",
+              "default": true
+            },
+            "Enabled": {
+              "description": "Whether to create a test run at all.",
+              "type": "boolean",
+              "default": true
+            },
+            "MaxAttachmentBytes": {
+              "description": "Largest artifact uploaded, in bytes. Azure DevOps itself caps an attachment at 100 MB.",
+              "type": "integer",
+              "default": 8388608
+            },
+            "OnlyMappedTests": {
+              "description": "Report only tests that name a Test Case work item, in a TestCaseTagPrefix tag or through TestCaseTitlePattern. Off by default: an unmapped test still belongs in the run, it just is not linked to a work item.",
+              "type": "boolean"
+            },
+            "OrganizationUrl": {
+              "description": "The organization, for example https://dev.azure.com/acme.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PersonalAccessToken": {
+              "description": "A personal access token with Test Management (read & write).",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Project": {
+              "description": "The team project the test run belongs to.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "RunBy": {
+              "description": "Who the run and its results are attributed to — Azure DevOps shows it as Run by. Defaults to whoever the token belongs to: your own account for a personal access token, and the build service identity from a pipeline.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "RunName": {
+              "description": "Name of the test run. Defaults to the assembly name and the environment.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TestCaseTagPrefix": {
+              "description": "Tag prefix that names the Test Case work item a scenario covers: @tc:41207 files this test's result against work item 41207. Set it to null or empty to read ids from the title only.",
+              "type": [
+                "string",
+                "null"
+              ],
+              "default": "tc:"
+            },
+            "TestCaseTitlePattern": {
+              "description": "Pattern that reads the Test Case work item out of the test's title, so a suite can carry its ids where they are already visible — Scenario: [41207] A customer checks out — rather than in a tag per scenario.",
+              "type": [
+                "string",
+                "null"
+              ],
+              "default": "^\\s*(?:\\[(?<id>\\d+)\\]\\s*)+"
+            },
+            "TestPlanId": {
+              "description": "Test plan the run is filed under, when the results belong to one.",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "TestSuiteId": {
+              "description": "Suite within TestPlanId whose points the results are filed against. Optional: left unset, every point the plan has for a test case is filed, which is what a plan with one suite per feature means.",
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "TimeoutSeconds": {
+              "description": "How long any single call may take, in seconds.",
+              "type": "integer",
+              "default": 60
+            }
+          }
+        },
+        "CiOnly": {
+          "description": "Overrides where every reporter runs, whatever each one says for itself: true confines the lot to a build agent, false lets the lot run anywhere. Unset — the default — each reporter decides, and the three shipped ones are CI-only.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "Enabled": {
+          "description": "Turns the whole pipeline off. Nothing is constructed and no queue is started, which is what an overlay wants when a developer's local run should not reach a shared dashboard.",
+          "type": "boolean",
+          "default": true
+        },
+        "MaxFailures": {
+          "description": "How many times one reporter may throw before it is dropped for the rest of the run. A destination that is down should cost one message, not one per test.",
+          "type": "integer",
+          "default": 10
+        },
+        "MaxTrackedFailures": {
+          "description": "How many failed tests Failures carries. Zero keeps none; Failed is the real count either way.",
+          "type": "integer",
+          "default": 100
+        },
+        "QueueCapacity": {
+          "description": "How many events may be waiting for one reporter before further ones are dropped.",
+          "type": "integer",
+          "default": 4096
+        },
+        "ReportPortal": {
+          "description": "ReportPortal reporting, bound from Reporting:ReportPortal in precept.json.",
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "ApiKey": {
+              "description": "The API key of the account the launch is reported under.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "AttachArtifacts": {
+              "description": "Upload screenshots, traces and other captured files as attachments.",
+              "type": "boolean",
+              "default": true
+            },
+            "AttachOnSuccess": {
+              "description": "Attach artifacts of passing tests too, rather than only of failures.",
+              "type": "boolean"
+            },
+            "Attributes": {
+              "description": "Attributes put on the launch. The environment is added automatically.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "CiOnly": {
+              "description": "Report only from a build agent, which is the default: a launch belongs to a pipeline, and a developer's machine has neither the API key nor a reason to add runs to the project's statistics. Set it to false — or Reporting:CiOnly, for every reporter at once — to report from your own machine.",
+              "type": "boolean",
+              "default": true
+            },
+            "Description": {
+              "description": "Description shown on the launch. Defaults to a line naming the environment.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Enabled": {
+              "description": "Whether to report to ReportPortal at all.",
+              "type": "boolean",
+              "default": true
+            },
+            "Endpoint": {
+              "description": "Base address of the ReportPortal instance, without the /api path.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "LaunchMode": {
+              "description": "DEFAULT for a launch everyone sees, DEBUG for one kept out of the project's statistics — which is what a run from a developer's machine usually wants.",
+              "type": "string",
+              "default": "DEFAULT"
+            },
+            "LaunchName": {
+              "description": "Name of the launch. Defaults to the test assembly's name.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "LogMessages": {
+              "description": "Send the lines a test logged as log entries against its item.",
+              "type": "boolean",
+              "default": true
+            },
+            "MaxAttachmentBytes": {
+              "description": "Largest artifact uploaded, in bytes. A Playwright trace of a long scenario runs to tens of megabytes and is rarely what anyone opens from a dashboard.",
+              "type": "integer",
+              "default": 8388608
+            },
+            "Project": {
+              "description": "The ReportPortal project the launch belongs to.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ReportCategoriesAsAttributes": {
+              "description": "Report each test's category tags as attributes of its test item.",
+              "type": "boolean",
+              "default": true
+            },
+            "Rerun": {
+              "description": "Report this launch as a rerun, so ReportPortal merges it into the previous one.",
+              "type": "boolean"
+            },
+            "RerunOf": {
+              "description": "Name or UUID of the launch being rerun, when Rerun is set.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TimeoutSeconds": {
+              "description": "How long any single call may take, in seconds.",
+              "type": "integer",
+              "default": 60
+            }
+          }
+        },
+        "ShutdownTimeoutSeconds": {
+          "description": "How long the run waits, after the last test, for reporters to finish sending. Whatever is still queued when it expires is abandoned and reported as abandoned.",
+          "type": "integer",
+          "default": 60
+        },
+        "Teams": {
+          "description": "Teams reporting, bound from Reporting:Teams in precept.json.",
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "CiOnly": {
+              "description": "Post only from a build agent, which is the default: a channel wants to hear about the pipeline's runs, not about every run a developer starts while working on a scenario. Set it to false — or Reporting:CiOnly, for every reporter at once — to post from your own machine.",
+              "type": "boolean",
+              "default": true
+            },
+            "Enabled": {
+              "description": "Whether to post at all.",
+              "type": "boolean",
+              "default": true
+            },
+            "Facts": {
+              "description": "Extra rows for the card's fact list — a build number, a branch, a release. Values usually come from CI through PRECEPT_REPORTING__TEAMS__FACTS__BUILD.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "ImageAltText": {
+              "description": "What a screen reader says in place of ImageUrl.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ImagePlacement": {
+              "description": "Where ImageUrl goes. Set it to None to drop the image for one environment without losing the URL from the shared file.",
+              "type": "string",
+              "enum": [
+                "None",
+                "Thumbnail",
+                "Banner"
+              ],
+              "default": "Thumbnail"
+            },
+            "ImageUrl": {
+              "description": "An image for the card — a pipeline's status badge, a team logo, a shield for the environment.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "LinkToOtherReports": {
+              "description": "Add a button for every other destination this run reported to — the ReportPortal launch, the Azure DevOps test run — as those reporters posted them to PreceptRunLinks.",
+              "type": "boolean",
+              "default": true
+            },
+            "MaxFailureMessageLength": {
+              "description": "Longest a failure message may be on the card, in characters.",
+              "type": "integer",
+              "default": 300
+            },
+            "MaxFailuresListed": {
+              "description": "How many failed tests the card names before it just gives the remaining count. Read by Detailed only — no other variant lists failures.",
+              "type": "integer",
+              "default": 10
+            },
+            "NotifyOn": {
+              "description": "Which runs are worth a message. Defaults to all of them.",
+              "type": "string",
+              "enum": [
+                "Always",
+                "Failure",
+                "FailureOrFlaky"
+              ],
+              "default": "Always"
+            },
+            "RunUrl": {
+              "description": "Where the card's button goes. Left unset on an Azure DevOps or GitHub Actions agent, the card links to the build that ran the suite — the agent knows its own address, so a test project does not have to be told it.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "RunUrlTitle": {
+              "description": "Label on that button. Defaults to naming the detected build — Open build 20260814.3 — and to Open the run when the URL was configured or no build was found.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "TimeoutSeconds": {
+              "description": "How long the post may take before it is given up on, in seconds.",
+              "type": "integer",
+              "default": 30
+            },
+            "Title": {
+              "description": "Heading on the card. Defaults to the test assembly's name.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Variant": {
+              "description": "How the card is laid out. Defaults to Summary.",
+              "type": "string",
+              "enum": [
+                "Summary",
+                "Compact",
+                "Detailed",
+                "Pipeline"
+              ],
+              "default": "Summary"
+            },
+            "WebhookUrl": {
+              "description": "The incoming webhook to post to, from the channel's Workflows connector.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "TestData": {
+      "description": "Where the test data lives and how it behaves. Bound from the TestData section of precept.json, like any other Precept settings class.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "Directory": {
+          "description": "Directory the data files are read from, relative to the test binary unless rooted.",
+          "type": "string",
+          "default": "."
+        },
+        "EnvironmentOverlay": {
+          "description": "Load the {file}.{environment}.json overlay beside each file in Files.",
+          "type": "boolean",
+          "default": true
+        },
+        "Files": {
+          "description": "Data files to load, in increasing order of precedence. Each one is optional, and each is followed by its environment overlay — testdata.json then testdata.staging.json.",
+          "type": "array",
+          "default": [
+            "testdata.json"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "LeaseTimeoutMilliseconds": {
+          "description": "How long LeaseAsync``1 waits for a pooled item to come free before giving up. Overridable per pool.",
+          "type": "integer",
+          "default": 30000
+        }
+      }
+    },
+    "Web": {
+      "description": "Browser automation settings, bound from the Web section of precept.json.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "Args": {
+          "description": "Extra command-line arguments for the browser executable, written as one command line — a Chromium flag such as --disable-dev-shm-usage on a container agent, or a proxy, language or feature switch an environment needs. Split by ParseArgs.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "AssertionTimeoutMilliseconds": {
+          "description": "How long a web-first assertion — Assert.That(locator).ToBeVisibleAsync() — retries before failing, in milliseconds. Separate from TimeoutMilliseconds on purpose: an action waiting half a minute for an element is patience, an assertion doing the same is a suite that takes half a minute to tell you what is broken.",
+          "type": "integer",
+          "default": 5000
+        },
+        "BaseUrl": {
+          "description": "Base address that relative navigations are resolved against.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Browser": {
+          "description": "Browser engine — chromium, firefox or webkit — or a Chromium channel the machine has installed: chrome or edge, and their -beta, -dev and -canary variants.",
+          "type": "string",
+          "default": "chromium"
+        },
+        "CdpEndpoint": {
+          "description": "Connect to a running Chromium over the DevTools protocol — http://localhost:9222. For driving a browser that is already open, which is what a debugging session or a desktop application embedding Chromium offers.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Channel": {
+          "description": "The release channel to launch instead of Playwright's own build — chrome, msedge, or one of their -beta, -dev and -canary variants.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ColorScheme": {
+          "description": "The colour scheme the page's media queries see: light, dark or no-preference. Unset leaves Playwright's default, which is light.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ConsoleLogging": {
+          "description": "How much of what the page writes to the browser console is copied into the test's log. Errors by default.",
+          "type": "string",
+          "enum": [
+            "None",
+            "Errors",
+            "All"
+          ],
+          "default": "Errors"
+        },
+        "Device": {
+          "description": "A device from Playwright's registry to emulate — iPhone 15, Pixel 7, iPad Mini landscape. Sets the viewport, user agent, device scale factor and the touch and mobile flags together, which is what makes a page serve its mobile layout.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "FailOnConsoleErrors": {
+          "description": "Fail a test whose page wrote an error to the browser console, however well the assertions went.",
+          "type": "boolean"
+        },
+        "FailOnPageErrors": {
+          "description": "Fail a test whose page threw an exception nothing caught, however well the assertions went.",
+          "type": "boolean"
+        },
+        "Geolocation": {
+          "description": "The position the browser reports, as LATITUDE,LONGITUDE — 51.5074,-0.1278.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HarOnFailure": {
+          "description": "Record the session's network traffic as a HAR file; attached to the test when it fails.",
+          "type": "boolean"
+        },
+        "Headless": {
+          "description": "Run without a visible browser window.",
+          "type": "boolean",
+          "default": true
+        },
+        "HttpCredentials": {
+          "description": "Credentials for HTTP basic authentication, sent to every request the context makes.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "Origin": {
+              "description": "Restrict the credentials to this origin, scheme and port included — https://staging.example.com. Unset sends them wherever the page goes, including to a third-party host it happens to load an asset from.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Password": {
+              "description": "The password. Belongs in an environment variable rather than in a settings file.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Username": {
+              "description": "The user name.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "IgnoreHttpsErrors": {
+          "description": "Continue to a site whose certificate does not validate. Off by default, and worth leaving off where the certificate is real.",
+          "type": "boolean"
+        },
+        "InstallBrowsers": {
+          "description": "Whether a browser Playwright has not downloaded is installed rather than failing the run. Auto by default.",
+          "type": "string",
+          "enum": [
+            "Auto",
+            "Never",
+            "Always"
+          ],
+          "default": "Auto"
+        },
+        "Locale": {
+          "description": "The locale the browser reports, as a BCP 47 tag — en-GB, de-DE. Decides the Accept-Language header and the formatting of dates and numbers the page renders.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Permissions": {
+          "description": "Browser permissions granted to every context up front, separated by spaces or commas — geolocation, clipboard-read, notifications.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Proxy": {
+          "description": "The proxy every browser connection goes through — the corporate proxy an agent sits behind, or a recording proxy a suite runs against.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true,
+          "properties": {
+            "Bypass": {
+              "description": "Hosts to reach directly, comma-separated — localhost,*.internal. Normally where a container or a local stub goes, since a proxy cannot route to the agent's own loopback.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Password": {
+              "description": "Password, where the proxy authenticates.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Server": {
+              "description": "The proxy, as http://host:port or socks5://host:port. Nothing else here means anything without it.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Username": {
+              "description": "User name, where the proxy authenticates.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "Resolution": {
+          "description": "The viewport as one value: a named resolution — 720p, 900p, 1080p, 1440p, 2160p, or the aliases hd, fhd, qhd, uhd and 4k — or an explicit WIDTHxHEIGHT such as 1366x768. Case-insensitive.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SaveDownloads": {
+          "description": "Save a file the page downloads into the test's artifacts. On by default, and free for a test that never downloads anything.",
+          "type": "boolean",
+          "default": true
+        },
+        "ScreenshotOnFailure": {
+          "description": "Capture a screenshot when a test fails.",
+          "type": "boolean",
+          "default": true
+        },
+        "SlowMoMilliseconds": {
+          "description": "Slow each Playwright operation down by this many milliseconds, for debugging.",
+          "type": "integer"
+        },
+        "StorageState": {
+          "description": "A file of cookies and local storage — Playwright's storageState — that every context starts from, so a suite does not sign in once per test.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TimeoutMilliseconds": {
+          "description": "Default timeout for element and navigation waits, in milliseconds.",
+          "type": "integer",
+          "default": 30000
+        },
+        "TimezoneId": {
+          "description": "The time zone the browser reports, as an IANA name — Europe/London, America/New_York. Unset leaves the machine's, with the same drift Locale describes and rather more of it around midnight.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TraceOnFailure": {
+          "description": "Record a Playwright trace; attached to the test when it fails.",
+          "type": "boolean",
+          "default": true
+        },
+        "UserAgent": {
+          "description": "The user agent every page reports. Unset leaves the browser's own — and a Device's, which is part of what makes the emulation convincing.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "VideoOnFailure": {
+          "description": "Record a video of each test; attached when it fails.",
+          "type": "boolean"
+        },
+        "ViewportHeight": {
+          "description": "Viewport height in pixels. Ignored when Resolution names one.",
+          "type": "integer",
+          "default": 800
+        },
+        "ViewportWidth": {
+          "description": "Viewport width in pixels. Ignored when Resolution names one.",
+          "type": "integer",
+          "default": 1280
+        },
+        "WsEndpoint": {
+          "description": "Connect to a browser already running somewhere else, over Playwright's own protocol — ws://grid.internal:3000/. A browser grid, or a vendor's cloud, addresses the suite this way.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

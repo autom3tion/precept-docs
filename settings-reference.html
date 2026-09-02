@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en" data-page="settings-reference">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Every setting · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.5.1</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html" class="active">Every setting</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="every-setting">Every setting</h1>
+<p>One <code>precept.json</code> with every setting Precept ships, each at the value it takes when nothing sets it.
+It is generated from the settings classes themselves, so it is the file <em>this</em> version of Precept
+reads — nothing on this page is written by hand.</p>
+<p><strong>You are not meant to copy all of it.</strong> Every key here is already its own default, so a file
+containing it changes nothing about a run; the shortest correct <code>precept.json</code> is <code>{}</code>. Take the
+handful of lines you want to change and leave the rest out, where they cost nothing and cannot go
+stale against a later release. <a href="configuration.html#configuration">Configuration</a> covers how the file is
+found, overlaid and overridden; this page is the inventory.</p>
+<p>Two things worth knowing before reading it:</p>
+<ul>
+<li><strong>A section is only read if the module that owns it is registered.</strong> A <code>Web</code> block in a project
+that never calls <code>AddPreceptWeb()</code> is read by nothing and reports nothing — see
+<a href="configuration.html#where-a-section-comes-from">where a section comes from</a>.</li>
+<li><strong>Every key here can also come from the environment</strong>, which is how a pipeline overrides a run and
+how a credential stays out of source control. <code>Web:Headless</code> is <code>PRECEPT_WEB__HEADLESS</code>;
+<a href="environment-variables.html#environment-variables">Environment variables</a> is that list.</li>
+</ul>
+<p>Comments and trailing commas are allowed in these files — .NET's JSON configuration provider skips
+them — so the annotations below can stay in anything you copy.</p>
+<!-- generated: settings -->
+<pre data-lang="jsonc"><code>{
+  <span class="tok-comment">// The schema this file is validated against. Read by editors, and by nothing in Precept.</span>
+  <span class="tok-key">&quot;$schema&quot;</span>: <span class="tok-str">&quot;https://autom3tion.github.io/precept-docs/precept.schema.json&quot;</span>,
+
+  <span class="tok-comment">// Directory for run artifacts, relative to the test binary unless rooted.</span>
+  <span class="tok-key">&quot;ArtifactDirectory&quot;</span>: <span class="tok-str">&quot;PreceptArtifacts&quot;</span>,
+
+  <span class="tok-comment">// Named database connection strings for the data module.</span>
+  <span class="tok-key">&quot;ConnectionStrings&quot;</span>: {},
+
+  <span class="tok-comment">// How many times a failing test is rerun when it has no explicit RetryAttribute. 0 — the default</span>
+  <span class="tok-comment">// — reruns nothing; 2 means a test may run three times in all.</span>
+  <span class="tok-key">&quot;DefaultRetries&quot;</span>: <span class="tok-number">0</span>,
+
+  <span class="tok-comment">// Default per-test timeout in milliseconds; 0 disables the default timeout.</span>
+  <span class="tok-key">&quot;DefaultTimeoutMilliseconds&quot;</span>: <span class="tok-number">0</span>,
+
+  <span class="tok-comment">// Name of the environment under test, used to pick the settings overlay file.</span>
+  <span class="tok-key">&quot;Environment&quot;</span>: <span class="tok-str">&quot;local&quot;</span>,
+
+  <span class="tok-comment">// Whether this run is on a build agent. Detected from the variables the common CI systems set,</span>
+  <span class="tok-comment">// and overridable like any other setting — PRECEPT_ISCONTINUOUSINTEGRATION=true makes a</span>
+  <span class="tok-comment">// developer&#39;s run behave as a CI one for the evening, without a file to edit and revert.</span>
+  <span class="tok-key">&quot;IsContinuousIntegration&quot;</span>: <span class="tok-keyword">false</span>,
+
+  <span class="tok-comment">// How many units of work may be in flight at once, where a unit is whatever ParallelScope says it</span>
+  <span class="tok-comment">// is. Defaults to the processor count. A run cannot exceed the number of units it actually has,</span>
+  <span class="tok-comment">// so this is a ceiling and not a target.</span>
+  <span class="tok-key">&quot;MaxParallelism&quot;</span>: <span class="tok-number">0</span>,
+
+  <span class="tok-comment">// Whether a class or a single test is one unit of parallel work. Defaults to the class. One of:</span>
+  <span class="tok-comment">// Class, Test.</span>
+  <span class="tok-key">&quot;ParallelScope&quot;</span>: <span class="tok-str">&quot;Class&quot;</span>,
+
+  <span class="tok-comment">// HTTP API settings, bound from the Api section of precept.json.</span>
+  <span class="tok-key">&quot;Api&quot;</span>: {
+    <span class="tok-comment">// Base address that relative request paths are resolved against.</span>
+    <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Headers sent with every request.</span>
+    <span class="tok-key">&quot;DefaultHeaders&quot;</span>: {},
+
+    <span class="tok-comment">// Attach full request and response bodies to the test log.</span>
+    <span class="tok-key">&quot;LogPayloads&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Request timeout in milliseconds.</span>
+    <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span>
+  },
+
+  <span class="tok-comment">// Settings for the assertion engine.</span>
+  <span class="tok-key">&quot;Assertions&quot;</span>: {
+    <span class="tok-comment">// How long to wait between attempts, in milliseconds.</span>
+    <span class="tok-key">&quot;PollIntervalMilliseconds&quot;</span>: <span class="tok-number">100</span>,
+
+    <span class="tok-comment">// How long a waiting assertion keeps re-reading its value, in milliseconds.</span>
+    <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">5000</span>
+  },
+
+  <span class="tok-comment">// Tests that this run pretends do not exist. See PreceptFilterSettings.</span>
+  <span class="tok-key">&quot;Filter&quot;</span>: {
+    <span class="tok-comment">// Remove tests matching this expression, whatever Include says.</span>
+    <span class="tok-key">&quot;Exclude&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Run only tests matching this expression. Empty runs everything.</span>
+    <span class="tok-key">&quot;Include&quot;</span>: <span class="tok-keyword">null</span>
+  },
+
+  <span class="tok-comment">// gRPC settings, bound from the Grpc section of precept.json.</span>
+  <span class="tok-key">&quot;Grpc&quot;</span>: {
+    <span class="tok-comment">// Default server address, for example https://localhost:5001.</span>
+    <span class="tok-key">&quot;Address&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Allow HTTP/2 without TLS. Needed for plaintext gRPC endpoints in test environments.</span>
+    <span class="tok-key">&quot;AllowInsecure&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Default deadline applied to calls that do not set one, in milliseconds.</span>
+    <span class="tok-key">&quot;DeadlineMilliseconds&quot;</span>: <span class="tok-number">30000</span>,
+
+    <span class="tok-comment">// Record request and response messages in the test log.</span>
+    <span class="tok-key">&quot;LogMessages&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Largest response message accepted, in bytes.</span>
+    <span class="tok-key">&quot;MaxReceiveMessageSize&quot;</span>: <span class="tok-number">4194304</span>
+  },
+
+  <span class="tok-comment">// Settings for the reporting pipeline. Each reporter&#39;s own settings live in a subsection of the</span>
+  <span class="tok-comment">// same Reporting block and are bound separately — see PreceptReportingSettings.</span>
+  <span class="tok-key">&quot;Reporting&quot;</span>: {
+    <span class="tok-comment">// Overrides where every reporter runs, whatever each one says for itself: true confines the lot</span>
+    <span class="tok-comment">// to a build agent, false lets the lot run anywhere. Unset — the default — each reporter</span>
+    <span class="tok-comment">// decides, and the three shipped ones are CI-only.</span>
+    <span class="tok-key">&quot;CiOnly&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Turns the whole pipeline off. Nothing is constructed and no queue is started, which is what</span>
+    <span class="tok-comment">// an overlay wants when a developer&#39;s local run should not reach a shared dashboard.</span>
+    <span class="tok-key">&quot;Enabled&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// How many times one reporter may throw before it is dropped for the rest of the run. A</span>
+    <span class="tok-comment">// destination that is down should cost one message, not one per test.</span>
+    <span class="tok-key">&quot;MaxFailures&quot;</span>: <span class="tok-number">10</span>,
+
+    <span class="tok-comment">// How many failed tests Failures carries. Zero keeps none; Failed is the real count either way.</span>
+    <span class="tok-key">&quot;MaxTrackedFailures&quot;</span>: <span class="tok-number">100</span>,
+
+    <span class="tok-comment">// How many events may be waiting for one reporter before further ones are dropped.</span>
+    <span class="tok-key">&quot;QueueCapacity&quot;</span>: <span class="tok-number">4096</span>,
+
+    <span class="tok-comment">// How long the run waits, after the last test, for reporters to finish sending. Whatever is</span>
+    <span class="tok-comment">// still queued when it expires is abandoned and reported as abandoned.</span>
+    <span class="tok-key">&quot;ShutdownTimeoutSeconds&quot;</span>: <span class="tok-number">60</span>,
+
+    <span class="tok-comment">// Azure DevOps reporting, bound from Reporting:AzureDevOps in precept.json.</span>
+    <span class="tok-key">&quot;AzureDevOps&quot;</span>: {
+      <span class="tok-comment">// REST API version the calls ask for.</span>
+      <span class="tok-key">&quot;ApiVersion&quot;</span>: <span class="tok-str">&quot;7.1&quot;</span>,
+
+      <span class="tok-comment">// Upload each failed test&#39;s captured files as attachments of its result.</span>
+      <span class="tok-key">&quot;AttachArtifacts&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// How many results are sent per call. Results are batched so that a thousand-scenario suite</span>
+      <span class="tok-comment">// costs about ten requests rather than a thousand.</span>
+      <span class="tok-key">&quot;BatchSize&quot;</span>: <span class="tok-number">100</span>,
+
+      <span class="tok-comment">// Build the run is associated with, so it appears on that build&#39;s Tests tab.</span>
+      <span class="tok-key">&quot;BuildId&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// File results only from a build agent, which is the default: a test run belongs to a</span>
+      <span class="tok-comment">// pipeline, and results a developer produced while writing a scenario are not the ones a test</span>
+      <span class="tok-comment">// plan should show as its latest. Set it to false — or Reporting:CiOnly, for every reporter</span>
+      <span class="tok-comment">// at once — to file from your own machine.</span>
+      <span class="tok-key">&quot;CiOnly&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Whether to create a test run at all.</span>
+      <span class="tok-key">&quot;Enabled&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Largest artifact uploaded, in bytes. Azure DevOps itself caps an attachment at 100 MB.</span>
+      <span class="tok-key">&quot;MaxAttachmentBytes&quot;</span>: <span class="tok-number">8388608</span>,
+
+      <span class="tok-comment">// Report only tests that name a Test Case work item, in a TestCaseTagPrefix tag or through</span>
+      <span class="tok-comment">// TestCaseTitlePattern. Off by default: an unmapped test still belongs in the run, it just is</span>
+      <span class="tok-comment">// not linked to a work item.</span>
+      <span class="tok-key">&quot;OnlyMappedTests&quot;</span>: <span class="tok-keyword">false</span>,
+
+      <span class="tok-comment">// The organization, for example https://dev.azure.com/acme.</span>
+      <span class="tok-key">&quot;OrganizationUrl&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// A personal access token with Test Management (read &amp; write).</span>
+      <span class="tok-key">&quot;PersonalAccessToken&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// The team project the test run belongs to.</span>
+      <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Who the run and its results are attributed to — Azure DevOps shows it as Run by. Defaults</span>
+      <span class="tok-comment">// to whoever the token belongs to: your own account for a personal access token, and the</span>
+      <span class="tok-comment">// build service identity from a pipeline.</span>
+      <span class="tok-key">&quot;RunBy&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Name of the test run. Defaults to the assembly name and the environment.</span>
+      <span class="tok-key">&quot;RunName&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Tag prefix that names the Test Case work item a scenario covers: @tc:41207 files this</span>
+      <span class="tok-comment">// test&#39;s result against work item 41207. Set it to null or empty to read ids from the title</span>
+      <span class="tok-comment">// only.</span>
+      <span class="tok-key">&quot;TestCaseTagPrefix&quot;</span>: <span class="tok-str">&quot;tc:&quot;</span>,
+
+      <span class="tok-comment">// Pattern that reads the Test Case work item out of the test&#39;s title, so a suite can carry</span>
+      <span class="tok-comment">// its ids where they are already visible — Scenario: [41207] A customer checks out — rather</span>
+      <span class="tok-comment">// than in a tag per scenario.</span>
+      <span class="tok-key">&quot;TestCaseTitlePattern&quot;</span>: <span class="tok-str">&quot;^\\s*(?:\\[(?&lt;id&gt;\\d+)\\]\\s*)+&quot;</span>,
+
+      <span class="tok-comment">// Test plan the run is filed under, when the results belong to one.</span>
+      <span class="tok-key">&quot;TestPlanId&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Suite within TestPlanId whose points the results are filed against. Optional: left unset,</span>
+      <span class="tok-comment">// every point the plan has for a test case is filed, which is what a plan with one suite per</span>
+      <span class="tok-comment">// feature means.</span>
+      <span class="tok-key">&quot;TestSuiteId&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// How long any single call may take, in seconds.</span>
+      <span class="tok-key">&quot;TimeoutSeconds&quot;</span>: <span class="tok-number">60</span>
+    },
+
+    <span class="tok-comment">// ReportPortal reporting, bound from Reporting:ReportPortal in precept.json.</span>
+    <span class="tok-key">&quot;ReportPortal&quot;</span>: {
+      <span class="tok-comment">// The API key of the account the launch is reported under.</span>
+      <span class="tok-key">&quot;ApiKey&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Upload screenshots, traces and other captured files as attachments.</span>
+      <span class="tok-key">&quot;AttachArtifacts&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Attach artifacts of passing tests too, rather than only of failures.</span>
+      <span class="tok-key">&quot;AttachOnSuccess&quot;</span>: <span class="tok-keyword">false</span>,
+
+      <span class="tok-comment">// Attributes put on the launch. The environment is added automatically.</span>
+      <span class="tok-key">&quot;Attributes&quot;</span>: {},
+
+      <span class="tok-comment">// Report only from a build agent, which is the default: a launch belongs to a pipeline, and a</span>
+      <span class="tok-comment">// developer&#39;s machine has neither the API key nor a reason to add runs to the project&#39;s</span>
+      <span class="tok-comment">// statistics. Set it to false — or Reporting:CiOnly, for every reporter at once — to report</span>
+      <span class="tok-comment">// from your own machine.</span>
+      <span class="tok-key">&quot;CiOnly&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Description shown on the launch. Defaults to a line naming the environment.</span>
+      <span class="tok-key">&quot;Description&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Whether to report to ReportPortal at all.</span>
+      <span class="tok-key">&quot;Enabled&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Base address of the ReportPortal instance, without the /api path.</span>
+      <span class="tok-key">&quot;Endpoint&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// DEFAULT for a launch everyone sees, DEBUG for one kept out of the project&#39;s statistics —</span>
+      <span class="tok-comment">// which is what a run from a developer&#39;s machine usually wants.</span>
+      <span class="tok-key">&quot;LaunchMode&quot;</span>: <span class="tok-str">&quot;DEFAULT&quot;</span>,
+
+      <span class="tok-comment">// Name of the launch. Defaults to the test assembly&#39;s name.</span>
+      <span class="tok-key">&quot;LaunchName&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Send the lines a test logged as log entries against its item.</span>
+      <span class="tok-key">&quot;LogMessages&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Largest artifact uploaded, in bytes. A Playwright trace of a long scenario runs to tens of</span>
+      <span class="tok-comment">// megabytes and is rarely what anyone opens from a dashboard.</span>
+      <span class="tok-key">&quot;MaxAttachmentBytes&quot;</span>: <span class="tok-number">8388608</span>,
+
+      <span class="tok-comment">// The ReportPortal project the launch belongs to.</span>
+      <span class="tok-key">&quot;Project&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Report each test&#39;s category tags as attributes of its test item.</span>
+      <span class="tok-key">&quot;ReportCategoriesAsAttributes&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Report this launch as a rerun, so ReportPortal merges it into the previous one.</span>
+      <span class="tok-key">&quot;Rerun&quot;</span>: <span class="tok-keyword">false</span>,
+
+      <span class="tok-comment">// Name or UUID of the launch being rerun, when Rerun is set.</span>
+      <span class="tok-key">&quot;RerunOf&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// How long any single call may take, in seconds.</span>
+      <span class="tok-key">&quot;TimeoutSeconds&quot;</span>: <span class="tok-number">60</span>
+    },
+
+    <span class="tok-comment">// Teams reporting, bound from Reporting:Teams in precept.json.</span>
+    <span class="tok-key">&quot;Teams&quot;</span>: {
+      <span class="tok-comment">// Post only from a build agent, which is the default: a channel wants to hear about the</span>
+      <span class="tok-comment">// pipeline&#39;s runs, not about every run a developer starts while working on a scenario. Set it</span>
+      <span class="tok-comment">// to false — or Reporting:CiOnly, for every reporter at once — to post from your own machine.</span>
+      <span class="tok-key">&quot;CiOnly&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Whether to post at all.</span>
+      <span class="tok-key">&quot;Enabled&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Extra rows for the card&#39;s fact list — a build number, a branch, a release. Values usually</span>
+      <span class="tok-comment">// come from CI through PRECEPT_REPORTING__TEAMS__FACTS__BUILD.</span>
+      <span class="tok-key">&quot;Facts&quot;</span>: {},
+
+      <span class="tok-comment">// What a screen reader says in place of ImageUrl.</span>
+      <span class="tok-key">&quot;ImageAltText&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Where ImageUrl goes. Set it to None to drop the image for one environment without losing</span>
+      <span class="tok-comment">// the URL from the shared file. One of: None, Thumbnail, Banner.</span>
+      <span class="tok-key">&quot;ImagePlacement&quot;</span>: <span class="tok-str">&quot;Thumbnail&quot;</span>,
+
+      <span class="tok-comment">// An image for the card — a pipeline&#39;s status badge, a team logo, a shield for the</span>
+      <span class="tok-comment">// environment.</span>
+      <span class="tok-key">&quot;ImageUrl&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Add a button for every other destination this run reported to — the ReportPortal launch,</span>
+      <span class="tok-comment">// the Azure DevOps test run — as those reporters posted them to PreceptRunLinks.</span>
+      <span class="tok-key">&quot;LinkToOtherReports&quot;</span>: <span class="tok-keyword">true</span>,
+
+      <span class="tok-comment">// Longest a failure message may be on the card, in characters.</span>
+      <span class="tok-key">&quot;MaxFailureMessageLength&quot;</span>: <span class="tok-number">300</span>,
+
+      <span class="tok-comment">// How many failed tests the card names before it just gives the remaining count. Read by</span>
+      <span class="tok-comment">// Detailed only — no other variant lists failures.</span>
+      <span class="tok-key">&quot;MaxFailuresListed&quot;</span>: <span class="tok-number">10</span>,
+
+      <span class="tok-comment">// Which runs are worth a message. Defaults to all of them. One of: Always, Failure,</span>
+      <span class="tok-comment">// FailureOrFlaky.</span>
+      <span class="tok-key">&quot;NotifyOn&quot;</span>: <span class="tok-str">&quot;Always&quot;</span>,
+
+      <span class="tok-comment">// Where the card&#39;s button goes. Left unset on an Azure DevOps or GitHub Actions agent, the</span>
+      <span class="tok-comment">// card links to the build that ran the suite — the agent knows its own address, so a test</span>
+      <span class="tok-comment">// project does not have to be told it.</span>
+      <span class="tok-key">&quot;RunUrl&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Label on that button. Defaults to naming the detected build — Open build 20260814.3 — and</span>
+      <span class="tok-comment">// to Open the run when the URL was configured or no build was found.</span>
+      <span class="tok-key">&quot;RunUrlTitle&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// How long the post may take before it is given up on, in seconds.</span>
+      <span class="tok-key">&quot;TimeoutSeconds&quot;</span>: <span class="tok-number">30</span>,
+
+      <span class="tok-comment">// Heading on the card. Defaults to the test assembly&#39;s name.</span>
+      <span class="tok-key">&quot;Title&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// How the card is laid out. Defaults to Summary. One of: Summary, Compact, Detailed,</span>
+      <span class="tok-comment">// Pipeline.</span>
+      <span class="tok-key">&quot;Variant&quot;</span>: <span class="tok-str">&quot;Summary&quot;</span>,
+
+      <span class="tok-comment">// The incoming webhook to post to, from the channel&#39;s Workflows connector.</span>
+      <span class="tok-key">&quot;WebhookUrl&quot;</span>: <span class="tok-keyword">null</span>
+    }
+  },
+
+  <span class="tok-comment">// Where the test data lives and how it behaves. Bound from the TestData section of precept.json,</span>
+  <span class="tok-comment">// like any other Precept settings class.</span>
+  <span class="tok-key">&quot;TestData&quot;</span>: {
+    <span class="tok-comment">// Directory the data files are read from, relative to the test binary unless rooted.</span>
+    <span class="tok-key">&quot;Directory&quot;</span>: <span class="tok-str">&quot;.&quot;</span>,
+
+    <span class="tok-comment">// Load the {file}.{environment}.json overlay beside each file in Files.</span>
+    <span class="tok-key">&quot;EnvironmentOverlay&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Data files to load, in increasing order of precedence. Each one is optional, and each is</span>
+    <span class="tok-comment">// followed by its environment overlay — testdata.json then testdata.staging.json.</span>
+    <span class="tok-key">&quot;Files&quot;</span>: [<span class="tok-str">&quot;testdata.json&quot;</span>],
+
+    <span class="tok-comment">// How long LeaseAsync``1 waits for a pooled item to come free before giving up. Overridable per</span>
+    <span class="tok-comment">// pool.</span>
+    <span class="tok-key">&quot;LeaseTimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span>
+  },
+
+  <span class="tok-comment">// Browser automation settings, bound from the Web section of precept.json.</span>
+  <span class="tok-key">&quot;Web&quot;</span>: {
+    <span class="tok-comment">// Extra command-line arguments for the browser executable, written as one command line — a</span>
+    <span class="tok-comment">// Chromium flag such as --disable-dev-shm-usage on a container agent, or a proxy, language or</span>
+    <span class="tok-comment">// feature switch an environment needs. Split by ParseArgs.</span>
+    <span class="tok-key">&quot;Args&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// How long a web-first assertion — Assert.That(locator).ToBeVisibleAsync() — retries before</span>
+    <span class="tok-comment">// failing, in milliseconds. Separate from TimeoutMilliseconds on purpose: an action waiting</span>
+    <span class="tok-comment">// half a minute for an element is patience, an assertion doing the same is a suite that takes</span>
+    <span class="tok-comment">// half a minute to tell you what is broken.</span>
+    <span class="tok-key">&quot;AssertionTimeoutMilliseconds&quot;</span>: <span class="tok-number">5000</span>,
+
+    <span class="tok-comment">// Base address that relative navigations are resolved against.</span>
+    <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Browser engine — chromium, firefox or webkit — or a Chromium channel the machine has</span>
+    <span class="tok-comment">// installed: chrome or edge, and their -beta, -dev and -canary variants.</span>
+    <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span>,
+
+    <span class="tok-comment">// Connect to a running Chromium over the DevTools protocol — http://localhost:9222. For driving</span>
+    <span class="tok-comment">// a browser that is already open, which is what a debugging session or a desktop application</span>
+    <span class="tok-comment">// embedding Chromium offers.</span>
+    <span class="tok-key">&quot;CdpEndpoint&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// The release channel to launch instead of Playwright&#39;s own build — chrome, msedge, or one of</span>
+    <span class="tok-comment">// their -beta, -dev and -canary variants.</span>
+    <span class="tok-key">&quot;Channel&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// The colour scheme the page&#39;s media queries see: light, dark or no-preference. Unset leaves</span>
+    <span class="tok-comment">// Playwright&#39;s default, which is light.</span>
+    <span class="tok-key">&quot;ColorScheme&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// How much of what the page writes to the browser console is copied into the test&#39;s log. Errors</span>
+    <span class="tok-comment">// by default. One of: None, Errors, All.</span>
+    <span class="tok-key">&quot;ConsoleLogging&quot;</span>: <span class="tok-str">&quot;Errors&quot;</span>,
+
+    <span class="tok-comment">// A device from Playwright&#39;s registry to emulate — iPhone 15, Pixel 7, iPad Mini landscape.</span>
+    <span class="tok-comment">// Sets the viewport, user agent, device scale factor and the touch and mobile flags together,</span>
+    <span class="tok-comment">// which is what makes a page serve its mobile layout.</span>
+    <span class="tok-key">&quot;Device&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Fail a test whose page wrote an error to the browser console, however well the assertions</span>
+    <span class="tok-comment">// went.</span>
+    <span class="tok-key">&quot;FailOnConsoleErrors&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Fail a test whose page threw an exception nothing caught, however well the assertions went.</span>
+    <span class="tok-key">&quot;FailOnPageErrors&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// The position the browser reports, as LATITUDE,LONGITUDE — 51.5074,-0.1278.</span>
+    <span class="tok-key">&quot;Geolocation&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Record the session&#39;s network traffic as a HAR file; attached to the test when it fails.</span>
+    <span class="tok-key">&quot;HarOnFailure&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Run without a visible browser window.</span>
+    <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Continue to a site whose certificate does not validate. Off by default, and worth leaving off</span>
+    <span class="tok-comment">// where the certificate is real.</span>
+    <span class="tok-key">&quot;IgnoreHttpsErrors&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Whether a browser Playwright has not downloaded is installed rather than failing the run.</span>
+    <span class="tok-comment">// Auto by default. One of: Auto, Never, Always.</span>
+    <span class="tok-key">&quot;InstallBrowsers&quot;</span>: <span class="tok-str">&quot;Auto&quot;</span>,
+
+    <span class="tok-comment">// The locale the browser reports, as a BCP 47 tag — en-GB, de-DE. Decides the Accept-Language</span>
+    <span class="tok-comment">// header and the formatting of dates and numbers the page renders.</span>
+    <span class="tok-key">&quot;Locale&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Browser permissions granted to every context up front, separated by spaces or commas —</span>
+    <span class="tok-comment">// geolocation, clipboard-read, notifications.</span>
+    <span class="tok-key">&quot;Permissions&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// The viewport as one value: a named resolution — 720p, 900p, 1080p, 1440p, 2160p, or the</span>
+    <span class="tok-comment">// aliases hd, fhd, qhd, uhd and 4k — or an explicit WIDTHxHEIGHT such as 1366x768.</span>
+    <span class="tok-comment">// Case-insensitive.</span>
+    <span class="tok-key">&quot;Resolution&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Save a file the page downloads into the test&#39;s artifacts. On by default, and free for a test</span>
+    <span class="tok-comment">// that never downloads anything.</span>
+    <span class="tok-key">&quot;SaveDownloads&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Capture a screenshot when a test fails.</span>
+    <span class="tok-key">&quot;ScreenshotOnFailure&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Slow each Playwright operation down by this many milliseconds, for debugging.</span>
+    <span class="tok-key">&quot;SlowMoMilliseconds&quot;</span>: <span class="tok-number">0</span>,
+
+    <span class="tok-comment">// A file of cookies and local storage — Playwright&#39;s storageState — that every context starts</span>
+    <span class="tok-comment">// from, so a suite does not sign in once per test.</span>
+    <span class="tok-key">&quot;StorageState&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Default timeout for element and navigation waits, in milliseconds.</span>
+    <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span>,
+
+    <span class="tok-comment">// The time zone the browser reports, as an IANA name — Europe/London, America/New_York. Unset</span>
+    <span class="tok-comment">// leaves the machine&#39;s, with the same drift Locale describes and rather more of it around</span>
+    <span class="tok-comment">// midnight.</span>
+    <span class="tok-key">&quot;TimezoneId&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Record a Playwright trace; attached to the test when it fails.</span>
+    <span class="tok-key">&quot;TraceOnFailure&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// The user agent every page reports. Unset leaves the browser&#39;s own — and a Device&#39;s, which is</span>
+    <span class="tok-comment">// part of what makes the emulation convincing.</span>
+    <span class="tok-key">&quot;UserAgent&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Record a video of each test; attached when it fails.</span>
+    <span class="tok-key">&quot;VideoOnFailure&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Viewport height in pixels. Ignored when Resolution names one.</span>
+    <span class="tok-key">&quot;ViewportHeight&quot;</span>: <span class="tok-number">800</span>,
+
+    <span class="tok-comment">// Viewport width in pixels. Ignored when Resolution names one.</span>
+    <span class="tok-key">&quot;ViewportWidth&quot;</span>: <span class="tok-number">1280</span>,
+
+    <span class="tok-comment">// Connect to a browser already running somewhere else, over Playwright&#39;s own protocol —</span>
+    <span class="tok-comment">// ws://grid.internal:3000/. A browser grid, or a vendor&#39;s cloud, addresses the suite this way.</span>
+    <span class="tok-key">&quot;WsEndpoint&quot;</span>: <span class="tok-keyword">null</span>,
+
+    <span class="tok-comment">// Credentials for HTTP basic authentication, sent to every request the context makes.</span>
+    <span class="tok-key">&quot;HttpCredentials&quot;</span>: {
+      <span class="tok-comment">// Restrict the credentials to this origin, scheme and port included —</span>
+      <span class="tok-comment">// https://staging.example.com. Unset sends them wherever the page goes, including to a</span>
+      <span class="tok-comment">// third-party host it happens to load an asset from.</span>
+      <span class="tok-key">&quot;Origin&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// The password. Belongs in an environment variable rather than in a settings file.</span>
+      <span class="tok-key">&quot;Password&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// The user name.</span>
+      <span class="tok-key">&quot;Username&quot;</span>: <span class="tok-keyword">null</span>
+    },
+
+    <span class="tok-comment">// The proxy every browser connection goes through — the corporate proxy an agent sits behind,</span>
+    <span class="tok-comment">// or a recording proxy a suite runs against.</span>
+    <span class="tok-key">&quot;Proxy&quot;</span>: {
+      <span class="tok-comment">// Hosts to reach directly, comma-separated — localhost,*.internal. Normally where a container</span>
+      <span class="tok-comment">// or a local stub goes, since a proxy cannot route to the agent&#39;s own loopback.</span>
+      <span class="tok-key">&quot;Bypass&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// Password, where the proxy authenticates.</span>
+      <span class="tok-key">&quot;Password&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// The proxy, as http://host:port or socks5://host:port. Nothing else here means anything</span>
+      <span class="tok-comment">// without it.</span>
+      <span class="tok-key">&quot;Server&quot;</span>: <span class="tok-keyword">null</span>,
+
+      <span class="tok-comment">// User name, where the proxy authenticates.</span>
+      <span class="tok-key">&quot;Username&quot;</span>: <span class="tok-keyword">null</span>
+    }
+  }
+}</code></pre>
+<!-- /generated -->
+<p>Sections of your own go in the same file and are bound the same way, and nothing above reserves a
+name — see <a href="configuration.html#your-own-settings">your own settings</a>. The
+<a href="configuration.html#completion-in-an-editor">JSON schema</a> describes everything on this page to an
+editor, so most of it can be discovered by typing rather than by reading.</p>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="configuration.html"><span>Previous</span>Configuration</a><a class="next" href="environment-variables.html"><span>Next</span>Environment variables</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.5.1 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

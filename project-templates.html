@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -113,9 +114,11 @@
       <h1 id="project-templates">Project templates</h1>
 <p>Precept also ships <code>dotnet new</code> templates so a suite starts with environment switching, <code>precept.json</code>
 overlays and a first test already wired.</p>
-<p>Install locally from this repository:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> new install src/Precept.Templates/templates</code></pre>
+<p>Install them from NuGet:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> new install Precept.Templates</code></pre>
 
+<p>The same command installs a later version over an earlier one, so run it again to pick up templates
+from a new release.</p>
 <p>Create a project:</p>
 <pre data-lang="bash"><code><span class="tok-comment"># Plain C# tests + Precept.Web</span>
 <span class="tok-keyword">dotnet</span> new precept-web <span class="tok-attr">-n</span> Checkout.Web.Tests
@@ -135,10 +138,6 @@ overlays and a first test already wired.</p>
 nothing bound to <code>PreceptEnvironment</code>. How an environment is chosen is yours to decide; see
 <a href="environments.html#environments">Environments</a> for the ways, including <a href="environments.html#switching-environments-from-an-ide">a configuration per
 environment</a>.</p>
-<p>When working from this repository before packages are published, restore/build generated projects
-with the local package source:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> build <span class="tok-attr">--source</span> artifacts/packages <span class="tok-attr">--source</span> https://api.nuget.org/v3/index.json</code></pre>
-
 <p><code>Precept.Web</code> uses Playwright, and installs the browser it is configured for the first time a launch
 finds nothing to drive — see <a href="browsers.html#browsers">Browsers</a>. To install it up front instead:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>

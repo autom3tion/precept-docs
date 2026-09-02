@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -111,10 +112,12 @@
   <main id="content">
     <article class="prose">
       <h1 id="layout">Layout</h1>
+<p>What each Precept package holds. <a href="installing.html#installing">Installing</a> is the shorter version of
+this table — which one to add for what you are testing.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
-<th>Project</th>
+<th>Package</th>
 <th>What it is</th>
 </tr>
 </thead>
@@ -178,18 +181,6 @@
 <tr>
 <td><code>Precept.Mcp</code></td>
 <td>An MCP server that lets a coding agent diagnose a Precept project — the silent failure modes, environment resolution, effective parallelism, filter expressions, test data, and what every module offers. Packaged as a <code>dotnet tool</code>, not a library.</td>
-</tr>
-<tr>
-<td><code>Precept.Sample.Tests</code></td>
-<td>Working sample: plain C# tests plus Gherkin scenarios driving the API and web modules.</td>
-</tr>
-<tr>
-<td><code>Precept.Tests</code></td>
-<td>The framework's own test suite — 361 tests covering discovery, execution, source location, tag parsing, assertions, test data and reporting, run on Precept itself.</td>
-</tr>
-<tr>
-<td><code>Precept.PackageTests</code></td>
-<td>Consumes the built packages the way an outside project would, to prove they install and work. Lives in <code>eng/package-tests</code>, outside the solution.</td>
 </tr>
 </tbody>
 </table></div>

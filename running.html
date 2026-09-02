@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -111,10 +112,10 @@
   <main id="content">
     <article class="prose">
       <h1 id="running">Running</h1>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> samples/Precept.Sample.Tests/Precept.Sample.Tests.csproj</code></pre>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> Checkout.Tests/Checkout.Tests.csproj</code></pre>
 
 <p>Or run the test binary directly for the platform's own CLI:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--list-tests</span></code></pre>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--list-tests</span></code></pre>
 
 <p><code>global.json</code> opts <code>dotnet test</code> into the Microsoft.Testing.Platform runner, which the .NET 10 SDK requires for MTP-based projects.</p>
 <p>On a build agent, <a href="azure-devops.html">Running a suite on CI</a> is a complete Azure Pipelines example — environment, filters, parallelism, retries and each reporter chosen from the <strong>Run pipeline</strong> dialog — with the two YAML files to copy into a suite's repository.</p>

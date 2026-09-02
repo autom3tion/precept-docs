@@ -63,6 +63,7 @@
 <p class="nav-group">Configuring a suite</p>
 <ul>
 <li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
 <li><a href="environment-variables.html">Environment variables</a></li>
 <li><a href="environments.html">Environments</a></li>
 <li><a href="startup.html">Startup</a></li>
@@ -113,9 +114,9 @@
       <h1 id="filtering">Filtering</h1>
 <p>Two filters, one expression language. <code>--precept-filter</code> <strong>selects</strong> among the tests a run has; the <code>Filter</code> section of <code>precept.json</code> decides <strong>which tests the run has at all</strong>.</p>
 <h2 id="selecting-from-the-command-line">Selecting from the command line<a class="anchor" href="#selecting-from-the-command-line" aria-label="Link to this section">#</a></h2>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke and not slow&quot;</span>
-<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;(@api or @web) and not @wip&quot;</span>
-<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> samples/Precept.Sample.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;name:*checkout*&quot;</span></code></pre>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke and not slow&quot;</span>
+<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;(@api or @web) and not @wip&quot;</span>
+<span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;name:*checkout*&quot;</span></code></pre>
 
 <blockquote>
 <p>The value must not <strong>start</strong> with <code>@</code>: Microsoft.Testing.Platform reads a leading <code>@</code> as a response-file reference and will look for a file by that name. Write <code>&quot;smoke and not @slow&quot;</code> or wrap the whole thing in parentheses.</p>
