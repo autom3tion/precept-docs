@@ -228,7 +228,35 @@ context.Page = (await Browser.StartAsync(&quot;bob&quot;)).Page.</code></pre>
 <pre><code>[console:error] Failed to load resource: the server responded with a status of 500
 [page error] TypeError: order is undefined</code></pre>
 
-<p><code>LogConsole</code> adds everything else the page writes to its console. It is off by default because an application's own logging is normally noise, and occasionally the only account of what the page thought it was doing.</p>
+<p><code>ConsoleLogging</code> decides how much of the console gets there:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>None</code></td>
+<td>Nothing from the console is logged.</td>
+</tr>
+<tr>
+<td><code>Errors</code></td>
+<td>The error lines only. The default.</td>
+</tr>
+<tr>
+<td><code>All</code></td>
+<td>Every message the page writes, whatever its level.</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>Errors</code> is the default because an error a test was not failed by is still an account of what went wrong, while the rest of an application's logging is normally noise — and occasionally the only account of what the page thought it was doing, which is what <code>All</code> is for. <code>None</code> is for the application whose steady state is noisy, where the errors make every test's report bulky rather than one test's report useful:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;ConsoleLogging&quot;</span>: <span class="tok-str">&quot;None&quot;</span> }
+}</code></pre>
+
+<p>The setting decides what is written down, not what is watched. Console errors are collected at every level, so the session still carries them and <code>FailOnConsoleErrors</code> still fails on them and lists them. Uncaught page exceptions are logged at every level too, because no application has a steady state that throws them.</p>
 <p>Either can also decide the verdict:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;FailOnConsoleErrors&quot;</span>: <span class="tok-keyword">true</span>, <span class="tok-key">&quot;FailOnPageErrors&quot;</span>: <span class="tok-keyword">true</span> }
