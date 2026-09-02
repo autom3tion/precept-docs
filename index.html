@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Precept · Precept</title>
-<meta name="description" content="A .NET 10 test automation framework with its own test runner and Gherkin authoring.">
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and the modules an end-to-end suite needs.">
 <link rel="icon" href="assets/precept-icon.png">
 <link rel="stylesheet" href="site.css">
 <script>
@@ -112,16 +112,16 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept">Precept</h1>
-<p>A .NET 10 test automation framework with its own test runner and Gherkin authoring.</p>
-<p>Precept implements <code>ITestFramework</code> on <a href="https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro">Microsoft.Testing.Platform</a>, so it owns discovery, scheduling, lifecycle and reporting — while still working with <code>dotnet test</code>, <code>dotnet run</code>, IDE test explorers and TRX reporting. Feature files are compiled by <a href="https://reqnroll.net">Reqnroll</a> through a custom generator plugin that emits Precept-attributed classes.</p>
-<pre><code>.feature file
-    │  Reqnroll parser + generator
-    │  Precept.Reqnroll.Generator  (IUnitTestGeneratorProvider)
-    ▼
-[TestSuite] class with [Test] methods
-    │  Precept.TestPlatform  (ITestFramework)
-    ▼
-Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
+<p>A .NET 10 test automation framework with its own test runner and the modules an end-to-end suite needs.</p>
+<p>Precept implements <code>ITestFramework</code> on <a href="https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro">Microsoft.Testing.Platform</a>, so it owns discovery, scheduling, retries, lifecycle and reporting — while still working with <code>dotnet test</code>, <code>dotnet run</code>, IDE test explorers and TRX reporting. On that runner it ships what an end-to-end suite otherwise assembles by hand: HTTP, browsers, databases, gRPC, containers, test data, per-environment configuration, and reporting to ReportPortal, Teams and Azure DevOps.</p>
+<p>A test is a C# class with attributes. Gherkin is one way to write one rather than the price of entry: add <a href="Precept.Reqnroll.html"><code>Precept.Reqnroll</code></a> and feature files are compiled by <a href="https://reqnroll.net">Reqnroll</a> through a custom generator plugin into the same attributed classes.</p>
+<pre><code>C# classes with [TestSuite] / [Test]      .feature files  ── optional, via Precept.Reqnroll
+                    │                            │  Reqnroll parser + Precept.Reqnroll.Generator
+                    │                            │  emit the same attributed classes
+                    └──────────────┬─────────────┘
+                                   │  Precept.TestPlatform  (ITestFramework)
+                                   ▼
+          Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
 <h2 id="start-here">Start here<a class="anchor" href="#start-here" aria-label="Link to this section">#</a></h2>
 <ul class="cards">
 <li><a href="installing.html"><strong>Installing</strong><span>Which package to reference, a complete test project, and the one line <code>global.json</code> needs.</span></a></li>
@@ -147,8 +147,9 @@ Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
     }
 }</code></pre>
 
-<p>The same suite written in Gherkin compiles to the same thing, and lands in the test explorer at the
-<code>Scenario:</code> line of the <code>.feature</code> file rather than in generated code — see
+<p>With <code>Precept.Reqnroll</code> referenced, the same suite written in Gherkin compiles to the same thing, and
+lands in the test explorer at the <code>Scenario:</code> line of the <code>.feature</code> file rather than in generated
+code — see
 <a href="writing-tests.html">writing tests</a> and <a href="writing-tests.html#test-explorer-navigation">test explorer navigation</a>.</p>
 <h2 id="what-comes-with-it">What comes with it<a class="anchor" href="#what-comes-with-it" aria-label="Link to this section">#</a></h2>
 <div class="table-wrap"><table>
@@ -159,6 +160,10 @@ Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><a href="Precept.Reqnroll.html"><code>Precept.Reqnroll</code></a></td>
+<td>Gherkin: <code>.feature</code> files compiled into Precept test classes.</td>
+</tr>
 <tr>
 <td><a href="Precept.Api.html"><code>Precept.Api</code></a></td>
 <td>A fluent HTTP client and response assertions, logged into the test's report.</td>
@@ -194,9 +199,10 @@ Microsoft.Testing.Platform → dotnet test / IDE / TRX</code></pre>
 </tbody>
 </table></div>
 <p>Every module depends only on <code>Precept.Core</code> and is registered from one
-<a href="startup.html">startup class</a>; nothing is on unless a suite asks for it. <code>Precept.Screenplay</code> is the
-one that sits on top of the others rather than beside them, and is a way of writing tests rather
-than something to register.</p>
+<a href="startup.html">startup class</a>; nothing is on unless a suite asks for it. Two are shaped differently:
+<code>Precept.Reqnroll</code> adds MSBuild targets rather than services, and <code>Precept.Screenplay</code> sits on top of
+the other modules rather than beside them — both are ways of writing a suite rather than things to
+register.</p>
 <h2 id="how-a-run-is-put-together">How a run is put together<a class="anchor" href="#how-a-run-is-put-together" aria-label="Link to this section">#</a></h2>
 <ul>
 <li><a href="configuration.html">Configuration</a> — <code>precept.json</code>, overlays, and settings of your own.</li>
