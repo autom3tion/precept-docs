@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -128,7 +130,7 @@ from a new release.</p>
 
 <p>Each template includes:</p>
 <ul>
-<li><code>global.json</code> set to <code>Microsoft.Testing.Platform</code> for <code>dotnet test</code> on .NET 10.</li>
+<li><code>global.json</code> set to <code>Microsoft.Testing.Platform</code> for <code>dotnet test</code> on .NET 10. It is in the right place for a project that is a repository of its own. Inside a larger repository, move its <code>test</code> section into the root <code>global.json</code>: the SDK reads the file from the directory <code>dotnet test</code> is run in, not from the project's, and a nested one also replaces the root's SDK pin for that subtree.</li>
 <li><code>precept.json</code> with <code>Environment: local</code> and web defaults: headless Chromium at a
 <a href="browsers.html#viewport-size">1080p viewport</a>.</li>
 <li><code>precept.staging.json</code> as an overlay for <code>staging</code>, reached with <code>--precept-environment staging</code>.</li>

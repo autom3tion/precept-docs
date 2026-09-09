@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -188,6 +190,26 @@ them — so the annotations below can stay in anything you copy.</p>
 
     <span class="tok-comment">// How long a waiting assertion keeps re-reading its value, in milliseconds.</span>
     <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">5000</span>
+  },
+
+  <span class="tok-comment">// How the files module behaves, bound from the Files section of precept.json.</span>
+  <span class="tok-key">&quot;Files&quot;</span>: {
+    <span class="tok-comment">// Record every file the module writes during a test as an artifact of that test, so it reaches</span>
+    <span class="tok-comment">// the TRX, the test explorer and every reporter alongside the screenshots and logs.</span>
+    <span class="tok-key">&quot;AttachWrittenFiles&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// The field separator CSV files are written and read with, unless a call names one. A comma, as</span>
+    <span class="tok-comment">// the name says — but a locale whose decimal separator is the comma exports with a semicolon,</span>
+    <span class="tok-comment">// and a suite in one changes this once rather than on every call.</span>
+    <span class="tok-key">&quot;CsvDelimiter&quot;</span>: <span class="tok-str">&quot;,&quot;</span>,
+
+    <span class="tok-comment">// Write a cell that arrives as text — every cell of a Gherkin data table does — as the number,</span>
+    <span class="tok-comment">// date or boolean it spells, so that | 42 | becomes a numeric cell in a sheet, and a number in</span>
+    <span class="tok-comment">// a JSON document, that the system under test can add up. Only an unambiguous spelling is</span>
+    <span class="tok-comment">// converted: 42, -1.5, true, 2026-03-01, 2026-03-01T09:30:00. A value with leading zeros,</span>
+    <span class="tok-comment">// thousands separators or a local date format stays text. Applies to the cells of rows; a value</span>
+    <span class="tok-comment">// set directly is written as the type it has.</span>
+    <span class="tok-key">&quot;InferCellTypes&quot;</span>: <span class="tok-keyword">true</span>
   },
 
   <span class="tok-comment">// Tests that this run pretends do not exist. See PreceptFilterSettings.</span>
@@ -435,6 +457,67 @@ them — so the annotations below can stay in anything you copy.</p>
       <span class="tok-comment">// The incoming webhook to post to, from the channel&#39;s Workflows connector.</span>
       <span class="tok-key">&quot;WebhookUrl&quot;</span>: <span class="tok-keyword">null</span>
     }
+  },
+
+  <span class="tok-comment">// How Reqnroll behaves, bound from the Reqnroll section of precept.json — the same knobs</span>
+  <span class="tok-comment">// reqnroll.json offers, in the one settings file the suite already has.</span>
+  <span class="tok-key">&quot;Reqnroll&quot;</span>: {
+    <span class="tok-comment">// Tags whose features and scenarios are generated with [NonParallelizable], so they run alone</span>
+    <span class="tok-comment">// after everything else. Read at build time.</span>
+    <span class="tok-key">&quot;AddNonParallelizableMarkerForTags&quot;</span>: [],
+
+    <span class="tok-comment">// Generate code-behind without the #line directives that map it back onto the feature file, so</span>
+    <span class="tok-comment">// the generated code itself can be stepped through. Read at build time.</span>
+    <span class="tok-key">&quot;AllowDebugGeneratedFiles&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Compile each row of a scenario outline&#39;s Examples table into a test of its own, so rows run,</span>
+    <span class="tok-comment">// filter and report separately. Off, an outline is one test that runs every row. Read at build</span>
+    <span class="tok-comment">// time.</span>
+    <span class="tok-key">&quot;AllowRowTests&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Assemblies searched for step definitions and hooks in addition to the test assembly, by</span>
+    <span class="tok-comment">// assembly name — a shared step library, say.</span>
+    <span class="tok-key">&quot;BindingAssemblies&quot;</span>: [],
+
+    <span class="tok-comment">// The culture step arguments are converted with — how 1,5 or 03/04/2026 in a step is read into</span>
+    <span class="tok-comment">// a number or a date. Empty means the feature language.</span>
+    <span class="tok-key">&quot;BindingCulture&quot;</span>: <span class="tok-str">&quot;&quot;</span>,
+
+    <span class="tok-comment">// Name generated test methods after the scenario title with the spaces removed, rather than</span>
+    <span class="tok-comment">// after the title as written. Read at build time.</span>
+    <span class="tok-key">&quot;DisableFriendlyTestNames&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// The language feature files are written in when they carry no #language: line, as a culture</span>
+    <span class="tok-comment">// name such as de-DE. Read at build time, when the feature files are compiled.</span>
+    <span class="tok-key">&quot;FeatureLanguage&quot;</span>: <span class="tok-str">&quot;en-US&quot;</span>,
+
+    <span class="tok-comment">// The shortest step duration worth a timing line, in milliseconds.</span>
+    <span class="tok-key">&quot;MinTracedDurationMilliseconds&quot;</span>: <span class="tok-number">100</span>,
+
+    <span class="tok-comment">// The outcome of a scenario that reaches a step with no definition, or one whose definition</span>
+    <span class="tok-comment">// throws PendingStepException: reported as pending, inconclusive or skipped, or failed as an</span>
+    <span class="tok-comment">// error. One of: Pending, Inconclusive, Ignore, Error.</span>
+    <span class="tok-key">&quot;MissingOrPendingStepsOutcome&quot;</span>: <span class="tok-str">&quot;Pending&quot;</span>,
+
+    <span class="tok-comment">// What a step bound to an [Obsolete] definition does: nothing, warn, pend or fail. One of:</span>
+    <span class="tok-comment">// None, Warn, Pending, Error.</span>
+    <span class="tok-key">&quot;ObsoleteBehavior&quot;</span>: <span class="tok-str">&quot;Warn&quot;</span>,
+
+    <span class="tok-comment">// The shape of the step definition skeleton written to the log for a step that has none. One</span>
+    <span class="tok-comment">// of: RegexAttribute, MethodNameUnderscores, MethodNamePascalCase, MethodNameRegex,</span>
+    <span class="tok-comment">// CucumberExpressionAttribute, AsyncRegexAttribute, AsyncMethodNameUnderscores,</span>
+    <span class="tok-comment">// AsyncMethodNamePascalCase, AsyncMethodNameRegex, AsyncCucumberExpressionAttribute.</span>
+    <span class="tok-key">&quot;StepDefinitionSkeletonStyle&quot;</span>: <span class="tok-str">&quot;CucumberExpressionAttribute&quot;</span>,
+
+    <span class="tok-comment">// Skip the remaining steps of a scenario once one has failed.</span>
+    <span class="tok-key">&quot;StopAtFirstError&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Write every passing step to the test&#39;s log, not only the failing one. Off, a green scenario</span>
+    <span class="tok-comment">// logs nothing and a red one shows only the step that broke.</span>
+    <span class="tok-key">&quot;TraceSuccessfulSteps&quot;</span>: <span class="tok-keyword">true</span>,
+
+    <span class="tok-comment">// Log how long each step took, for steps slower than MinTracedDurationMilliseconds.</span>
+    <span class="tok-key">&quot;TraceTimings&quot;</span>: <span class="tok-keyword">false</span>
   },
 
   <span class="tok-comment">// Where the test data lives and how it behaves. Bound from the TestData section of precept.json,</span>

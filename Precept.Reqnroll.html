@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -156,6 +158,10 @@ scenarios run in parallel. The assertions are Precept's.</p>
 <p><code>.feature</code> files compile on their own once this package is referenced; there is no code-behind to
 check in. &quot;Go to test&quot; from a test explorer lands in the <code>.feature</code> file rather than the generated
 code, because the generator emits the source location of the scenario itself.</p>
+<p>Reqnroll is configured from the <code>Reqnroll</code> section of <code>precept.json</code> — the trace settings, the
+outcome of a missing step, row tests, the non-parallelizable tags and the rest — so there is no
+<code>reqnroll.json</code> to keep. See
+<a href="writing-tests.html#configuring-reqnroll">configuring Reqnroll</a>.</p>
 <p>Worth knowing: the generator emits <strong>one class per feature file</strong>, and Precept's default unit of
 parallelism is a class — so a suite of two feature files puts at most two units in flight however
 high <code>MaxParallelism</code> is. Set <code>&quot;ParallelScope&quot;: &quot;Test&quot;</code> to schedule scenarios individually.</p>

@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -146,7 +148,8 @@
 <p>Put <code>[NonParallelizable]</code> on the few classes that genuinely need the old ordering and leave the rest test-scoped, rather than holding the whole run back for them.</p>
 <h2 id="retries-timeouts-and-reporting">Retries, timeouts and reporting<a class="anchor" href="#retries-timeouts-and-reporting" aria-label="Link to this section">#</a></h2>
 <p><code>[Retry(n)]</code> counts <strong>reruns, not runs</strong>: a test always runs once, and <code>n</code> is how many further goes it gets while it keeps failing. <code>[Retry(1)]</code> runs a failing test twice, <code>[Retry(0)]</code> is the same as no attribute at all. <code>&quot;DefaultRetries&quot;</code> in <code>precept.json</code> says the same for tests carrying no attribute, and defaults to <code>0</code>.</p>
-<p>Retry only reruns hard failures — a skip or an inconclusive verdict will not change on a rerun. Timeouts are enforced with a linked cancellation token and reported as <code>TimeoutException</code>. Each result carries timing information, category metadata and artifact paths through to the platform's reporters.</p>
+<p>Retry only reruns hard failures — a skip or an inconclusive verdict will not change on a rerun. Each result carries timing information, category metadata and artifact paths through to the platform's reporters.</p>
+<p>A timeout — <code>[Timeout(ms)]</code>, or <code>&quot;DefaultTimeoutMilliseconds&quot;</code> for a test carrying no attribute — is enforced in two steps. When the time is up, <code>PreceptTestContext.Current.CancellationToken</code> is cancelled, and a body that stops on it fails with a <code>TimeoutException</code> there and then. A body that never looks at the token — every Reqnroll step, and most tests — is abandoned instead: the verdict is the same <code>TimeoutException</code>, reported at the timeout rather than whenever the body would have finished, and the <code>[AfterTest]</code> hook, the module verifications and disposal all run as they do for any failure, so a browser test that overran still gets its screenshot and trace. The abandoned body keeps running in the background until what it holds is disposed under it, which is usually at once; anything it throws after that is logged to the test, not raised. Observe the token where a test can — a wait, an HTTP call, a database command — and it ends cleanly instead.</p>
 <p>A test that was actually rerun keeps every attempt in its output, each block headed by the attempt it belongs to and how that attempt ended:</p>
 <pre><code>[Attempt 1 of 3] Failed: Expected status 200 but received 503.
 Given the catalogue service is reachable
@@ -156,6 +159,7 @@ Given the catalogue service is reachable
 When the client requests the catalogue</code></pre>
 
 <p>Without it a scenario that failed twice and passed on the third reported one clean green run, with nothing to say what had gone wrong. The header appears only when a rerun actually happened, so a test that passes first time reads as it always did. A test's duration covers every attempt it made, including the <code>DelayMilliseconds</code> between them.</p>
+<p>The same goes for what the attempts wrote. A rerun gets a directory of its own under the test's — <code>attempt-2</code>, <code>attempt-3</code> — rather than writing its <code>failure.png</code> and <code>trace.zip</code> over the first attempt's, and the result attaches every attempt's files, each labelled <code>[Attempt n of m]</code> the way the log is. A test that passed on its rerun therefore still carries the screenshot and trace of the failure it retried past, which is the thing a flaky test has to show.</p>
 
     </article>
 

@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -126,6 +128,8 @@
 }</code></pre>
 
 <p><code>ConfigureServices</code> is required — write it with an empty body if the suite registers nothing, since an explicit declaration is what stops a mistyped signature from compiling. <code>BeforeRunAsync</code> and <code>AfterRunAsync</code> are optional.</p>
+<p><code>BeforeRunAsync</code> runs once, just before the first test runs, and <code>AfterRunAsync</code> once the last has finished — and neither runs when the platform only <em>lists</em> tests. <code>dotnet run -- --list-tests</code>, and a test explorer refreshing its tree after a build, open a session and discover the suite without running anything, and a hook that seeds a database or signs a browser in is not something a tree refresh should do. <code>ConfigureServices</code> does run on discovery, because the container it builds is what discovery reads settings from; keep it to registrations, and put work that touches an environment in <code>BeforeRunAsync</code>.</p>
+<p>If <code>BeforeRunAsync</code> throws, no test runs — not even a class's own <code>[BeforeSuite]</code> — and every test the run had selected is reported as failed with the hook's exception, so the cause reaches the console, the TRX, a test explorer and every reporter rather than only a log. <code>AfterRunAsync</code> still runs, because a setup that failed halfway is the one most in need of its teardown.</p>
 <p>Each <code>AddPrecept…</code> binds that module's own section of <code>precept.json</code> and takes a callback for
 anything the file cannot say — a base address the startup only learns at run time, a secret read
 from a vault rather than committed:</p>

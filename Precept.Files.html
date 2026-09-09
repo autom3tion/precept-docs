@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-page="running">
+<html lang="en" data-page="Precept.Files">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Running · Precept</title>
+<title>Precept.Files · Precept</title>
 <meta name="description" content="A .NET 10 test automation framework with its own test runner and the modules an end-to-end suite needs.">
 <link rel="icon" href="assets/precept-icon.png">
 <link rel="stylesheet" href="site.css">
@@ -52,7 +52,7 @@
 <li><a href="layout.html">Layout</a></li>
 <li><a href="installing.html">Installing</a></li>
 <li><a href="project-templates.html">Project templates</a></li>
-<li><a href="running.html" class="active">Running</a></li>
+<li><a href="running.html">Running</a></li>
 </ul>
 <p class="nav-group">Writing tests</p>
 <ul>
@@ -94,7 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
-<li><a href="Precept.Files.html">Precept.Files</a></li>
+<li><a href="Precept.Files.html" class="active">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -113,19 +113,48 @@
 
   <main id="content">
     <article class="prose">
-      <h1 id="running">Running</h1>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> Checkout.Tests/Checkout.Tests.csproj</code></pre>
+      <h1 id="precept.files">Precept.Files</h1>
+<p>Excel, CSV, JSON and XML files for Precept tests: a workbook or a CSV written from a data table or a
+query result, a row appended to what the system under test already has, a file read back as rows,
+JSON and XML built, queried, changed in place and asserted on — every file a test writes landing in
+its artifacts and attached to its result.</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Files</code></pre>
+<pre data-lang="csharp"><code>services.AddPreceptFiles();</code></pre>
+<pre data-lang="csharp"><code><span class="tok-comment">// A Reqnroll DataTable&#39;s rows in, a spreadsheet out — the package never references Reqnroll:</span>
+<span class="tok-comment">// a row is anything dictionary-shaped, or an object whose properties are the columns.</span>
+<span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> Excel.WriteAsync(<span class="tok-str">&quot;clients.xlsx&quot;</span>, table.Rows, sheet: <span class="tok-str">&quot;Clients&quot;</span>);
 
-<p>Or run the test binary directly for the platform's own CLI:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--list-tests</span></code></pre>
+<span class="tok-comment">// A row appended under the columns the sheet already has, whatever their order:</span>
+<span class="tok-keyword">using</span> <span class="tok-keyword">var</span> export = Excel.Open(<span class="tok-str">&quot;export.xlsx&quot;</span>);
+export.Sheet(<span class="tok-str">&quot;Clients&quot;</span>).AddRow(<span class="tok-keyword">new</span> { Name = <span class="tok-str">&quot;Acme&quot;</span>, Email = <span class="tok-str">&quot;acme@example.test&quot;</span> });
+<span class="tok-keyword">await</span> export.SaveAsync();
 
-<p><code>global.json</code> opts <code>dotnet test</code> into the Microsoft.Testing.Platform runner, which the .NET 10 SDK requires for MTP-based projects. The SDK reads it from the directory the command is run in, upward — so it goes at the repository root, not beside the project; see <a href="installing.html#installing">Installing</a>.</p>
-<p>On a build agent, <a href="azure-devops.html">Running a suite on CI</a> is a complete Azure Pipelines example — environment, filters, parallelism, retries and each reporter chosen from the <strong>Run pipeline</strong> dialog — with the two YAML files to copy into a suite's repository.</p>
+<span class="tok-keyword">await</span> Assert.That(export.Sheet(<span class="tok-str">&quot;Clients&quot;</span>)).ToContainRowsAsync(table.Rows);
+
+<span class="tok-keyword">var</span> order = Json.New().Set(<span class="tok-str">&quot;customer.id&quot;</span>, <span class="tok-number">42</span>).Set(<span class="tok-str">&quot;lines&quot;</span>, Json.Array(table.Rows));
+<span class="tok-keyword">await</span> Assert.That(Json.Parse(response.Body).At(<span class="tok-str">&quot;lines&quot;</span>)).ToContainRowsAsync(table.Rows);
+
+<span class="tok-keyword">var</span> shipment = Xml.Load(<span class="tok-str">&quot;shipment.xml&quot;</span>).WithDefaultNamespace(<span class="tok-str">&quot;s&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(shipment).ToHaveValueAsync(<span class="tok-str">&quot;/s:shipment/s:status&quot;</span>, <span class="tok-str">&quot;accepted&quot;</span>);</code></pre>
+
+<p>A sheet, a CSV file and a JSON array share one model — a header, rows under it by column name — and
+one set of row assertions. A bare file name is written into the running test's artifact directory —
+unique to the test, and one step from every report — and read from there first, then from beside the
+test binary. The ClosedXML worksheet, the <code>JsonNode</code> and the <code>XDocument</code> underneath are one property
+away, so nothing the libraries can do is out of reach.</p>
+<hr />
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+Full documentation: <a href="files.html#files">files</a> ·
+<a href="files.html#excel">Excel</a> ·
+<a href="files.html#csv">CSV</a> ·
+<a href="files.html#json">JSON</a> ·
+<a href="files.html#xml">XML</a> ·
+<a href="files.html#where-files-go">where files go</a></p>
 
     </article>
 
     <nav class="pager">
-      <a class="prev" href="project-templates.html"><span>Previous</span>Project templates</a><a class="next" href="writing-tests.html"><span>Next</span>Writing tests</a>
+      <a class="prev" href="Precept.TestData.html"><span>Previous</span>Precept.TestData</a><a class="next" href="Precept.Grpc.html"><span>Next</span>Precept.Grpc</a>
     </nav>
 
     <footer>

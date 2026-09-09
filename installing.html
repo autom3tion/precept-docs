@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -151,6 +153,10 @@
 <td>Manage the users, clients, vehicles and other records the tests need.</td>
 </tr>
 <tr>
+<td><code>Precept.Files</code></td>
+<td>Write and read Excel, CSV, JSON and XML files.</td>
+</tr>
+<tr>
 <td><code>Precept.Grpc</code></td>
 <td>Call gRPC services.</td>
 </tr>
@@ -206,8 +212,11 @@ entry point, so there is no <code>Main</code> and no <code>OutputType</code> to 
 code-behind generator, so <code>.feature</code> files compile on their own. The first build leaves a commented
 <code>precept.json</code> in the project — see <a href="configuration.html#configuration">Configuration</a>.</p>
 <p>One thing a NuGet package cannot do for you: <code>dotnet test</code> on the .NET 10 SDK has to be told to use
-Microsoft.Testing.Platform, and that setting lives in <code>global.json</code> beside the project or anywhere
-above it.</p>
+Microsoft.Testing.Platform, and that setting lives in <code>global.json</code>. The SDK reads that file from the
+directory <code>dotnet test</code> is run in and the directories above it — not from the project's — so put it
+at the repository root, beside the solution, and merge the section into the <code>global.json</code> already
+there if the repository pins an SDK version. A copy inside the project directory works only when the
+command is run from inside that directory, and it replaces the root's SDK pin for that subtree.</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;test&quot;</span>: {
     <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span>
@@ -215,7 +224,9 @@ above it.</p>
 }</code></pre>
 
 <p>Without it <code>dotnet test</code> fails with <em>&quot;Testing with VSTest target is no longer supported&quot;</em>. Running
-the test binary directly — <code>dotnet run -- --list-tests</code> — works either way.</p>
+the test binary directly — <code>dotnet run -- --list-tests</code> — works either way. <code>precept_diagnose_project</code>
+reports a missing declaration as <code>PMCP003</code>, and one that sits inside a project under a repository
+root as <code>PMCP010</code>.</p>
 
     </article>
 

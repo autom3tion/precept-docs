@@ -84,6 +84,28 @@
       "type": "string",
       "default": "local"
     },
+    "Files": {
+      "description": "How the files module behaves, bound from the Files section of precept.json.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "AttachWrittenFiles": {
+          "description": "Record every file the module writes during a test as an artifact of that test, so it reaches the TRX, the test explorer and every reporter alongside the screenshots and logs.",
+          "type": "boolean",
+          "default": true
+        },
+        "CsvDelimiter": {
+          "description": "The field separator CSV files are written and read with, unless a call names one. A comma, as the name says — but a locale whose decimal separator is the comma exports with a semicolon, and a suite in one changes this once rather than on every call.",
+          "type": "string",
+          "default": ","
+        },
+        "InferCellTypes": {
+          "description": "Write a cell that arrives as text — every cell of a Gherkin data table does — as the number, date or boolean it spells, so that | 42 | becomes a numeric cell in a sheet, and a number in a JSON document, that the system under test can add up. Only an unambiguous spelling is converted: 42, -1.5, true, 2026-03-01, 2026-03-01T09:30:00. A value with leading zeros, thousands separators or a local date format stays text. Applies to the cells of rows; a value set directly is written as the type it has.",
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
     "Filter": {
       "description": "Tests that this run pretends do not exist. See PreceptFilterSettings.",
       "type": "object",
@@ -531,6 +553,106 @@
               ]
             }
           }
+        }
+      }
+    },
+    "Reqnroll": {
+      "description": "How Reqnroll behaves, bound from the Reqnroll section of precept.json — the same knobs reqnroll.json offers, in the one settings file the suite already has.",
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "AddNonParallelizableMarkerForTags": {
+          "description": "Tags whose features and scenarios are generated with [NonParallelizable], so they run alone after everything else. Read at build time.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "AllowDebugGeneratedFiles": {
+          "description": "Generate code-behind without the #line directives that map it back onto the feature file, so the generated code itself can be stepped through. Read at build time.",
+          "type": "boolean"
+        },
+        "AllowRowTests": {
+          "description": "Compile each row of a scenario outline's Examples table into a test of its own, so rows run, filter and report separately. Off, an outline is one test that runs every row. Read at build time.",
+          "type": "boolean",
+          "default": true
+        },
+        "BindingAssemblies": {
+          "description": "Assemblies searched for step definitions and hooks in addition to the test assembly, by assembly name — a shared step library, say.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "BindingCulture": {
+          "description": "The culture step arguments are converted with — how 1,5 or 03/04/2026 in a step is read into a number or a date. Empty means the feature language.",
+          "type": "string"
+        },
+        "DisableFriendlyTestNames": {
+          "description": "Name generated test methods after the scenario title with the spaces removed, rather than after the title as written. Read at build time.",
+          "type": "boolean"
+        },
+        "FeatureLanguage": {
+          "description": "The language feature files are written in when they carry no #language: line, as a culture name such as de-DE. Read at build time, when the feature files are compiled.",
+          "type": "string",
+          "default": "en-US"
+        },
+        "MinTracedDurationMilliseconds": {
+          "description": "The shortest step duration worth a timing line, in milliseconds.",
+          "type": "integer",
+          "default": 100
+        },
+        "MissingOrPendingStepsOutcome": {
+          "description": "The outcome of a scenario that reaches a step with no definition, or one whose definition throws PendingStepException: reported as pending, inconclusive or skipped, or failed as an error.",
+          "type": "string",
+          "enum": [
+            "Pending",
+            "Inconclusive",
+            "Ignore",
+            "Error"
+          ],
+          "default": "Pending"
+        },
+        "ObsoleteBehavior": {
+          "description": "What a step bound to an [Obsolete] definition does: nothing, warn, pend or fail.",
+          "type": "string",
+          "enum": [
+            "None",
+            "Warn",
+            "Pending",
+            "Error"
+          ],
+          "default": "Warn"
+        },
+        "StepDefinitionSkeletonStyle": {
+          "description": "The shape of the step definition skeleton written to the log for a step that has none.",
+          "type": "string",
+          "enum": [
+            "RegexAttribute",
+            "MethodNameUnderscores",
+            "MethodNamePascalCase",
+            "MethodNameRegex",
+            "CucumberExpressionAttribute",
+            "AsyncRegexAttribute",
+            "AsyncMethodNameUnderscores",
+            "AsyncMethodNamePascalCase",
+            "AsyncMethodNameRegex",
+            "AsyncCucumberExpressionAttribute"
+          ],
+          "default": "CucumberExpressionAttribute"
+        },
+        "StopAtFirstError": {
+          "description": "Skip the remaining steps of a scenario once one has failed.",
+          "type": "boolean"
+        },
+        "TraceSuccessfulSteps": {
+          "description": "Write every passing step to the test's log, not only the failing one. Off, a green scenario logs nothing and a red one shows only the step that broke.",
+          "type": "boolean",
+          "default": true
+        },
+        "TraceTimings": {
+          "description": "Log how long each step took, for steps slower than MinTracedDurationMilliseconds.",
+          "type": "boolean"
         }
       }
     },

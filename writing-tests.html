@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -126,6 +128,37 @@
 		| -5   | 5     | 0     |</code></pre>
 
 <p>Step definitions are ordinary Reqnroll <code>[Binding]</code> classes. Everything Reqnroll supports — data tables, <code>ScenarioContext</code>, constructor injection, hooks — works unchanged.</p>
+<h3 id="configuring-reqnroll">Configuring Reqnroll<a class="anchor" href="#configuring-reqnroll" aria-label="Link to this section">#</a></h3>
+<p>Reqnroll is configured from the <code>Reqnroll</code> section of <code>precept.json</code>. There is no <code>reqnroll.json</code> to
+write: <code>Precept.Reqnroll</code> registers itself as the unit test provider on both sides, and the section
+carries what that file would otherwise have held.</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Reqnroll&quot;</span>: {
+    <span class="tok-key">&quot;MissingOrPendingStepsOutcome&quot;</span>: <span class="tok-str">&quot;Error&quot;</span>,
+    <span class="tok-key">&quot;TraceTimings&quot;</span>: <span class="tok-keyword">true</span>,
+    <span class="tok-key">&quot;AddNonParallelizableMarkerForTags&quot;</span>: [ <span class="tok-str">&quot;serial&quot;</span> ]
+  }
+}</code></pre>
+
+<p>Every key defaults to what Reqnroll itself defaults to, so a project with no section runs exactly as
+one with no <code>reqnroll.json</code> did. <a href="settings-reference.html#every-setting">Every setting</a> lists the keys,
+and the section is overlaid and overridden like any other — with one distinction worth knowing:</p>
+<ul>
+<li><strong>Runtime keys</strong> — the binding culture, <code>StopAtFirstError</code>, the outcome of a missing step, the
+trace settings, <code>BindingAssemblies</code> — are read when the first scenario starts, out of the run's
+real configuration, so <code>precept.{environment}.json</code> and <code>PRECEPT_REQNROLL__*</code> apply to them.</li>
+<li><strong>Build-time keys</strong> — <code>FeatureLanguage</code>, <code>AllowRowTests</code>, <code>AddNonParallelizableMarkerForTags</code>,
+<code>AllowDebugGeneratedFiles</code>, <code>DisableFriendlyTestNames</code> — shape the generated code, so they are read
+from the project's <code>precept.json</code> while the feature files compile. An overlay or a variable cannot
+reach them: the code-behind is compiled once, before any environment is chosen. Editing the file
+regenerates it.</li>
+</ul>
+<p>A project that still has a <code>reqnroll.json</code> keeps working. The keys the section models are taken
+from <code>precept.json</code> whether or not the file sets them; only what the section does not model —
+<code>dependencies</code>, and the Cucumber Messages <code>formatters</code> — is still read from <code>reqnroll.json</code>, which is
+the one reason to keep one. To override a key in code, register the settings the way you would
+<a href="configuration.html#your-own-settings">your own</a>, and the plugin reads that instance first:</p>
+<pre data-lang="csharp"><code>services.AddPreceptSettings&lt;PreceptReqnrollSettings&gt;(configure: r =&gt; r.StopAtFirstError = <span class="tok-keyword">true</span>);</code></pre>
 <h2 id="plain-c">Plain C#<a class="anchor" href="#plain-c" aria-label="Link to this section">#</a></h2>
 <pre data-lang="csharp"><code><span class="tok-attr">[TestSuite(&quot;Checkout&quot;)]</span>
 <span class="tok-attr">[TestCategory(&quot;smoke&quot;)]</span>
@@ -198,6 +231,7 @@
 </tr>
 </tbody>
 </table></div>
+<p>Discovery is strict about what it finds, and fails the session rather than running what it could see. A hook with the wrong shape, a test taking parameters with no <code>[TestCase]</code> to supply them, and a test assembly some of whose types cannot be loaded — a referenced assembly missing from the output directory, or present at a different version from the one the project was compiled against — all stop the run with the cause on the console. A suite that lost tests to a bad restore would otherwise report green with fewer results and nothing to say why.</p>
 <h2 id="outcomes">Outcomes<a class="anchor" href="#outcomes" aria-label="Link to this section">#</a></h2>
 <p>Throw <code>PreceptIgnoreException</code> to skip at runtime, <code>PreceptPendingException</code> for unimplemented work, <code>PreceptInconclusiveException</code> when the environment cannot produce a verdict, and <code>PreceptAssertionException</code> for assertion failures — which is what <a href="assertions.html#assertions">assertions</a> throw.</p>
 <h2 id="test-explorer-navigation">Test explorer navigation<a class="anchor" href="#test-explorer-navigation" aria-label="Link to this section">#</a></h2>

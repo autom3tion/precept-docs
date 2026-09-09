@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -147,7 +149,10 @@ pattern away. See
 <a href="reporting.html#linking-scenarios-to-azure-devops-test-cases">linking scenarios to test cases</a>.</p>
 <p>This is the Test Results API rather than a <code>.trx</code> published by the <code>PublishTestResults</code> task; the
 difference is that link to the work item. Results are batched, so a thousand-scenario suite costs
-about ten requests, and a failing test's screenshots are uploaded as attachments of its result.</p>
+about ten requests, and a failing test's screenshots are uploaded as attachments of its result —
+files up to <code>MaxAttachmentBytes</code>, 8 MB by default, so a large Playwright trace is skipped unless the
+cap is raised. See
+<a href="reporting.html#what-gets-attached-and-what-does-not">what gets attached</a>.</p>
 <p>From a pipeline, pass the build's own token:</p>
 <pre data-lang="yaml"><code><span class="tok-key">- script</span>: dotnet test
 <span class="tok-key">  env</span>:

@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -133,7 +135,8 @@ package brings in <code>Precept.Core</code>, makes the project an executable and
 <p>There is no <code>Main</code> and no <code>OutputType</code> to write. The first build leaves a commented <code>precept.json</code>
 in the project.</p>
 <p>One thing a NuGet package cannot do for you: on the .NET 10 SDK, <code>dotnet test</code> has to be told to use
-Microsoft.Testing.Platform, in a <code>global.json</code> beside the project or anywhere above it.</p>
+Microsoft.Testing.Platform, in a <code>global.json</code> at the repository root — the SDK reads it from the
+directory <code>dotnet test</code> is run in and upward, not from the project's.</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;test&quot;</span>: {
     <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span>

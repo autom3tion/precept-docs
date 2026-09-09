@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -125,6 +127,7 @@ reporters' — and it is the reference a pipeline is written against.</p>
 <li><a href="#assertions">Assertions</a></li>
 <li><a href="#grpc">Grpc</a></li>
 <li><a href="#testdata">TestData</a></li>
+<li><a href="#reqnroll">Reqnroll</a></li>
 <li><a href="#connectionstrings">ConnectionStrings</a></li>
 <li><a href="#reporting">Reporting</a></li>
 <li><a href="#reportingreportportal">Reporting:ReportPortal</a></li>
@@ -509,6 +512,68 @@ already in hand is decided immediately and reads none of this.</p>
 <td><code>PRECEPT_TESTDATA__LEASETIMEOUTMILLISECONDS</code></td>
 <td><code>30000</code></td>
 <td>How long <code>LeaseAsync</code> waits for a pooled item. Overridable per pool.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="reqnroll">Reqnroll<a class="anchor" href="#reqnroll" aria-label="Link to this section">#</a></h2>
+<p>Read as the first scenario starts, by <code>Precept.Reqnroll</code>'s runtime plugin. The section's other
+keys — <code>FEATURELANGUAGE</code>, <code>ALLOWROWTESTS</code>, <code>ADDNONPARALLELIZABLEMARKERFORTAGS</code>,
+<code>ALLOWDEBUGGENERATEDFILES</code>, <code>DISABLEFRIENDLYTESTNAMES</code> — shape the generated code and are read from
+the project's <code>precept.json</code> while the feature files compile, so a variable cannot reach them; see
+<a href="writing-tests.html#configuring-reqnroll">configuring Reqnroll</a>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PRECEPT_REQNROLL__BINDINGCULTURE</code></td>
+<td>unset</td>
+<td>Culture step arguments are converted with. Unset means the feature language.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__STOPATFIRSTERROR</code></td>
+<td><code>false</code></td>
+<td>Skip the remaining steps of a scenario once one has failed.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__MISSINGORPENDINGSTEPSOUTCOME</code></td>
+<td><code>Pending</code></td>
+<td>Outcome of a scenario with a missing or pending step: <code>Pending</code>, <code>Inconclusive</code>, <code>Ignore</code> or <code>Error</code>.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__OBSOLETEBEHAVIOR</code></td>
+<td><code>Warn</code></td>
+<td>What a step bound to an <code>[Obsolete]</code> definition does: <code>None</code>, <code>Warn</code>, <code>Pending</code> or <code>Error</code>.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__TRACESUCCESSFULSTEPS</code></td>
+<td><code>true</code></td>
+<td>Write every passing step to the test's log.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__TRACETIMINGS</code></td>
+<td><code>false</code></td>
+<td>Log how long each step took.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__MINTRACEDDURATIONMILLISECONDS</code></td>
+<td><code>100</code></td>
+<td>Shortest step duration worth a timing line.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__STEPDEFINITIONSKELETONSTYLE</code></td>
+<td><code>CucumberExpressionAttribute</code></td>
+<td>Shape of the skeleton logged for a step with no definition.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_REQNROLL__BINDINGASSEMBLIES__&lt;n&gt;</code></td>
+<td>none</td>
+<td>Assemblies searched for bindings besides the test assembly. One variable per element.</td>
 </tr>
 </tbody>
 </table></div>
@@ -979,6 +1044,7 @@ doing exactly that.</p>
 <li><a href="#assertions">Assertions</a></li>
 <li><a href="#grpc">Grpc</a></li>
 <li><a href="#testdata">TestData</a></li>
+<li><a href="#reqnroll">Reqnroll</a></li>
 <li><a href="#connectionstrings">ConnectionStrings</a></li>
 <li><a href="#reporting">Reporting</a></li>
 <li><a href="#reportingreportportal">Reporting:ReportPortal</a></li>

@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html" class="active">Precept.Reporting.ReportPortal</a></li>
@@ -144,7 +146,10 @@ generated from it and described by the narrative under that title, and each scen
 tagged with the scenario's own Gherkin tags. Whatever the test logged goes up as log entries, a
 failure as an error with its stack trace, and the files a failing test captured — Playwright
 screenshots, traces, request logs — as attachments on the item, so a failure in the dashboard opens
-with the screenshot already there.
+with the screenshot already there. Only a failing test's files are attached unless
+<code>AttachOnSuccess</code> says otherwise, and only files up to <code>MaxAttachmentBytes</code> — 8 MB by default, which
+a Playwright trace often exceeds; a larger file is skipped without an error. See
+<a href="reporting.html#what-gets-attached-and-what-does-not">what gets attached</a>.
 Skipped tests are closed as <code>NOT_ISSUE</code> so nobody has to triage a test that was never meant to run.
 A scenario that passed only after a retry is one test item carrying its attempt count, not a chain of
 them: ReportPortal's own retry flag nests an item under an earlier one and leaves it out of the

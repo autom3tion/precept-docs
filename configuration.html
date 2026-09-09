@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -170,9 +172,11 @@ top to bottom: one <code>precept.json</code> with every key at its default, gene
 are on <code>PreceptSettings</code>, the object <a href="startup.html#startup">startup</a> is handed.</p>
 <p>Every other section belongs to the package that reads it, and is registered by that package's
 <code>AddPrecept…</code> call: <code>Web</code> by <code>Precept.Web</code>, <code>Api</code> by <code>Precept.Api</code>, <code>Grpc</code> by <code>Precept.Grpc</code>,
-<code>TestData</code> by <code>Precept.TestData</code>, and each <code>Reporting:&lt;Name&gt;</code> subsection by its reporter. A browser
+<code>TestData</code> by <code>Precept.TestData</code>, <code>Files</code> by <code>Precept.Files</code>, and each <code>Reporting:&lt;Name&gt;</code> subsection by its reporter. A browser
 setting is then versioned with the browser module, and a project that never installed one is never
-offered its settings.</p>
+offered its settings. <code>Reqnroll</code> is the one section with no registration call: <code>Precept.Reqnroll</code>'s
+plugins read it themselves, at build time and as the first scenario starts — see
+<a href="writing-tests.html#configuring-reqnroll">configuring Reqnroll</a>.</p>
 <p>This shows up in two places, and nowhere else:</p>
 <ul>
 <li><p><strong>The section is read only if the module is registered.</strong> A <code>Web</code> block in a project that never

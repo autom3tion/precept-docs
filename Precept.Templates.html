@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -123,7 +125,7 @@ environment switching, <code>precept.json</code> overlays and a first test alrea
 
 <p>Each template includes:</p>
 <ul>
-<li><code>global.json</code> set to <code>Microsoft.Testing.Platform</code>, which <code>dotnet test</code> requires on the .NET 10 SDK.</li>
+<li><code>global.json</code> set to <code>Microsoft.Testing.Platform</code>, which <code>dotnet test</code> requires on the .NET 10 SDK. Inside a larger repository, move its <code>test</code> section to the root <code>global.json</code> — the SDK reads the file from where <code>dotnet test</code> is run, not from the project.</li>
 <li><code>precept.json</code> with <code>Environment: local</code> and web defaults.</li>
 <li><code>precept.staging.json</code> as an overlay for <code>staging</code>, reached with <code>--precept-environment staging</code>.</li>
 <li>A starter test — plain C#, or a <code>.feature</code> file with its step definitions.</li>

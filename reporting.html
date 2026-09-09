@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -156,6 +158,34 @@
 
 <p>Endpoints belong in <code>precept.json</code>; keys and webhook URLs do not. They are credentials, and the environment-variable override is what keeps them out of source control — <code>PRECEPT_REPORTING__REPORTPORTAL__APIKEY</code>, <code>PRECEPT_REPORTING__TEAMS__WEBHOOKURL</code>, <code>PRECEPT_REPORTING__AZUREDEVOPS__PERSONALACCESSTOKEN</code>.</p>
 <p>Each package's page documents its own settings: <a href="Precept.Reporting.ReportPortal.html">ReportPortal</a>, <a href="Precept.Reporting.Teams.html">Teams</a>, <a href="Precept.Reporting.AzureDevOps.html">Azure DevOps</a>. What a pipeline has to pass them, and where the credentials come from, is <a href="azure-devops.html">Running a suite on CI</a>.</p>
+<h2 id="what-gets-attached-and-what-does-not">What gets attached, and what does not<a class="anchor" href="#what-gets-attached-and-what-does-not" aria-label="Link to this section">#</a></h2>
+<p>ReportPortal and Azure DevOps upload the files a test captured — screenshots, Playwright traces, request logs — as attachments of its item or result. Two settings decide which files go, and both live in the reporter's own section:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AttachOnSuccess</code></td>
+<td><code>false</code></td>
+<td>Attach a passing test's files too. By default only a failure's files are uploaded.</td>
+</tr>
+<tr>
+<td><code>MaxAttachmentBytes</code></td>
+<td><code>8388608</code> (8 MB)</td>
+<td>Largest single file uploaded. Anything larger is <strong>skipped, silently</strong> — no error, no log line, the other files still go.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The cap is what turns a failure that has a screenshot and a trace on disk into a dashboard item with only the screenshot on it. A Playwright trace of a scenario with more than a handful of steps is routinely over 8 MB, so this is the case to expect rather than the exception. The TRX has no such cap: the same trace is still copied next to the <code>.trx</code> and reaches the pipeline's published attachments, which is the quickest way to tell a skipped upload from a trace that was never recorded.</p>
+<p>Raise the cap where traces are worth opening from the dashboard:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;Reporting&quot;</span>: { <span class="tok-key">&quot;ReportPortal&quot;</span>: { <span class="tok-key">&quot;MaxAttachmentBytes&quot;</span>: <span class="tok-number">52428800</span> } } }</code></pre>
+
+<p>or per agent as <code>PRECEPT_REPORTING__REPORTPORTAL__MAXATTACHMENTBYTES</code>; the Azure DevOps reporter has the same setting under its own section. The server has a limit of its own past that — a ReportPortal deployment's upload size is set on its reverse proxy, and Azure DevOps refuses an attachment over 100 MB — and a file that clears Precept's cap but not the server's fails with the server's error, which the reporter does report. Details of where files are written and how they reach the TRX are on <a href="artifacts-and-logging.html#artifacts-and-logging">Artifacts and logging</a>.</p>
 <h2 id="what-the-teams-card-looks-like">What the Teams card looks like<a class="anchor" href="#what-the-teams-card-looks-like" aria-label="Link to this section">#</a></h2>
 <p>A channel is where a run is <em>noticed</em>. It is not where it is diagnosed — a stack trace pasted into one buries the next suite's card and is unreadable where it lands. So the card answers the questions a channel actually asks, and links to the place that answers the rest:</p>
 <pre><code>┌──────────────────────────────────────────────┐
@@ -384,6 +414,7 @@ left out of this planned run. 3 result(s) named a Test Case with no test point i
     <nav>
       <p class="toc-title">On this page</p>
 <ul>
+<li><a href="#what-gets-attached-and-what-does-not">What gets attached, and what does not</a></li>
 <li><a href="#what-the-teams-card-looks-like">What the Teams card looks like</a></li>
 <li><a href="#linking-a-runs-reports-to-each-other">Linking a run&#39;s reports to each other</a></li>
 <li><a href="#ci-and-local-runs">CI and local runs</a></li>

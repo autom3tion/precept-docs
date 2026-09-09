@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -133,8 +135,8 @@
     -&gt; done: CalculatorSteps.WhenIPressAdd() (0,0s)</code></pre>
 
 <p>Anything a step logs itself lands in the right place in that sequence. Under <code>dotnet test</code> the same flags work for failing and skipped tests, but the SDK's own logger never lists passing ones, so a passing scenario's steps are only in the TRX and the reporters. Whether successful steps are traced at all stays Reqnroll's call, through <code>trace.traceSuccessfulSteps</code> in <code>reqnroll.json</code>.</p>
-<p>Each test writes into its own directory under <code>ArtifactDirectory</code>. The directory is named after the test but deliberately kept short — Windows caps a full path at 260 characters, and past that an artifact is still written while the TRX writer's copy of it fails with &quot;attachment not found&quot;.</p>
-<p>Recorded files are reported to the platform as file artifacts of the test that produced them. With <code>--report-trx</code> they are copied next to the <code>.trx</code> and listed as <code>&lt;ResultFile&gt;</code> entries of that test's result, which is what Azure DevOps' <code>PublishTestResults</code> task uploads as attachments:</p>
+<p>Each test writes into its own directory under <code>ArtifactDirectory</code>. The directory is named after the test but deliberately kept short — Windows caps a full path at 260 characters, and past that an artifact is still written while the TRX writer's copy of it fails with &quot;attachment not found&quot;. The directory is created the first time something asks for a path inside it, which a module recording on failure does before the test runs, so a test that passes is left with an empty one — and that is removed once the test is over. What survives a run is a directory per test that produced a file, which is what a pipeline publishing the root should ship. A <a href="execution-model.html#retries-timeouts-and-reporting">retried</a> test's reruns write into <code>attempt-2</code>, <code>attempt-3</code> and so on under that directory, so the first attempt's files survive them.</p>
+<p>Recorded files are reported to the platform as file artifacts of the test that produced them. With <code>--report-trx</code> they are copied next to the <code>.trx</code> and listed as <code>&lt;ResultFile&gt;</code> entries of that test's result, which is what Azure DevOps' <code>PublishTestResults</code> task uploads as attachments. The TRX copies every file whatever its size; the reporters that upload files apply a size cap of their own, see <a href="reporting.html#what-gets-attached-and-what-does-not">what gets attached</a>:</p>
 <pre data-lang="yaml"><code><span class="tok-key">- task</span>: PublishTestResults@<span class="tok-number">2</span>
 <span class="tok-key">  inputs</span>:
 <span class="tok-key">    testResultsFormat</span>: VSTest

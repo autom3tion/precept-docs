@@ -72,6 +72,7 @@
 <p class="nav-group">Test data and modules</p>
 <ul>
 <li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
 <li><a href="browsers.html">Browsers</a></li>
 <li><a href="containers.html">Containers</a></li>
 </ul>
@@ -93,6 +94,7 @@
 <li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
 <li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
@@ -171,7 +173,9 @@ files over one job template.</p>
 <span class="tok-keyword">&lt;/Project</span><span class="tok-keyword">&gt;</span></code></pre>
 <h3 id="global.json"><code>global.json</code><a class="anchor" href="#global.json" aria-label="Link to this section">#</a></h3>
 <p><code>dotnet test</code> on the .NET 10 SDK has to be told to drive Microsoft.Testing.Platform. The job
-template uses <code>dotnet test</code>, so this file must be beside the project or above it:</p>
+template runs <code>dotnet test</code> from the root of the checkout, and the SDK reads <code>global.json</code> from the
+directory the command is run in and upward — not from the project's — so this file has to be at
+the repository root:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;test&quot;</span>: { <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span> }
 }</code></pre>
