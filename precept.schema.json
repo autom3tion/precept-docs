@@ -39,6 +39,13 @@
           "description": "Request timeout in milliseconds.",
           "type": "integer",
           "default": 30000
+        },
+        "XmlNamespaces": {
+          "description": "Namespace prefixes an XPath may use when reading an XML response, prefix to namespace URI.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     },

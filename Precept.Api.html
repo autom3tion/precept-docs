@@ -129,15 +129,19 @@ request/response logging into the test report.</p>
 
 <p>Every failure carries the request line and the body, because that is always the next question.</p>
 <p><code>ToHaveStatusAsync</code>, <code>ToBeSuccessfulAsync</code>, <code>ToHaveHeaderAsync</code>, <code>ToContainAsync</code>,
-<code>ToHaveJsonValueAsync</code> and <code>ToRespondWithinAsync</code> cover responses, and <code>JsonAt</code>/<code>Json&lt;T&gt;</code> narrow to a
-part of one so the general assertions apply to it. Polling for a state that arrives later is the same
-sentence under <code>Assert.Eventually</code>:</p>
+<code>ToHaveJsonValueAsync</code>, <code>ToHaveXmlValueAsync</code> and <code>ToRespondWithinAsync</code> cover responses, and
+<code>JsonAt</code>/<code>Json&lt;T&gt;</code> and <code>XmlAt</code>/<code>Xml&lt;T&gt;</code> narrow to a part of one so the general assertions apply to
+it. An XML API is the same shape with data contracts: <code>WithXmlBody</code> writes a <code>[DataContract]</code> type,
+<code>Xml&lt;T&gt;</code> reads one back, and <code>XmlAt</code> takes an XPath whose prefixes are declared in
+<code>Api:XmlNamespaces</code>. Polling for a state that arrives later is the same sentence under
+<code>Assert.Eventually</code>:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.Eventually(() =&gt; Rest.Get(<span class="tok-str">$&quot;/jobs/{id}&quot;</span>).SendAsync())
             .Within(TimeSpan.FromMinutes(<span class="tok-number">2</span>))
             .ToHaveJsonValueAsync(<span class="tok-str">&quot;state&quot;</span>, <span class="tok-str">&quot;Completed&quot;</span>);</code></pre>
 <hr />
 <p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
 Full documentation: <a href="assertions.html#on-a-response">assertions on a response</a> ·
+<a href="assertions.html#xml">XML</a> ·
 <a href="assertions.html#waiting-for-something-to-become-true">waiting</a> ·
 <a href="configuration.html#configuration">configuration</a></p>
 

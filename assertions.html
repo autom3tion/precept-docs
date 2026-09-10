@@ -228,6 +228,32 @@ Call log:
 <span class="tok-keyword">await</span> Assert.That(response).Json&lt;Order&gt;().ToSatisfyAsync(o =&gt; o.Lines.Count == <span class="tok-number">2</span>, <span class="tok-str">&quot;have two lines&quot;</span>);</code></pre>
 
 <p>Every failure carries the request line and the body, because that is always the next question.</p>
+<h3 id="xml">XML<a class="anchor" href="#xml" aria-label="Link to this section">#</a></h3>
+<p>An API that speaks XML gets the same sentences. <code>WithXmlBody</code> writes a <code>[DataContract]</code> type with
+<code>DataContractSerializer</code>, <code>Xml&lt;T&gt;</code> reads one back, and <code>XmlAt</code> reads a single value by XPath — an
+element's text, an attribute's value, or what a function such as <code>count()</code> returns:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">var</span> response = <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/policies/drafts&quot;</span>)
+    .WithXmlBody(<span class="tok-keyword">new</span> PolicyDraftRequest { ProductCode = <span class="tok-str">&quot;MOTOR-STD&quot;</span>, CustomerId = <span class="tok-str">&quot;CUST-1001&quot;</span> })
+    .SendAsync();
+
+<span class="tok-keyword">await</span> Assert.That(response).ToHaveXmlValueAsync(<span class="tok-str">&quot;/s:policy/s:status&quot;</span>, <span class="tok-str">&quot;Draft&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(response).XmlAt(<span class="tok-str">&quot;/s:policy/@number&quot;</span>).ToStartWithAsync(<span class="tok-str">&quot;POL-&quot;</span>);
+<span class="tok-keyword">await</span> Assert.That(response).Xml&lt;Policy&gt;().ToSatisfyAsync(p =&gt; p.Premium &gt; <span class="tok-number">0</span>, <span class="tok-str">&quot;carry a premium&quot;</span>);</code></pre>
+
+<p>The <code>s:</code> prefix comes from <code>Api:XmlNamespaces</code> in <code>precept.json</code>. XPath has no default namespace and
+a data contract's XML is always in one, so an unprefixed path such as <code>/policy/status</code> selects
+nothing in <code>&lt;policy xmlns=&quot;urn:sales&quot;&gt;</code> — declare the prefix once and every path can use it:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;Api&quot;</span>: { <span class="tok-key">&quot;XmlNamespaces&quot;</span>: { <span class="tok-key">&quot;s&quot;</span>: <span class="tok-str">&quot;urn:sales&quot;</span> } } }</code></pre>
+
+<p>Two things about the serializer decide whether the XML matches the service's schema, and both are
+said on the contract rather than in Precept. <code>[DataContract(Namespace = …)]</code> replaces the
+serializer's default of <code>http://schemas.datacontract.org/2004/07/…</code>, which no service expects.
+<code>[DataMember(Order = n)]</code> fixes the element order, which is alphabetical otherwise — and the
+serializer <em>reads</em> in that order too, skipping an element that arrives out of place and leaving the
+property at its default with no error. Both methods take a <code>DataContractSerializerSettings</code> for
+anything beyond that, passed through untouched. A schema that uses XML attributes is outside what a
+data contract can express: send that body with <code>WithBody(xml, &quot;application/xml&quot;)</code> and read the
+answer with <code>XmlAt</code>, which handles attributes, or from <code>Body</code>.</p>
 <h2 id="writing-your-own">Writing your own<a class="anchor" href="#writing-your-own" aria-label="Link to this section">#</a></h2>
 <p>An assertion is an extension method on <code>Subject&lt;T&gt;</code> that hands an <code>Expectation&lt;T&gt;</code> to the engine. There is no registration, no base class, and no difference between one you write and one Precept ships:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">using</span> Precept.Assertions;
