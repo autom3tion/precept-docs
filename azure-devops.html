@@ -208,7 +208,7 @@ precept.prod.json</code></pre>
 {
   <span class="tok-key">&quot;Environment&quot;</span>: <span class="tok-str">&quot;local&quot;</span>,
   <span class="tok-key">&quot;MaxParallelism&quot;</span>: <span class="tok-number">8</span>,
-  <span class="tok-key">&quot;DefaultTimeoutMilliseconds&quot;</span>: <span class="tok-number">60000</span>,
+  <span class="tok-key">&quot;RunTimeoutMinutes&quot;</span>: <span class="tok-number">180</span>,
 
   <span class="tok-key">&quot;Web&quot;</span>:  { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span>, <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span> },
   <span class="tok-key">&quot;Api&quot;</span>:  { <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span> },
@@ -314,7 +314,12 @@ if the results should be filed into a <em>different</em> project from the one ru
 <tr>
 <td><strong>Per-test timeout</strong></td>
 <td><code>DefaultTimeoutMilliseconds</code></td>
-<td>The dialog asks for minutes; the template converts.</td>
+<td>The dialog asks for minutes; the template converts. <code>0</code> — the default — sets no per-test limit.</td>
+</tr>
+<tr>
+<td><em>(job timeout)</em></td>
+<td><code>RunTimeoutMinutes</code></td>
+<td>Five minutes short of the job's <code>timeoutInMinutes</code>, so a hung suite is ended by Precept with a TRX and a report rather than by the agent with nothing.</td>
 </tr>
 <tr>
 <td><strong>Browsers</strong></td>

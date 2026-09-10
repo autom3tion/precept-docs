@@ -148,7 +148,9 @@ them — so the annotations below can stay in anything you copy.</p>
   <span class="tok-comment">// — reruns nothing; 2 means a test may run three times in all.</span>
   <span class="tok-key">&quot;DefaultRetries&quot;</span>: <span class="tok-number">0</span>,
 
-  <span class="tok-comment">// Default per-test timeout in milliseconds; 0 disables the default timeout.</span>
+  <span class="tok-comment">// Per-test timeout in milliseconds for a test carrying no TimeoutAttribute. 0 — the default —</span>
+  <span class="tok-comment">// leaves tests without one; RunTimeoutMinutes is what keeps a run from lasting forever. Not</span>
+  <span class="tok-comment">// enforced while a debugger is attached.</span>
   <span class="tok-key">&quot;DefaultTimeoutMilliseconds&quot;</span>: <span class="tok-number">0</span>,
 
   <span class="tok-comment">// Name of the environment under test, used to pick the settings overlay file.</span>
@@ -167,6 +169,10 @@ them — so the annotations below can stay in anything you copy.</p>
   <span class="tok-comment">// Whether a class or a single test is one unit of parallel work. Defaults to the class. One of:</span>
   <span class="tok-comment">// Class, Test.</span>
   <span class="tok-key">&quot;ParallelScope&quot;</span>: <span class="tok-str">&quot;Class&quot;</span>,
+
+  <span class="tok-comment">// How long the whole run may take, in minutes, before every test still running is cut off and</span>
+  <span class="tok-comment">// every test not yet started is failed as not run. Defaults to 12 hours; 0 removes the limit.</span>
+  <span class="tok-key">&quot;RunTimeoutMinutes&quot;</span>: <span class="tok-number">720</span>,
 
   <span class="tok-comment">// HTTP API settings, bound from the Api section of precept.json.</span>
   <span class="tok-key">&quot;Api&quot;</span>: {

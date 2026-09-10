@@ -96,7 +96,7 @@ parameters:
   - name: defaultTimeoutMinutes
     displayName: 'Per-test timeout in minutes (0 = no default timeout)'
     type: number
-    default: 2
+    default: 0
 
   - name: browsers
     displayName: 'Browsers — one job per entry. Leave as [chromium] for a non-web suite'

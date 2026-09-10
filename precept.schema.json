@@ -76,7 +76,7 @@
       "type": "integer"
     },
     "DefaultTimeoutMilliseconds": {
-      "description": "Default per-test timeout in milliseconds; 0 disables the default timeout.",
+      "description": "Per-test timeout in milliseconds for a test carrying no TimeoutAttribute. 0 — the default — leaves tests without one; RunTimeoutMinutes is what keeps a run from lasting forever. Not enforced while a debugger is attached.",
       "type": "integer"
     },
     "Environment": {
@@ -655,6 +655,11 @@
           "type": "boolean"
         }
       }
+    },
+    "RunTimeoutMinutes": {
+      "description": "How long the whole run may take, in minutes, before every test still running is cut off and every test not yet started is failed as not run. Defaults to 12 hours; 0 removes the limit.",
+      "type": "integer",
+      "default": 720
     },
     "TestData": {
       "description": "Where the test data lives and how it behaves. Bound from the TestData section of precept.json, like any other Precept settings class.",

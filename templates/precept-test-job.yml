@@ -67,7 +67,7 @@ parameters:
     default: 0
   - name: defaultTimeoutMinutes
     type: number
-    default: 2
+    default: 0
 
   - name: installBrowsers
     type: boolean
@@ -179,6 +179,12 @@ jobs:
           $timeoutMinutes = [int]"$env:SUITE_TIMEOUT_MINUTES"
           $env:PRECEPT_DEFAULTTIMEOUTMILLISECONDS = ($timeoutMinutes * 60000).ToString()
 
+          # The run's own limit ends a little before the job's, so a suite that hangs is cut off by
+          # Precept — which writes the TRX and lets the reporters finish — rather than by the agent,
+          # which kills the process and leaves nothing behind.
+          $jobMinutes = [int]"$env:SUITE_JOB_TIMEOUT_MINUTES"
+          $env:PRECEPT_RUNTIMEOUTMINUTES = ([Math]::Max(1, $jobMinutes - 5)).ToString()
+
           New-Item -ItemType Directory -Force -Path "$env:PRECEPT_ARTIFACTDIRECTORY" | Out-Null
 
           # Microsoft.Testing.Platform reads a leading @ as a response file name, so a filter that
@@ -226,6 +232,7 @@ jobs:
           SUITE_EXCLUDE: ${{ parameters.excludeFilter }}
           SUITE_ENVIRONMENT: ${{ parameters.environment }}
           SUITE_TIMEOUT_MINUTES: ${{ parameters.defaultTimeoutMinutes }}
+          SUITE_JOB_TIMEOUT_MINUTES: ${{ parameters.timeoutInMinutes }}
           SUITE_TEST_PROJECT: ${{ parameters.testProject }}
           SUITE_BUILD_CONFIGURATION: ${{ parameters.buildConfiguration }}
           SUITE_RESULTS_DIRECTORY: $(resultsDirectory)

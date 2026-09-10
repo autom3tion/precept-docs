@@ -118,7 +118,7 @@
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;MaxParallelism&quot;</span>: <span class="tok-number">8</span>,
   <span class="tok-key">&quot;ParallelScope&quot;</span>: <span class="tok-str">&quot;Class&quot;</span>,
-  <span class="tok-key">&quot;DefaultTimeoutMilliseconds&quot;</span>: <span class="tok-number">60000</span>,
+  <span class="tok-key">&quot;RunTimeoutMinutes&quot;</span>: <span class="tok-number">180</span>,
   <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://staging.example.com&quot;</span>, <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span>, <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span> },
   <span class="tok-key">&quot;Api&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://api.staging.example.com&quot;</span> },
   <span class="tok-key">&quot;ConnectionStrings&quot;</span>: { <span class="tok-key">&quot;Default&quot;</span>: <span class="tok-str">&quot;Host=localhost;Database=app&quot;</span> }
@@ -167,7 +167,7 @@ a settings key added by a new version is offered as soon as the project is on it
 top to bottom: one <code>precept.json</code> with every key at its default, generated from the same place.</p>
 <h2 id="where-a-section-comes-from">Where a section comes from<a class="anchor" href="#where-a-section-comes-from" aria-label="Link to this section">#</a></h2>
 <p>One file, but not one owner. The runner owns the top level — <code>MaxParallelism</code>, <code>ParallelScope</code>,
-<code>DefaultTimeoutMilliseconds</code>, <code>DefaultRetries</code>, <code>ArtifactDirectory</code>, <code>Environment</code>,
+<code>RunTimeoutMinutes</code>, <code>DefaultTimeoutMilliseconds</code>, <code>DefaultRetries</code>, <code>ArtifactDirectory</code>, <code>Environment</code>,
 <code>IsContinuousIntegration</code> — plus <code>Filter</code>, <code>Assertions</code>, <code>Reporting</code> and <code>ConnectionStrings</code>. Those
 are on <code>PreceptSettings</code>, the object <a href="startup.html#startup">startup</a> is handed.</p>
 <p>Every other section belongs to the package that reads it, and is registered by that package's

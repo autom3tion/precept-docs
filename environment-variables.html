@@ -267,9 +267,14 @@ opinion&quot;; it sets the exclude expression to empty and so overrides whatever
 <td><code>Class</code> or <code>Test</code>. What one unit of parallel work is.</td>
 </tr>
 <tr>
+<td><code>PRECEPT_RUNTIMEOUTMINUTES</code></td>
+<td><code>720</code></td>
+<td>How long the whole run may take before what is still running is cut off and the rest is reported as not run. <code>0</code> removes the limit. Not enforced under a debugger.</td>
+</tr>
+<tr>
 <td><code>PRECEPT_DEFAULTTIMEOUTMILLISECONDS</code></td>
 <td><code>0</code></td>
-<td>Per-test timeout for tests with no <code>[Timeout]</code>. <code>0</code> disables it.</td>
+<td>Per-test timeout for tests with no <code>[Timeout]</code>. <code>0</code> — the default — sets none; the run limit above is what bounds a run. Not enforced under a debugger.</td>
 </tr>
 <tr>
 <td><code>PRECEPT_DEFAULTRETRIES</code></td>
