@@ -53,6 +53,7 @@
 <li><a href="installing.html" class="active">Installing</a></li>
 <li><a href="project-templates.html">Project templates</a></li>
 <li><a href="running.html">Running</a></li>
+<li><a href="coding-agents.html">Working with a coding agent</a></li>
 </ul>
 <p class="nav-group">Writing tests</p>
 <ul>
@@ -186,7 +187,8 @@ talks to, so nothing in a test project references it:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
 
 <p>Point an MCP client at the <code>precept-mcp</code> command, or at <code>dnx Precept.Mcp</code> to run it without
-installing anything. See <a href="Precept.Mcp.html"><code>docs/packages/Precept.Mcp.md</code></a>.</p>
+installing anything. See <a href="Precept.Mcp.html"><code>docs/packages/Precept.Mcp.md</code></a>, and
+<a href="coding-agents.html">Working with a coding agent</a> for the skills and the Copilot agent that go with it.</p>
 <p>The tool package bundles its own <code>Precept.Core</code>, so the server answers out of <em>its</em> version rather
 than the project's — which is why a global install, being one version for the whole machine, can
 answer a second repository with the first one's rules. It reports the difference rather than hiding

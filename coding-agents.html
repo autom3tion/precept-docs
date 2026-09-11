@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en" data-page="Precept.Grpc">
+<html lang="en" data-page="coding-agents">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Precept.Grpc · Precept</title>
+<title>Working with a coding agent · Precept</title>
 <meta name="description" content="A .NET 10 test automation framework with its own test runner and the modules an end-to-end suite needs.">
 <link rel="icon" href="assets/precept-icon.png">
 <link rel="stylesheet" href="site.css">
@@ -53,7 +53,7 @@
 <li><a href="installing.html">Installing</a></li>
 <li><a href="project-templates.html">Project templates</a></li>
 <li><a href="running.html">Running</a></li>
-<li><a href="coding-agents.html">Working with a coding agent</a></li>
+<li><a href="coding-agents.html" class="active">Working with a coding agent</a></li>
 </ul>
 <p class="nav-group">Writing tests</p>
 <ul>
@@ -96,7 +96,7 @@
 <li><a href="Precept.Data.html">Precept.Data</a></li>
 <li><a href="Precept.TestData.html">Precept.TestData</a></li>
 <li><a href="Precept.Files.html">Precept.Files</a></li>
-<li><a href="Precept.Grpc.html" class="active">Precept.Grpc</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
 <li><a href="Precept.Containers.html">Precept.Containers</a></li>
 <li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
 <li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
@@ -114,42 +114,78 @@
 
   <main id="content">
     <article class="prose">
-      <h1 id="precept.grpc">Precept.Grpc</h1>
-<p>gRPC testing for Precept: pooled channels, typed clients, and assertions over status codes, deadlines
-and streaming responses.</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Grpc</code></pre>
-<pre data-lang="csharp"><code><span class="tok-keyword">var</span> greeter = Rpc.Client&lt;Greeter.GreeterClient&gt;();
+      <h1 id="working-with-a-coding-agent">Working with a coding agent</h1>
+<p>Precept ships two things for an agent writing tests in your project. The
+<a href="Precept.Mcp.html">MCP server</a> answers questions the project cannot answer for itself — which
+environment a run will use, why a green build found no tests, what a filter selects. The
+<strong>skills</strong> say how to write the tests: what a test class looks like, how a feature file and its
+bindings are shaped, where a setting goes and which registration reads it, how to run and filter,
+and how each module is used. A Copilot agent and an instructions file come with them.</p>
+<p>They are published as <a href="https://github.com/autom3tion/precept-skills">autom3tion/precept-skills</a>,
+in the <a href="https://agentskills.io">Agent Skills</a> format that GitHub Copilot, Claude Code, Cursor and
+the other agents reading <code>SKILL.md</code> files understand:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">npx</span> skills add autom3tion/precept-skills</code></pre>
 
-<span class="tok-keyword">var</span> reply = <span class="tok-keyword">await</span> Rpc.CallAsync(
-    () =&gt; greeter.SayHelloAsync(<span class="tok-keyword">new</span> HelloRequest { Name = <span class="tok-str">&quot;Ada&quot;</span> }, Rpc.Options()));
-
-<span class="tok-keyword">var</span> greetings = <span class="tok-keyword">await</span> Rpc.CollectAsync(
-    greeter.StreamGreetings(<span class="tok-keyword">new</span> HelloRequest { Name = <span class="tok-str">&quot;Ada&quot;</span> }, Rpc.Options()));
-
-<span class="tok-keyword">var</span> status = <span class="tok-keyword">await</span> Rpc.ShouldFailAsync(
-    () =&gt; greeter.SayHelloAsync(<span class="tok-keyword">new</span> HelloRequest(), Rpc.Options()),
-    StatusCode.InvalidArgument);</code></pre>
-
-<p><code>Rpc.Client&lt;T&gt;</code> works for any client generated from a <code>.proto</code>, and <code>Rpc.Options()</code> carries the
-configured deadline and the test's cancellation token. Every call is logged with its duration and
-status; <code>CollectAsync</code> stops at <code>maxItems</code> (1000 by default) so a misbehaving stream cannot hang the
-test forever.</p>
-<p>Channels are pooled per address for the run rather than opened per call, and the address comes from
-configuration — so the same suite runs against a container started by
-<a href="https://www.nuget.org/packages/Precept.Containers"><code>Precept.Containers</code></a> locally and a deployed
-service in CI.</p>
-<p>Note: gRPC assertions are still the older helpers that throw on their own, rather than the
-<code>Assert.That(…)</code> sentence the rest of the framework uses. Moving them onto <code>Subject&lt;T&gt;</code> is planned.</p>
-<hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
-Full documentation: <a href="assertions.html#assertions">assertions</a> ·
-<a href="configuration.html#configuration">configuration</a> ·
-<a href="roadmap.html#not-yet-built">what is not built yet</a></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>precept-tests</code></td>
+<td><code>[TestSuite]</code>/<code>[Test]</code> classes, hooks, retries, outcomes and awaited assertions — see <a href="writing-tests.html">Writing tests</a> and <a href="assertions.html">Assertions</a>.</td>
+</tr>
+<tr>
+<td><code>precept-gherkin</code></td>
+<td>A <code>.feature</code> file, its Reqnroll bindings and the <code>Reqnroll</code> section — see <a href="writing-tests.html#gherkin">Gherkin</a>.</td>
+</tr>
+<tr>
+<td><code>precept-settings</code></td>
+<td><code>precept.json</code>, overlays, <code>PRECEPT_*</code> variables, startup and your own settings — see <a href="configuration.html">Configuration</a>.</td>
+</tr>
+<tr>
+<td><code>precept-running</code></td>
+<td>Running, listing and filtering, environments and artifacts — see <a href="running.html">Running</a> and <a href="filtering.html">Filtering</a>.</td>
+</tr>
+<tr>
+<td><code>precept-modules</code></td>
+<td><code>Rest</code>, <code>Browser</code>, <code>Db</code>, <code>TestData</code>, <code>Rpc</code> and <a href="screenplay.html">screenplay</a>, one example each.</td>
+</tr>
+<tr>
+<td><code>precept-page-objects</code></td>
+<td>Page objects and components on <code>IPageContext</code> — see <a href="dependency-injection.html#page-objects">Dependency injection</a> — and when to move to screenplay.</td>
+</tr>
+<tr>
+<td><code>precept-migrating</code></td>
+<td>Moving a suite from NUnit, xUnit, MSTest, SpecFlow, FluentAssertions, Selenium or RestSharp, with every old test accounted for.</td>
+</tr>
+<tr>
+<td><code>precept-pipelines</code></td>
+<td>Running the suite on Azure Pipelines with the shipped <a href="azure-devops.html">pipeline and job template</a>, settings as <code>PRECEPT_*</code> variables, TRX and attachments, exit codes.</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="github-copilot">GitHub Copilot<a class="anchor" href="#github-copilot" aria-label="Link to this section">#</a></h2>
+<p>Copy <code>.github/agents</code> and <code>.github/instructions</code> from the published repository into your own
+<code>.github/</code> folder, and put the skills under <code>.github/skills/</code> — which is where the installer above
+puts them for Copilot. The <strong>Precept</strong> agent declares the MCP server itself, launched with
+<code>dnx Precept.Mcp</code>, so a project that adopts the agent needs no separate MCP configuration; it loads
+the matching skill before it acts, reads <code>precept.json</code> and your <code>IPreceptStartup</code> before writing,
+and finishes by listing and running the tests it changed.</p>
+<h2 id="keeping-them-in-step">Keeping them in step<a class="anchor" href="#keeping-them-in-step" aria-label="Link to this section">#</a></h2>
+<p>The skills name Precept's API — the entry points, the assertions, the settings keys, the order the
+environment is resolved in — so they are versioned with it: the published README says which Precept
+it describes, and every release republishes them. Take the version your project references, and
+if the MCP server reports a different one, prefer the project's — it is the code the agent will be
+compiling against.</p>
 
     </article>
 
     <nav class="pager">
-      <a class="prev" href="Precept.Files.html"><span>Previous</span>Precept.Files</a><a class="next" href="Precept.Containers.html"><span>Next</span>Precept.Containers</a>
+      <a class="prev" href="running.html"><span>Previous</span>Running</a><a class="next" href="writing-tests.html"><span>Next</span>Writing tests</a>
     </nav>
 
     <footer>
@@ -159,7 +195,11 @@ Full documentation: <a href="assertions.html#assertions">assertions</a> ·
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#github-copilot">GitHub Copilot</a></li>
+<li><a href="#keeping-them-in-step">Keeping them in step</a></li>
+</ul>
     </nav>
   </aside>
 </div>

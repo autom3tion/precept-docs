@@ -53,6 +53,7 @@
 <li><a href="installing.html">Installing</a></li>
 <li><a href="project-templates.html">Project templates</a></li>
 <li><a href="running.html">Running</a></li>
+<li><a href="coding-agents.html">Working with a coding agent</a></li>
 </ul>
 <p class="nav-group">Writing tests</p>
 <ul>
@@ -120,6 +121,10 @@ found no tests, which of five sources decided the environment, why raising <code
 nothing, what a filter expression will actually select, and how the suite's test data is meant to be
 written.</p>
 <p>This is a <strong>tool</strong>, not a library — nothing in your test code references it.</p>
+<p>It is one of two things Precept ships for an agent. The other is a set of skills, a Copilot agent
+and an instructions file, installed from
+<a href="https://github.com/autom3tion/precept-skills">autom3tion/precept-skills</a> — see
+<a href="coding-agents.html">Working with a coding agent</a>.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
 
 <p>Then point an MCP client at it. Checked into the repository as <code>.mcp.json</code>, this is picked up by
