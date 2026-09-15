@@ -116,7 +116,7 @@
     <article class="prose">
       <h1 id="precept.api">Precept.Api</h1>
 <p>HTTP API testing for Precept: a fluent request builder, response assertions, and automatic
-request/response logging into the test report.</p>
+logging of every request and response into the test's report.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Api</code></pre>
 <pre data-lang="csharp"><code>services.AddPreceptApi();</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> response = <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/orders&quot;</span>)
@@ -128,19 +128,19 @@ request/response logging into the test report.</p>
 <span class="tok-keyword">await</span> Assert.That(response).JsonAt(<span class="tok-str">&quot;customer.email&quot;</span>).ToEndWithAsync(<span class="tok-str">&quot;@example.com&quot;</span>);
 <span class="tok-keyword">await</span> Assert.That(response).Json&lt;Order&gt;().ToSatisfyAsync(o =&gt; o.Lines.Count == <span class="tok-number">2</span>, <span class="tok-str">&quot;have two lines&quot;</span>);</code></pre>
 
-<p>Every failure carries the request line and the body, because that is always the next question.</p>
-<p><code>ToHaveStatusAsync</code>, <code>ToBeSuccessfulAsync</code>, <code>ToHaveHeaderAsync</code>, <code>ToContainAsync</code>,
-<code>ToHaveJsonValueAsync</code>, <code>ToHaveXmlValueAsync</code> and <code>ToRespondWithinAsync</code> cover responses, and
-<code>JsonAt</code>/<code>Json&lt;T&gt;</code> and <code>XmlAt</code>/<code>Xml&lt;T&gt;</code> narrow to a part of one so the general assertions apply to
-it. An XML API is the same shape with data contracts: <code>WithXmlBody</code> writes a <code>[DataContract]</code> type,
-<code>Xml&lt;T&gt;</code> reads one back, and <code>XmlAt</code> takes an XPath whose prefixes are declared in
-<code>Api:XmlNamespaces</code>. Polling for a state that arrives later is the same sentence under
-<code>Assert.Eventually</code>:</p>
+<p>Every failure carries the request line and the response body, because that is always the next
+question.</p>
+<p>The response assertions are <code>ToHaveStatusAsync</code>, <code>ToBeSuccessfulAsync</code>, <code>ToHaveHeaderAsync</code>,
+<code>ToContainAsync</code>, <code>ToHaveJsonValueAsync</code>, <code>ToHaveXmlValueAsync</code> and <code>ToRespondWithinAsync</code>.
+<code>JsonAt</code>, <code>Json&lt;T&gt;</code>, <code>XmlAt</code> and <code>Xml&lt;T&gt;</code> narrow to a part of the response so the general
+assertions apply to it. For an XML API, <code>WithXmlBody</code> writes a <code>[DataContract]</code> type and <code>XmlAt</code>
+takes an XPath whose prefixes are declared in <code>Api:XmlNamespaces</code>.</p>
+<p>Polling for a state that arrives later uses the same sentence under <code>Assert.Eventually</code>:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.Eventually(() =&gt; Rest.Get(<span class="tok-str">$&quot;/jobs/{id}&quot;</span>).SendAsync())
             .Within(TimeSpan.FromMinutes(<span class="tok-number">2</span>))
             .ToHaveJsonValueAsync(<span class="tok-str">&quot;state&quot;</span>, <span class="tok-str">&quot;Completed&quot;</span>);</code></pre>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
 Full documentation: <a href="assertions.html#on-a-response">assertions on a response</a> ·
 <a href="assertions.html#xml">XML</a> ·
 <a href="assertions.html#waiting-for-something-to-become-true">waiting</a> ·

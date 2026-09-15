@@ -115,17 +115,26 @@
   <main id="content">
     <article class="prose">
       <h1 id="filtering">Filtering</h1>
-<p>Two filters, one expression language. <code>--precept-filter</code> <strong>selects</strong> among the tests a run has; the <code>Filter</code> section of <code>precept.json</code> decides <strong>which tests the run has at all</strong>.</p>
+<p>Precept has two filters, and they use one expression language:</p>
+<ul>
+<li><code>--precept-filter</code> on the command line <strong>selects</strong> among the tests a run has.</li>
+<li>The <code>Filter</code> section of <code>precept.json</code> decides <strong>which tests the run has at all</strong>.</li>
+</ul>
 <h2 id="selecting-from-the-command-line">Selecting from the command line<a class="anchor" href="#selecting-from-the-command-line" aria-label="Link to this section">#</a></h2>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;smoke and not slow&quot;</span>
 <span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;(@api or @web) and not @wip&quot;</span>
 <span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--precept-filter</span> <span class="tok-str">&quot;name:*checkout*&quot;</span></code></pre>
 
 <blockquote>
-<p>The value must not <strong>start</strong> with <code>@</code>: Microsoft.Testing.Platform reads a leading <code>@</code> as a response-file reference and will look for a file by that name. Write <code>&quot;smoke and not @slow&quot;</code> or wrap the whole thing in parentheses.</p>
+<p>The value must not <strong>start</strong> with <code>@</code>. Microsoft.Testing.Platform reads a leading <code>@</code> as a
+response-file reference and looks for a file by that name. Write <code>&quot;smoke and not @slow&quot;</code>, or wrap
+the whole expression in parentheses.</p>
 </blockquote>
 <h2 id="removing-tests-from-an-environment">Removing tests from an environment<a class="anchor" href="#removing-tests-from-an-environment" aria-label="Link to this section">#</a></h2>
-<p>Some tests have no business running somewhere: a suite that creates and deletes records, a pack that needs a payment sandbox, browser tests on an agent with no browsers. <code>[Ignore]</code> is the wrong tool — it reports them as skipped, they still clutter the report, and they still sit in the test explorer waiting for someone to click Run.</p>
+<p>Some tests have no business running in some environments: a suite that creates and deletes
+records, a pack that needs a payment sandbox, browser tests on an agent with no browsers. <code>[Ignore]</code>
+is the wrong tool for that. It reports them as skipped, they still clutter the report, and they still
+sit in the test explorer waiting for someone to click Run.</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Filter&quot;</span>: {
     <span class="tok-key">&quot;Include&quot;</span>: <span class="tok-str">&quot;smoke or regression&quot;</span>,
@@ -133,11 +142,17 @@
   }
 }</code></pre>
 
-<p>A test survives when <code>Include</code> is empty or matches it, and <code>Exclude</code> is empty or does not. Anything else is gone before discovery reports a thing: not published to the test explorer, not reachable by <code>--precept-filter</code>, not reachable by uid from a stale explorer tree, and — when a class loses every test it had — its <code>[BeforeSuite]</code> and <code>[AfterSuite]</code> hooks never run either.</p>
-<p>Both are single expressions rather than lists of tags, which is what makes them overridable. <code>precept.prod.json</code> replaces the base filter outright, an empty string clears it, and <code>PRECEPT_FILTER__EXCLUDE</code> overrides both from CI:</p>
+<p>A test survives when <code>Include</code> is empty or matches it, and <code>Exclude</code> is empty or does not match it.
+Anything else is removed before discovery reports anything. It is not published to the test
+explorer, not reachable by <code>--precept-filter</code>, and not reachable by uid from a stale explorer tree.
+When a class loses every test it had, its <code>[BeforeSuite]</code> and <code>[AfterSuite]</code> hooks never run either.</p>
+<p>Both keys are single expressions rather than lists of tags, which is what makes them overridable.
+<code>precept.prod.json</code> replaces the base filter outright, an empty string clears it, and
+<code>PRECEPT_FILTER__EXCLUDE</code> overrides both from CI:</p>
 <pre data-lang="json"><code>{ <span class="tok-key">&quot;Filter&quot;</span>: { <span class="tok-key">&quot;Exclude&quot;</span>: <span class="tok-str">&quot;wip&quot;</span> } }</code></pre>
 
-<p>A JSON array could do neither: <code>IConfiguration</code> merges arrays element by element across overlays, and an empty one clears nothing.</p>
+<p>A JSON array could do neither: <code>IConfiguration</code> merges arrays element by element across overlays,
+and an empty one clears nothing.</p>
 <h2 id="the-expression-language">The expression language<a class="anchor" href="#the-expression-language" aria-label="Link to this section">#</a></h2>
 <div class="table-wrap"><table>
 <thead>
@@ -161,8 +176,12 @@
 </tr>
 </tbody>
 </table></div>
-<p>Operands combine with <code>and</code>, <code>or</code>, <code>not</code>, parentheses and the <code>&amp;&amp;</code>/<code>||</code>/<code>!</code> spellings; <code>not</code> binds tightest, then <code>and</code>, then <code>or</code>. Matching is case-insensitive throughout and the leading <code>@</code> on a tag is optional.</p>
-<p>Every operand is a glob — <code>*</code> for any run of characters, <code>?</code> for one — so a substring match is <code>name:*checkout*</code>, and a pattern with no wildcard is an exact match. Wrap anything with spaces in double quotes, which also protects parentheses and operator words:</p>
+<p>Operands combine with <code>and</code>, <code>or</code>, <code>not</code> and parentheses. The <code>&amp;&amp;</code>, <code>||</code> and <code>!</code> spellings work
+too. <code>not</code> binds tightest, then <code>and</code>, then <code>or</code>. Matching is case-insensitive throughout, and the
+leading <code>@</code> on a tag is optional.</p>
+<p>Every operand is a glob: <code>*</code> matches any run of characters and <code>?</code> matches one. A substring match is
+<code>name:*checkout*</code>, and a pattern with no wildcard is an exact match. Wrap anything with spaces in
+double quotes, which also protects parentheses and operator words:</p>
 <pre><code>name:&quot;A customer checks out (with a card)&quot;</code></pre>
 
     </article>

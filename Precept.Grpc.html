@@ -115,8 +115,8 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept.grpc">Precept.Grpc</h1>
-<p>gRPC testing for Precept: pooled channels, typed clients, and assertions over status codes, deadlines
-and streaming responses.</p>
+<p>gRPC testing for Precept: pooled channels, typed clients, and assertions over status codes,
+deadlines and streaming responses.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Grpc</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> greeter = Rpc.Client&lt;Greeter.GreeterClient&gt;();
 
@@ -130,18 +130,17 @@ and streaming responses.</p>
     () =&gt; greeter.SayHelloAsync(<span class="tok-keyword">new</span> HelloRequest(), Rpc.Options()),
     StatusCode.InvalidArgument);</code></pre>
 
-<p><code>Rpc.Client&lt;T&gt;</code> works for any client generated from a <code>.proto</code>, and <code>Rpc.Options()</code> carries the
+<p><code>Rpc.Client&lt;T&gt;</code> works for any client generated from a <code>.proto</code>. <code>Rpc.Options()</code> carries the
 configured deadline and the test's cancellation token. Every call is logged with its duration and
-status; <code>CollectAsync</code> stops at <code>maxItems</code> (1000 by default) so a misbehaving stream cannot hang the
-test forever.</p>
-<p>Channels are pooled per address for the run rather than opened per call, and the address comes from
-configuration — so the same suite runs against a container started by
-<a href="https://www.nuget.org/packages/Precept.Containers"><code>Precept.Containers</code></a> locally and a deployed
-service in CI.</p>
-<p>Note: gRPC assertions are still the older helpers that throw on their own, rather than the
+status. <code>CollectAsync</code> stops at <code>maxItems</code> (1000 by default), so a misbehaving stream cannot hang
+the test forever.</p>
+<p>Channels are pooled per address for the run rather than opened per call. The address comes from
+configuration, so the same suite runs against a container started by
+<a href="Precept.Containers.html"><code>Precept.Containers</code></a> locally and against a deployed service in CI.</p>
+<p>Note: the gRPC assertions are still the older helpers that throw on their own, rather than the
 <code>Assert.That(…)</code> sentence the rest of the framework uses. Moving them onto <code>Subject&lt;T&gt;</code> is planned.</p>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
 Full documentation: <a href="assertions.html#assertions">assertions</a> ·
 <a href="configuration.html#configuration">configuration</a> ·
 <a href="roadmap.html#not-yet-built">what is not built yet</a></p>

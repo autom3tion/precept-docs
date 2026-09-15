@@ -133,35 +133,37 @@ stop being string literals scattered through step definitions.</p>
 <span class="tok-keyword">var</span> van = TestData.Get&lt;Vehicle&gt;(<span class="tok-str">&quot;vehicles:van&quot;</span>);    <span class="tok-comment">// or by full path</span>
 <span class="tok-keyword">var</span> password = TestData.Value(<span class="tok-str">&quot;users:admin:password&quot;</span>);</code></pre>
 
-<p><code>TestUser</code> reads <code>users</code>, <code>Vehicle</code> reads <code>vehicles</code>, <code>Company</code> reads <code>companies</code>: the set is the
-plural of the type name, with a <code>Test</code> prefix and a <code>Data</code>/<code>Dto</code>/<code>Model</code> suffix dropped. Name it
-yourself with <code>[TestDataSet(&quot;people&quot;)]</code> on the type, or <code>data.Map&lt;Person&gt;(&quot;users&quot;)</code> at registration.
-Lookups are case-insensitive, so a file written in lower case matches.</p>
-<p>The module's own types live in the <code>Precept</code> namespace, so a step definition that already uses
-Precept needs no further <code>using</code>.</p>
+<p>The set a type reads from is the plural of the type name, with a <code>Test</code> prefix and a
+<code>Data</code>/<code>Dto</code>/<code>Model</code> suffix dropped: <code>TestUser</code> reads <code>users</code>, <code>Vehicle</code> reads <code>vehicles</code>, <code>Company</code>
+reads <code>companies</code>. To name it yourself, put <code>[TestDataSet(&quot;people&quot;)]</code> on the type, or call
+<code>data.Map&lt;Person&gt;(&quot;users&quot;)</code> at registration. Lookups are case-insensitive.</p>
+<p>The module's types live in the <code>Precept</code> namespace, so a step definition that already uses Precept
+needs no further <code>using</code>.</p>
 <p>Data files must reach the output directory:</p>
 <pre data-lang="xml"><code><span class="tok-keyword">&lt;ItemGroup</span><span class="tok-keyword">&gt;</span>
   <span class="tok-keyword">&lt;None</span> Update=<span class="tok-str">&quot;testdata*.json&quot;</span> CopyToOutputDirectory=<span class="tok-str">&quot;PreserveNewest&quot;</span> <span class="tok-keyword">/&gt;</span>
 <span class="tok-keyword">&lt;/ItemGroup</span><span class="tok-keyword">&gt;</span></code></pre>
 <h2 id="environment-specific-data">Environment-specific data<a class="anchor" href="#environment-specific-data" aria-label="Link to this section">#</a></h2>
 <p><code>testdata.json</code> is overlaid by <code>testdata.{environment}.json</code> and then by <code>PRECEPT_TESTDATA__*</code>
-environment variables, the same order Precept uses for settings, and against the same environment —
-see <a href="environments.html#environments">Environments</a> for how that is chosen. An overlay only has to carry what differs:</p>
+environment variables. That is the same order Precept uses for settings, against the same
+environment; see <a href="environments.html#environments">Environments</a>. An overlay only has to carry what
+differs:</p>
 <pre data-lang="json"><code><span class="tok-comment">// testdata.staging.json</span>
 { <span class="tok-key">&quot;users&quot;</span>: { <span class="tok-key">&quot;admin&quot;</span>: { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;admin@staging.acme&quot;</span> } } }</code></pre>
 
-<p>The password is a different matter, and this is why the environment variables exist:</p>
+<p>The password should not be in either file. That is what the environment variables are for:</p>
 <pre data-lang="bash"><code>PRECEPT_TESTDATA__USERS__ADMIN__PASSWORD=<span class="tok-str">&#39;...&#39;</span></code></pre>
 
 <p>That sets <code>users:admin:password</code> without it ever being written down in the repository. <code>__</code> becomes
 the <code>:</code> separator, exactly as <code>PRECEPT_WEB__BASEURL</code> works for settings.</p>
-<p>Load more files — one per domain area, say — with <code>data.AddJsonFile(&quot;vehicles.json&quot;)</code>, which brings
-its own <code>vehicles.{environment}.json</code> overlay along. <code>TestData:Files</code> and <code>TestData:Directory</code> in
-<code>precept.json</code> do the same from configuration; <code>TestData:LeaseTimeoutMilliseconds</code> is there too.</p>
+<p>To load more files, for example one per domain area, call <code>data.AddJsonFile(&quot;vehicles.json&quot;)</code>. Each
+file brings its own <code>vehicles.{environment}.json</code> overlay. <code>TestData:Files</code> and <code>TestData:Directory</code>
+in <code>precept.json</code> do the same from configuration, and <code>TestData:LeaseTimeoutMilliseconds</code> lives
+there too.</p>
 <h2 id="dynamic-values">Dynamic values<a class="anchor" href="#dynamic-values" aria-label="Link to this section">#</a></h2>
-<p>Anything in a data file may carry <code>{{token}}</code> placeholders, expanded when the value is read rather
-than when the file is loaded. A suite that inserts the same email address on every run fails on the
-second one; this is the answer to that.</p>
+<p>Any value in a data file may carry <code>{{token}}</code> placeholders. They are expanded when the value is
+read, not when the file is loaded. A suite that inserts the same email address on every run fails on
+the second run; tokens are the answer to that.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -179,20 +181,40 @@ second one; this is the answer to that.</p>
 <td>A second, independent one, for when a scenario needs two.</td>
 </tr>
 <tr>
+<td><code>{{run}}</code></td>
+<td>A short id that is the same for the whole run, so everything one run created can be found, and deleted, together.</td>
+</tr>
+<tr>
 <td><code>{{guid}}</code>, <code>{{guid:N}}</code></td>
 <td>A GUID, optionally in a .NET format.</td>
 </tr>
 <tr>
 <td><code>{{now}}</code>, <code>{{now:yyyy-MM-dd}}</code>, <code>{{now:+2d:HH:mm}}</code>, <code>{{today}}</code>, <code>{{yesterday}}</code>, <code>{{tomorrow}}</code></td>
-<td>A UTC timestamp, optionally shifted by <code>d</code>, <code>h</code>, <code>m</code>, <code>s</code> or <code>y</code>, and formatted.</td>
+<td>A UTC timestamp, optionally shifted by <code>s</code>, <code>m</code>, <code>h</code>, <code>d</code>, <code>w</code>, <code>M</code> (months) or <code>y</code>, and formatted. Months and years go through the calendar, so <code>{{today:-18y}}</code> is the same date eighteen years ago, leap days or not.</td>
+</tr>
+<tr>
+<td><code>{{date:-80y:-18y}}</code>, <code>{{date:2024-01-01:2024-12-31:dd/MM/yyyy}}</code></td>
+<td>A date between two bounds, each an offset or a <code>yyyy-MM-dd</code> date, formatted like <code>{{today}}</code> unless a format follows.</td>
 </tr>
 <tr>
 <td><code>{{random}}</code>, <code>{{random:1000-9999}}</code></td>
-<td>A number, optionally in an inclusive range.</td>
+<td>A whole number, optionally in an inclusive range.</td>
 </tr>
 <tr>
-<td><code>{{digits:6}}</code>, <code>{{letters:8}}</code>, <code>{{alphanumeric:10}}</code></td>
-<td>Random text of that length.</td>
+<td><code>{{decimal:1.00-99.99}}</code></td>
+<td>A decimal in an inclusive range, with as many places as the bounds were written with.</td>
+</tr>
+<tr>
+<td><code>{{bool}}</code></td>
+<td><code>true</code> or <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>{{pick:red\|green\|blue}}</code></td>
+<td>One of the listed values.</td>
+</tr>
+<tr>
+<td><code>{{digits:6}}</code>, <code>{{letters:8}}</code>, <code>{{alphanumeric:10}}</code>, <code>{{hex:16}}</code></td>
+<td>Random text of that length, eight by default. Add <code>:upper</code> for upper case, as in <code>{{alphanumeric:5:upper}}</code>.</td>
 </tr>
 <tr>
 <td><code>{{env:BUILD_ID}}</code>, <code>{{env:BUILD_ID\|local}}</code></td>
@@ -208,18 +230,39 @@ second one; this is the answer to that.</p>
 </tr>
 </tbody>
 </table></div>
-<p>Add your own for whatever the domain needs — a VIN with a valid check digit, a national insurance
-number, an IBAN:</p>
+<p>Add your own tokens for whatever the domain needs, such as a VIN with a valid check digit, a
+national insurance number, or an IBAN:</p>
 <pre data-lang="csharp"><code>services.AddPreceptTestData(data =&gt; data.AddToken(<span class="tok-str">&quot;vin&quot;</span>, c =&gt; Vin.Generate(c.Argument)));</code></pre>
 
-<p>Stability is what makes these usable. Within one scenario, <code>Get&lt;Client&gt;(&quot;new&quot;)</code> returns the same
-client every time it is asked, so the <code>{{unique}}</code> in the name and the one in the email agree and
+<p>The context a token receives carries its argument, the store, and the scope its value is memoised
+in. <code>c.Scope</code> is the running test's scope, which is how <code>{{unique}}</code> stays the same for a scenario.
+<code>c.Store.RunScope</code> is the whole run's, for a value every test should share, such as the batch a
+nightly run files everything under:</p>
+<pre data-lang="csharp"><code>data.AddToken(<span class="tok-str">&quot;batch&quot;</span>, c =&gt; c.Store.RunScope.Value(<span class="tok-str">&quot;batch&quot;</span>, () =&gt; <span class="tok-str">$&quot;NIGHTLY-{DateTime.UtcNow:yyyyMMdd-HHmm}&quot;</span>));</code></pre>
+
+<p>A literal <code>{{</code> is written <code>\{{</code>, for a value that is itself a template for the system under test. In
+a JSON file that is <code>&quot;\\{{name}}&quot;</code>, since JSON escapes the backslash too.</p>
+<h3 id="which-values-hold-still">Which values hold still<a class="anchor" href="#which-values-hold-still" aria-label="Link to this section">#</a></h3>
+<p>Only <code>{{unique}}</code> and <code>{{run}}</code> are stable on their own. Every other generator produces a fresh
+value each time it is expanded. A scenario that says <code>&quot;Autotest_{{alphanumeric:5}}&quot;</code> in a <code>When</code>
+and again in a <code>Then</code> is talking about two different names. <code>{{unique}}</code> is the token for that job:
+it is the same value everywhere in one scenario and a different one in the next, and its eight
+clock-seeded characters collide far later than five random ones.</p>
+<p>When a field cannot take those eight characters, or must be digits, add <code>#name</code> after any token. The
+value it produced is remembered under that name for the rest of the scope:</p>
+<pre data-lang="json"><code>{ <span class="tok-key">&quot;orders&quot;</span>: { <span class="tok-key">&quot;new&quot;</span>: { <span class="tok-key">&quot;code&quot;</span>: <span class="tok-str">&quot;{{digits:6#code}}&quot;</span>, <span class="tok-key">&quot;reference&quot;</span>: <span class="tok-str">&quot;ORD-{{digits:6#code}}&quot;</span> } } }</code></pre>
+
+<p>Both fields carry the same six digits, and a step that resolves <code>&quot;{{digits:6#code}}&quot;</code> gets them too.</p>
+<p>Stability is what makes generated values usable. Within one scenario, <code>Get&lt;Client&gt;(&quot;new&quot;)</code> returns
+the same client every time, so the <code>{{unique}}</code> in the name and the one in the email agree, and
 every step sees what the first one created. <code>New&lt;Client&gt;(&quot;new&quot;)</code> deliberately breaks that: it reads
-another one, with its own generated values, which is how a scenario gets two different customers.
-A retry generates fresh values, because a test that failed on a duplicate key needs a rerun to stop
-colliding with what it already inserted.</p>
+another one, with its own generated values, which is how a scenario gets two different customers.</p>
+<p>A retry generates fresh values, because a test that failed on a duplicate key needs its rerun to
+stop colliding with what it already inserted. <code>{{run}}</code> is the one exception. It is the same across
+every test and every retry, which is what makes it useful as the prefix a nightly clean-up job
+searches for.</p>
 <h2 id="data-the-tests-have-to-create">Data the tests have to create<a class="anchor" href="#data-the-tests-have-to-create" aria-label="Link to this section">#</a></h2>
-<p>Reading a template only goes so far — most data has to exist in the system under test. A factory
+<p>Reading a template only goes so far. Most data has to exist in the system under test. A factory
 says how to put it there and how to take it away:</p>
 <pre data-lang="csharp"><code>services.AddPreceptTestData(data =&gt; data.Factory&lt;Client&gt;(
     create: <span class="tok-keyword">async</span> (_, client) =&gt;
@@ -231,9 +274,9 @@ says how to put it there and how to take it away:</p>
     delete: <span class="tok-keyword">async</span> (_, client) =&gt; <span class="tok-keyword">await</span> Rest.Delete(<span class="tok-str">$&quot;/clients/{client.Id}&quot;</span>).SendAsync()));</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> client = <span class="tok-keyword">await</span> TestData.CreateAsync&lt;Client&gt;(<span class="tok-str">&quot;new&quot;</span>);</code></pre>
 
-<p>The template comes from <code>clients:new</code>, the factory creates it through whatever the suite already
-uses — an API call, a database insert, a gRPC request — and the delete runs when the test ends,
-after the <code>[AfterTest]</code> hook and whatever the verdict was.</p>
+<p>The template comes from <code>clients:new</code>. The factory creates it through whatever the suite already
+uses: an API call, a database insert, a gRPC request. The delete runs when the test ends, after the
+<code>[AfterTest]</code> hook, whatever the verdict was.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -252,23 +295,24 @@ after the <code>[AfterTest]</code> hook and whatever the verdict was.</p>
 </tr>
 <tr>
 <td><code>SharedAsync&lt;T&gt;(key)</code></td>
-<td>One per run, removed when the run ends. Treat it as read-only: parallel tests share it.</td>
+<td>One per run, removed when the run ends. Treat it as read-only, because parallel tests share it.</td>
 </tr>
 </tbody>
 </table></div>
 <h2 id="pooled-data">Pooled data<a class="anchor" href="#pooled-data" aria-label="Link to this section">#</a></h2>
 <p>Some data cannot be generated and cannot be shared: three pre-provisioned accounts on a partner
-system, a handful of licensed test vehicles. Declare that set as a pool and a scenario takes one
-for its own:</p>
+system, a handful of licensed test vehicles. Declare that set as a pool, and a scenario takes one
+item for itself:</p>
 <pre data-lang="json"><code>{ <span class="tok-key">&quot;drivers&quot;</span>: [ { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;driver-one&quot;</span> }, { <span class="tok-key">&quot;username&quot;</span>: <span class="tok-str">&quot;driver-two&quot;</span> } ] }</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> driver = <span class="tok-keyword">await</span> TestData.LeaseAsync&lt;TestUser&gt;(<span class="tok-str">&quot;drivers&quot;</span>);
 <span class="tok-keyword">await</span> signIn.SignInAsync(driver.Value.Username, driver.Value.Password);</code></pre>
 
 <p>Nothing else in the run holds that item until the lease is released, which happens when the test
-ends — a scenario that throws does not take an account down with it. Dispose the lease to give it
-back sooner. When every item is in use, the next test waits, and gives up after
-<code>TestData:LeaseTimeoutMilliseconds</code> with an inconclusive verdict rather than a failure: running out
-of accounts is an environment problem, not a defect in the code under test.</p>
+ends. A scenario that throws does not take an account down with it. Dispose the lease to give the
+item back sooner.</p>
+<p>When every item is in use, the next test waits. After <code>TestData:LeaseTimeoutMilliseconds</code> it gives
+up with an inconclusive verdict rather than a failure, because running out of accounts is an
+environment problem, not a defect in the code under test.</p>
 <h2 id="from-gherkin">From Gherkin<a class="anchor" href="#from-gherkin" aria-label="Link to this section">#</a></h2>
 <p>Steps refer to data by name, so the feature file says what the scenario means rather than what the
 credentials are:</p>
@@ -289,9 +333,29 @@ credentials are:</p>
     <span class="tok-keyword">public</span> Task CreateClient() =&gt; TestData.GetOrCreateAsync&lt;Client&gt;(<span class="tok-str">&quot;new&quot;</span>);
 }</code></pre>
 
-<p><code>TestData.Resolve(&quot;buyer-{{unique}}@acme.test&quot;)</code> expands tokens in a string that came from the
-feature file itself, for the cases where the value belongs in the scenario rather than in a data
-file.</p>
+<p>Some values belong in the scenario rather than in a data file, such as the name of the brand a
+scenario creates. Those may carry tokens too. <code>TestData.Resolve</code> expands them in a string that came
+from the feature file:</p>
+<pre data-lang="csharp"><code><span class="tok-attr">[When(&quot;I create the brand {string}&quot;)]</span>
+<span class="tok-keyword">public</span> Task CreateBrand(<span class="tok-keyword">string</span> name) =&gt; _api.CreateBrandAsync(TestData.Resolve(name));
+<span class="tok-comment">// Scenario: When I create the brand &quot;Autotest_{{unique}}&quot;</span></code></pre>
+
+<p>A <code>When</code> and a <code>Then</code> that both resolve <code>&quot;Autotest_{{unique}}&quot;</code> name the same brand, because
+<code>{{unique}}</code> is stable for the scenario.</p>
+<p>The step does the resolving, on purpose. A step argument reaches its definition exactly as the
+feature file wrote it. An <code>int</code>, a <code>DateTime</code> or a table bound to objects goes through Reqnroll's own
+conversion untouched, and a system under test with a <code>{{</code> syntax of its own is never surprised.</p>
+<p>When the expanded value is a number or a date rather than text, <code>Resolve&lt;T&gt;</code> reads it as one.
+<code>Value&lt;T&gt;</code> does the same for a path in a data file:</p>
+<pre data-lang="csharp"><code><span class="tok-attr">[When(&quot;I register a driver born on {string}&quot;)]</span>
+<span class="tok-keyword">public</span> Task Register(<span class="tok-keyword">string</span> birthDate) =&gt; _api.RegisterAsync(TestData.Resolve&lt;DateOnly&gt;(birthDate));
+<span class="tok-comment">// Scenario: When I register a driver born on &quot;{{today:-18y}}&quot;</span>
+
+<span class="tok-keyword">var</span> quantity = TestData.Value&lt;<span class="tok-keyword">int</span>&gt;(<span class="tok-str">&quot;orders:new:quantity&quot;</span>);</code></pre>
+
+<p>The conversion is culture-invariant, so <code>{{decimal:1.00-99.99}}</code> reads as a decimal on a machine
+that writes a comma as well as on one that writes a point. Anything with a text form works: numbers,
+<code>bool</code>, <code>Guid</code>, <code>DateTime</code>, <code>DateOnly</code>, <code>TimeSpan</code>, enums.</p>
 
     </article>
 

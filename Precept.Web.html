@@ -115,8 +115,9 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept.web">Precept.Web</h1>
-<p>Browser automation for Precept, built on <a href="https://playwright.dev/dotnet/">Playwright</a>: per-scenario
-isolation and automatic screenshot, trace and video capture on failure.</p>
+<p>Browser automation for Precept, built on <a href="https://playwright.dev/dotnet/">Playwright</a>. Each
+scenario gets an isolated browser context, and a failing test captures a screenshot, a trace and a
+video automatically.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Web</code></pre>
 <pre data-lang="csharp"><code>services.AddPreceptWeb();</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> page = <span class="tok-keyword">await</span> Browser.PageAsync();
@@ -127,21 +128,21 @@ isolation and automatic screenshot, trace and video capture on failure.</p>
             .Within(TimeSpan.FromSeconds(<span class="tok-number">10</span>))
             .ToHaveTextAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);</code></pre>
 
-<p>Playwright's web-first assertions are mapped onto Precept's sentence, and the retrying stays
-Playwright's — Precept never polls on top of it — so these need no wait in front of them. A failure
-keeps Playwright's call log, which is the part that says what the page actually looked like on each
-attempt.</p>
-<p>A test can hold more than one session — <code>Browser.StartAsync(&quot;alice&quot;)</code> alongside
-<code>Browser.StartAsync(&quot;bob&quot;)</code>, two signed-in users in one scenario sharing a browser and nothing else —
-and a suite can sign in once for the whole run rather than once per test.</p>
-<p>The module needs Playwright's browsers on the machine, and installs the one it is configured for the
-first time a launch finds nothing to drive. To install by hand instead, after the first build:</p>
+<p>Playwright's web-first assertions are mapped onto Precept's assertion sentence. The retrying stays
+Playwright's, so these need no wait in front of them, and a failure keeps Playwright's call log,
+which shows what the page looked like on each attempt.</p>
+<p>A test can hold more than one session. <code>Browser.StartAsync(&quot;alice&quot;)</code> and
+<code>Browser.StartAsync(&quot;bob&quot;)</code> give two signed-in users in one scenario, sharing a browser and nothing
+else. A suite can also sign in once for the whole run rather than once per test.</p>
+<p>The module needs Playwright's browsers on the machine. The first time a launch finds no browser, it
+installs the one it is configured for. To install by hand instead, after the first build:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">pwsh</span> bin/Debug/net10.0/playwright.ps1 install chromium</code></pre>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
-Full documentation: <a href="assertions.html#on-a-page">assertions on a page</a> ·
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
+Full documentation: <a href="browsers.html#browsers">browsers</a> ·
+<a href="assertions.html#on-a-page">assertions on a page</a> ·
 <a href="dependency-injection.html#page-objects">page objects</a> ·
-<a href="browsers.html#browsers">installing browsers</a> ·
+<a href="browsers.html#more-than-one-user-in-a-scenario">more than one user</a> ·
 <a href="browsers.html#signing-in-once">signing in once</a> ·
 <a href="artifacts-and-logging.html#artifacts-and-logging">artifacts and logging</a></p>
 

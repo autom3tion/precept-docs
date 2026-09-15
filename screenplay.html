@@ -115,9 +115,9 @@
   <main id="content">
     <article class="prose">
       <h1 id="screenplay">Screenplay</h1>
-<p>A screenplay suite is written as people doing things rather than as pages being driven. An <strong>actor</strong>
-holds the <strong>abilities</strong> they were granted, performs <strong>interactions</strong> against <strong>targets</strong>, and is
-asked <strong>questions</strong> about what they can see:</p>
+<p>A screenplay suite is written as people doing things rather than as pages being driven. An
+<strong>actor</strong> holds the <strong>abilities</strong> they were granted, performs <strong>interactions</strong> against <strong>targets</strong>,
+and is asked <strong>questions</strong> about what they can see:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">using</span> Precept.Screenplay;
 <span class="tok-keyword">using</span> Precept.Screenplay.Web;
 <span class="tok-keyword">using</span> Precept.Web;
@@ -132,11 +132,10 @@ asked <strong>questions</strong> about what they can see:</p>
 
 <span class="tok-keyword">await</span> Assert.That(alice.Sees(Dashboard.Greeting)).ToHaveTextAsync(<span class="tok-str">&quot;Hello, Ada&quot;</span>);</code></pre>
 
-<p>It is entirely optional and it replaces nothing — <a href="browsers.html">page objects</a> and screenplay can
-share a project. What it is <em>for</em> is structure. Screenplay is the shape a suite takes when the SOLID
-principles are applied to test code, which is the reason to reach for it: you want behaviour composed
-out of small, single-purpose, substitutable pieces rather than accumulated on page objects that grow
-a method every time a scenario needs something.</p>
+<p>Screenplay is optional and replaces nothing. <a href="browsers.html">Page objects</a> and screenplay can share a
+project. What screenplay adds is structure. It is the shape a suite takes when the SOLID principles
+are applied to test code: behaviour composed out of small, single-purpose, substitutable pieces
+rather than accumulated on page objects that grow a method every time a scenario needs something.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -147,7 +146,7 @@ a method every time a scenario needs something.</p>
 <tbody>
 <tr>
 <td>Single responsibility</td>
-<td>An interaction does one thing and is named after it. A page object tends towards being the page's entire API, edited by everyone and understood by nobody.</td>
+<td>An interaction does one thing and is named after it. A page object tends to become the page's entire API, edited by everyone and understood by nobody.</td>
 </tr>
 <tr>
 <td>Open/closed</td>
@@ -155,7 +154,7 @@ a method every time a scenario needs something.</p>
 </tr>
 <tr>
 <td>Liskov substitution</td>
-<td>Everything an actor performs is an <code>IInteraction</code>, so a built-in step, a task of your own and a composite of both are interchangeable wherever one is accepted — which is what lets tasks be built out of tasks.</td>
+<td>Everything an actor performs is an <code>IInteraction</code>, so a built-in step, a task of your own and a composite of both are interchangeable wherever one is accepted. That is what lets tasks be built out of tasks.</td>
 </tr>
 <tr>
 <td>Interface segregation</td>
@@ -167,44 +166,44 @@ a method every time a scenario needs something.</p>
 </tr>
 </tbody>
 </table></div>
-<p>Two people in one scenario is a <em>consequence</em> of that — an ability belongs to an actor, so two actors
-are two of everything — rather than the reason for it. A suite with exactly one user gets the whole
-of the structure above and none of the multi-user machinery it never asks for.</p>
-<p>It ships as a package of its own, <code>Precept.Screenplay</code>, which brings <code>Precept.Web</code> with it — a suite
-that drives a browser through page objects installs <code>Precept.Web</code> alone and is offered none of this:</p>
+<p>Two people in one scenario is a <em>consequence</em> of that structure, because an ability belongs to an
+actor and two actors are two of everything. It is not the reason for it. A suite with exactly one
+user gets the whole of the structure above and none of the multi-user machinery.</p>
+<p>Screenplay ships as its own package, <code>Precept.Screenplay</code>, which brings <code>Precept.Web</code> with it. A
+suite that drives a browser through page objects installs <code>Precept.Web</code> alone and is offered none
+of this:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Screenplay</code></pre>
 
-<p>The actor types live in <code>Precept.Screenplay</code> and the browser ones in <code>Precept.Screenplay.Web</code> —
-neither in the root <code>Precept</code> namespace the rest of the framework uses, so a suite that does not
-write screenplay is never offered any of it by an editor's completion list.</p>
+<p>The actor types live in the <code>Precept.Screenplay</code> namespace and the browser ones in
+<code>Precept.Screenplay.Web</code>, not in the root <code>Precept</code> namespace the rest of the framework uses. A suite
+that does not write screenplay is never offered any of it by an editor's completion list.</p>
 <h2 id="an-actor">An actor<a class="anchor" href="#an-actor" aria-label="Link to this section">#</a></h2>
-<p><code>Actor.Named(&quot;alice&quot;)</code> brings an actor on, and asking again in the same test gives the same one — so
-a hook can equip them and a step can simply use them:</p>
+<p><code>Actor.Named(&quot;alice&quot;)</code> brings an actor on. Asking again in the same test returns the same one, so a
+hook can equip them and a step can simply use them:</p>
 <pre data-lang="csharp"><code><span class="tok-attr">[BeforeScenario(&quot;@web&quot;)]</span>
 <span class="tok-keyword">public</span> Task CastTheScenario() =&gt; Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWebAsync();</code></pre>
 
-<p>An actor belongs to the test that asked for them, and to the <em>attempt</em>: a
-<a href="execution-model.html#retries-timeouts-and-reporting">retry</a> runs in a new test context and therefore starts with an empty
-cast. That is deliberate. An actor carried into the second attempt would still be holding the page
-the first one failed on, which is the same staleness a page object avoids by reading its page where
-it uses it.</p>
+<p>An actor belongs to the test that asked for them, and to the <em>attempt</em>. A
+<a href="execution-model.html#retries-timeouts-and-reporting">retry</a> runs in a new test context and starts
+with an empty cast. That is deliberate: an actor carried into the second attempt would still be
+holding the page the first one failed on.</p>
 <p>Outside a test there is nowhere to file an actor that does not outlive the run, so <code>Actor.Named</code>
-says so rather than inventing one. A run-level hook that needs a browser opens a session directly
-instead — see <a href="browsers.html#signing-in-once">signing in once for the whole run</a>.</p>
+throws rather than inventing one. A run-level hook that needs a browser opens a session directly
+instead; see <a href="browsers.html#signing-in-once">signing in once for the whole run</a>.</p>
 <h2 id="abilities">Abilities<a class="anchor" href="#abilities" aria-label="Link to this section">#</a></h2>
-<p>An ability is the only place an interaction touches the outside world, which is what keeps the
+<p>An ability is the only place an interaction touches the outside world. That is what keeps the
 interactions themselves free of any module: <code>Click.On(…)</code> is a sentence about intent, and
 <code>actor.Using&lt;BrowseTheWeb&gt;()</code> is where it becomes Playwright.</p>
 <p><code>BrowseTheWeb</code> is backed by a <a href="browsers.html">browser session</a> named after the actor, so <code>alice</code> and
-<code>bob</code> are two isolated identities — their own cookies, their own storage — without the scenario
-arranging anything. It also means an actor starts from whatever was last saved under their name, so a
-suite that signs its users in once gets that for free.</p>
+<code>bob</code> are two isolated identities, with their own cookies and their own storage, without the
+scenario arranging anything. An actor also starts from whatever storage state was last saved under
+their name, so a suite that signs its users in once gets that for free.</p>
 <pre data-lang="csharp"><code>Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWeb();          <span class="tok-comment">// the session is opened when something needs it</span>
 <span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;bob&quot;</span>).WhoCanBrowseTheWebAsync(); <span class="tok-comment">// opened now</span>
 Actor.Named(<span class="tok-str">&quot;auditor&quot;</span>).WhoCan(BrowseTheWeb.In(<span class="tok-str">&quot;admin&quot;</span>));  <span class="tok-comment">// an identity that is not their name</span></code></pre>
 
-<p>Asking an actor for an ability they were never granted names the actor, what they could not do, and
-what they <em>can</em> do — because the usual cause is a hook that equipped somebody else.</p>
+<p>Asking an actor for an ability they were never granted fails with the actor's name, what they could
+not do, and what they <em>can</em> do, because the usual cause is a hook that equipped somebody else.</p>
 <h2 id="targets">Targets<a class="anchor" href="#targets" aria-label="Link to this section">#</a></h2>
 <p>A target is a named element, described once and resolved against whichever actor is looking:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">static</span> <span class="tok-keyword">class</span> SignInPage
@@ -216,17 +215,17 @@ what they <em>can</em> do — because the usual cause is a hook that equipped so
         page =&gt; page.GetByRole(AriaRole.Button, <span class="tok-keyword">new</span>() { Name = <span class="tok-str">&quot;Sign in&quot;</span> }));
 }</code></pre>
 
-<p>It holds a recipe, not a locator, so one declared <code>static readonly</code> is safe to share across tests,
-actors and retries. The name is what a log line and a failure message say — &quot;clicks the sign-in
-button&quot; rather than a selector.</p>
+<p>A target holds a recipe, not a locator, so one declared <code>static readonly</code> is safe to share across
+tests, actors and retries. The name is what a log line and a failure message say: &quot;clicks the
+sign-in button&quot; rather than a selector.</p>
 <h2 id="interactions">Interactions<a class="anchor" href="#interactions" aria-label="Link to this section">#</a></h2>
 <p>Each interaction is an immutable class with its factory on itself: <code>Click.On(target)</code> returns a
-<code>Click</code>. Because an interaction carries no page of its own, a step a suite repeats can be built once
-and kept:</p>
+<code>Click</code>. An interaction carries no page of its own, so a step a suite repeats can be built once and
+kept:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">private</span> <span class="tok-keyword">static</span> <span class="tok-keyword">readonly</span> IInteraction OpenSignIn = Navigate.To(<span class="tok-str">&quot;/login&quot;</span>);</code></pre>
 
-<p>One that takes no parameters has nothing to tell two instances apart, so it is exposed as the single
-one there is ever a reason to have — <code>Reload.ThePage</code>.</p>
+<p>An interaction with no parameters has nothing to tell two instances apart, so it is exposed as a
+single instance, such as <code>Reload.ThePage</code>.</p>
 <h3 id="what-the-module-ships">What the module ships<a class="anchor" href="#what-the-module-ships" aria-label="Link to this section">#</a></h3>
 <div class="table-wrap"><table>
 <thead>
@@ -267,43 +266,42 @@ one there is ever a reason to have — <code>Reload.ThePage</code>.</p>
 </tbody>
 </table></div>
 <p>There is one interaction per Playwright method and no more. A right-click is a <code>Click</code> with a
-button, not an interaction of its own; a page that has to be signed into is a <a href="#tasks">task</a>, not a
-step. What decides is whether Playwright has a method for it.</p>
-<p><code>Enter.TheSecret</code> types the value unchanged and writes <code>••••••</code> to the log. Worth reaching for by
-default on a credential: a test's log is published as standard output and forwarded to every
+button, not an interaction of its own. A page that has to be signed into is a <a href="#tasks">task</a>, not a
+step. Whether Playwright has a method for it is what decides.</p>
+<p><code>Enter.TheSecret</code> types the value unchanged and writes <code>••••••</code> to the log. Use it for every
+credential: a test's log is published as standard output and forwarded to every
 <a href="reporting.html">reporter</a>, so a password typed with <code>Enter.The</code> ends up in the TRX file and in
 ReportPortal.</p>
-<p>There is no wait for a fixed length of time, deliberately — a sleep long enough to be reliable is
-longer than the suite can afford across a thousand steps. <code>Wait</code> itself is needed far less often
-than it looks, because Playwright waits for an element before acting on it and a <a href="assertions.html#on-a-page">web
-assertion</a> waits for the state it asserts; what is left is waiting for
+<p>There is deliberately no wait for a fixed length of time. A sleep long enough to be reliable is
+longer than the suite can afford across a thousand steps. <code>Wait</code> itself is needed less often than
+it looks, because Playwright waits for an element before acting on it and a
+<a href="assertions.html#on-a-page">web assertion</a> waits for the state it asserts. What is left is waiting for
 something nothing is about to act on, such as a spinner going away before a value is read.</p>
-<p>A screenshot is attached to the running test exactly as
-<a href="browsers.html"><code>CaptureScreenshotAsync</code></a> attaches one, so it reaches the artifacts and every reporter,
-and an actor's carries their session's name — two actors in one scenario do not overwrite each
-other's.</p>
+<p>A screenshot is attached to the running test exactly as <a href="browsers.html"><code>CaptureScreenshotAsync</code></a>
+attaches one, so it reaches the artifacts and every reporter. An actor's screenshot carries their
+session's name, so two actors in one scenario do not overwrite each other's.</p>
 <h3 id="playwrights-own-options">Playwright's own options<a class="anchor" href="#playwrights-own-options" aria-label="Link to this section">#</a></h3>
-<p>Every interaction takes them through <code>.With(…)</code>, which copies the options and hands back a new
-interaction. Precept does not restate a single one of Playwright's knobs:</p>
+<p>Every interaction takes them through <code>.With(…)</code>, which copies the options and returns a new
+interaction. Precept does not restate any of Playwright's options:</p>
 <pre data-lang="csharp"><code>Click.On(Board.Card).With(<span class="tok-keyword">new</span>() { Button = MouseButton.Right });
 Click.On(Board.Card).With(<span class="tok-keyword">new</span>() { Modifiers = [KeyboardModifier.Shift] });
 Navigate.To(<span class="tok-str">&quot;/report&quot;</span>).With(<span class="tok-keyword">new</span>() { WaitUntil = WaitUntilState.NetworkIdle });
 Enter.The(query).KeyByKeyInto(Search.Box).With(<span class="tok-keyword">new</span>() { Delay = <span class="tok-number">50</span> });
 Upload.The(<span class="tok-str">&quot;fixtures/passport.png&quot;</span>).To(Profile.Avatar).With(<span class="tok-keyword">new</span>() { Timeout = <span class="tok-number">30_000</span> });</code></pre>
 
-<p>The options object is Playwright's own, and the target of the <code>new()</code> is whatever that method takes —
+<p>The options object is Playwright's own, and the type of the <code>new()</code> is whatever that method takes:
 <code>LocatorClickOptions</code> for a click, <code>PageGotoOptions</code> for a navigation. An interaction stays immutable
 through it, so one built once and shared is not changed by a test that adds a timeout to a copy.</p>
 <h3 id="anything-playwright-can-do">Anything Playwright can do<a class="anchor" href="#anything-playwright-can-do" aria-label="Link to this section">#</a></h3>
-<p><code>Do</code> is the escape hatch, and the reason the table above does not have to be exhaustive. It takes the
-log line first, because that line is the whole difference between a step and a lambda:</p>
+<p><code>Do</code> is the escape hatch, and the reason the table above does not have to be exhaustive. It takes
+the log line first, because that line is the whole difference between a step and a lambda:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> alice.AttemptsToAsync(
     Do.OnThePage(<span class="tok-str">&quot;dismisses the cookie banner&quot;</span>, page =&gt; page.EvaluateAsync(<span class="tok-str">&quot;localStorage.setItem(&#39;cookies&#39;, &#39;ok&#39;)&quot;</span>)),
     Do.On(Player.Timeline, <span class="tok-str">&quot;scrubs to the middle&quot;</span>, timeline =&gt;
         timeline.HoverAsync(<span class="tok-keyword">new</span>() { Position = <span class="tok-keyword">new</span>() { X = <span class="tok-number">120</span>, Y = <span class="tok-number">4</span> } })));</code></pre>
 
 <p>Write the description in the third person and without the actor's name, the way every other
-interaction does — the actor's name is put in front of it. A step used more than twice is worth
+interaction does. The actor's name is put in front of it. A step used more than twice is worth
 promoting into a <a href="#tasks">task</a> or an interaction of your own; <code>Do</code> is for the one-off.</p>
 <h3 id="what-the-log-says">What the log says<a class="anchor" href="#what-the-log-says" aria-label="Link to this section">#</a></h3>
 <p>Every step is written to the test's log before it runs, under the name of whoever performed it:</p>
@@ -313,13 +311,13 @@ promoting into a <a href="#tasks">task</a> or an interaction of your own; <code>
   alice enters &#39;••••••&#39; into the password box
   alice clicks the sign-in button</code></pre>
 
-<p>Before, not after, so a failed run's log ends <em>on</em> the step that failed rather than the one before
-it. The name in front of every line is what keeps two actors readable when they are acting at the
-same moment.</p>
+<p>The line is written before the step, not after, so a failed run's log ends <em>on</em> the step that
+failed rather than the one before it. The name in front of every line is what keeps two actors
+readable when they act at the same moment.</p>
 <h2 id="tasks">Tasks<a class="anchor" href="#tasks" aria-label="Link to this section">#</a></h2>
 <p>A task is an interaction made of interactions. There is no separate interface: implement
-<code>IInteraction</code> and hand the steps back to the actor, which is also what indents them under it in the
-log.</p>
+<code>IInteraction</code> and hand the steps back to the actor, which is also what indents them under it in
+the log.</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> SignIn(<span class="tok-keyword">string</span> email, <span class="tok-keyword">string</span> password) : IInteraction
 {
     <span class="tok-keyword">public</span> <span class="tok-keyword">string</span> Description =&gt; <span class="tok-str">$&quot;signs in as {email}&quot;</span>;
@@ -331,18 +329,18 @@ log.</p>
         Click.On(SignInPage.Submit));
 }</code></pre>
 
-<p>A step that throws stops the ones after it — a task is a sequence, not a best effort.</p>
+<p>A step that throws stops the ones after it. A task is a sequence, not a best effort.</p>
 <h2 id="questions-and-assertions">Questions and assertions<a class="anchor" href="#questions-and-assertions" aria-label="Link to this section">#</a></h2>
-<p><code>actor.Sees(target)</code> hands back the element that actor is looking at, so an assertion begins at
-<code>Assert.That</code> exactly as it does everywhere else and keeps Playwright's own waiting:</p>
+<p><code>actor.Sees(target)</code> returns the element that actor is looking at, so an assertion begins at
+<code>Assert.That</code> exactly as it does everywhere else, and keeps Playwright's own waiting:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(alice.Sees(Dashboard.Greeting)).ToHaveTextAsync(<span class="tok-str">&quot;Hello, Ada&quot;</span>);
 <span class="tok-keyword">await</span> Assert.That(bob.Sees(Dashboard.AdminMenu)).Not.ToBeVisibleAsync();</code></pre>
 
-<p>Every <a href="assertions.html#on-a-page">web assertion</a> therefore applies unchanged, and screenplay adds no
-assertion vocabulary of its own. Nothing here polls: a Precept poll wrapped around a web-first
-assertion would multiply the two timeouts together.</p>
-<p>A <strong>question</strong> is for a value the test wants to <em>carry</em> somewhere else — compare against something it
-read earlier, hand to another actor, put in a message:</p>
+<p>Every <a href="assertions.html#on-a-page">web assertion</a> applies unchanged, and screenplay adds no assertion
+vocabulary of its own. Nothing here polls: a Precept poll wrapped around a web-first assertion would
+multiply the two timeouts together.</p>
+<p>A <strong>question</strong> is for a value the test wants to <em>carry</em> somewhere else: to compare against
+something it read earlier, to hand to another actor, to put in a message:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -369,7 +367,7 @@ read earlier, hand to another actor, put in a message:</p>
 </tr>
 <tr>
 <td>Counting and branching</td>
-<td><code>Count.Of(t)</code>, <code>Visibility.Of(t)</code> — both read the page as it stands, without waiting</td>
+<td><code>Count.Of(t)</code>, <code>Visibility.Of(t)</code>. Both read the page as it stands, without waiting</td>
 </tr>
 <tr>
 <td>Anything else</td>
@@ -377,15 +375,16 @@ read earlier, hand to another actor, put in a message:</p>
 </tr>
 </tbody>
 </table></div>
-<p>Questions are asserted about through the assertion engine's own entry points:</p>
+<p>Questions are asserted on through the assertion engine's own entry points:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(<span class="tok-keyword">await</span> alice.AsksForAsync(Text.Of(Basket.Total))).ToBeEqualAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);
 
 <span class="tok-keyword">await</span> Assert.Eventually(() =&gt; alice.AsksForAsync(Text.Of(Basket.Total)), <span class="tok-str">&quot;the order total&quot;</span>)
             .ToBeEqualAsync(<span class="tok-str">&quot;&#163;42.00&quot;</span>);</code></pre>
 
-<p>The second re-reads until it holds, which is what a value the application is still working towards
-needs. A question is called again on every pass, so it must read and never act.</p>
-<p><code>Ask</code> is the questions' escape hatch, and takes its description as a noun phrase — it is what an
+<p>The second form re-reads until the expectation holds, which is what a value the application is
+still working towards needs. A question is called again on every pass, so it must read and never
+act.</p>
+<p><code>Ask</code> is the questions' escape hatch. Its description is a noun phrase, because it is what an
 <code>Assert.Eventually</code> failure says it was waiting for:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> colour = Ask.About(Basket.Total, <span class="tok-str">&quot;the total&#39;s colour&quot;</span>,
     total =&gt; total.EvaluateAsync&lt;<span class="tok-keyword">string</span>&gt;(<span class="tok-str">&quot;el =&gt; getComputedStyle(el).color&quot;</span>));
@@ -393,8 +392,8 @@ needs. A question is called again on every pass, so it must read and never act.<
 <span class="tok-keyword">await</span> Assert.Eventually(() =&gt; alice.AsksForAsync(colour), <span class="tok-str">&quot;the total&#39;s colour&quot;</span>)
             .ToBeEqualAsync(<span class="tok-str">&quot;rgb(0, 128, 0)&quot;</span>);</code></pre>
 <h2 id="two-users-at-once">Two users at once<a class="anchor" href="#two-users-at-once" aria-label="Link to this section">#</a></h2>
-<p>Because an ability is granted per actor, two actors are two independent sets of everything: their own
-session, their own cookies, their own page. They can act at the same moment rather than a scenario
+<p>An ability is granted per actor, so two actors are two independent sets of everything: their own
+session, their own cookies, their own page. They can act at the same moment, rather than a scenario
 switching a single browser between them:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> alice = <span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;alice&quot;</span>).WhoCanBrowseTheWebAsync();
 <span class="tok-keyword">var</span> bob = <span class="tok-keyword">await</span> Actor.Named(<span class="tok-str">&quot;bob&quot;</span>).WhoCanBrowseTheWebAsync();
@@ -402,12 +401,12 @@ switching a single browser between them:</p>
 <span class="tok-keyword">await</span> alice.AttemptsToAsync(<span class="tok-keyword">new</span> ShareTheDocument(with: <span class="tok-str">&quot;bob&quot;</span>));
 <span class="tok-keyword">await</span> Assert.That(bob.Sees(Notifications.Latest)).ToHaveTextAsync(<span class="tok-str">&quot;Alice shared a document&quot;</span>);</code></pre>
 
-<p>The sessions are the same ones <a href="browsers.html">named sessions</a> already provide — screenplay reaches
+<p>The sessions are the same ones <a href="browsers.html">named sessions</a> already provide. Screenplay reaches
 them by a different door rather than adding a second mechanism.</p>
 <h2 id="with-gherkin">With Gherkin<a class="anchor" href="#with-gherkin" aria-label="Link to this section">#</a></h2>
-<p>Step definitions hold no state of their own. A scenario normally names the person once and then stops
-mentioning them, so the step that introduces them brings them on and every step after it asks for
-<code>Actor.Current</code>:</p>
+<p>Step definitions hold no state of their own. A scenario normally names the person once and then
+stops mentioning them, so the step that introduces them brings them on, and every step after it
+asks for <code>Actor.Current</code>:</p>
 <pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> A driver books the earliest slot
 <span class="tok-keyword">  Given</span> the <span class="tok-str">&quot;ada&quot;</span> user is signed in
 <span class="tok-keyword">  When</span> the user opens the catalogue
@@ -428,13 +427,13 @@ mentioning them, so the step that introduces them brings them on and every step 
         Assert.That(Actor.Current.Sees(Booking.Confirmation)).ToBeVisibleAsync();
 }</code></pre>
 
-<p><code>Actor.Current</code> is whoever was last brought on by <code>Actor.Named</code> — the same person the scenario's
-reader has in mind. <code>Actor.Named</code> is what puts them there, so a <code>[Given]</code> that introduces somebody
-needs to do nothing else, and a <code>[BeforeScenario]</code> hook that casts the scenario works just as well.
-Their name is still on them, so a step can use it: <code>Actor.Current.Name</code>.</p>
-<p>Asking before anyone has been brought on says so and says where to do it, rather than acting as
-somebody the scenario never introduced.</p>
-<p>Where a scenario does name people — because it has more than one — take the name as a step argument
+<p><code>Actor.Current</code> is whoever was last brought on by <code>Actor.Named</code>, the same person the scenario's
+reader has in mind. A <code>[Given]</code> that introduces somebody needs to do nothing else, and a
+<code>[BeforeScenario]</code> hook that casts the scenario works just as well. Their name is still on them, as
+<code>Actor.Current.Name</code>.</p>
+<p>Asking for <code>Actor.Current</code> before anyone has been brought on fails and says where to do it, rather
+than acting as somebody the scenario never introduced.</p>
+<p>Where a scenario does name people, because it has more than one, take the name as a step argument
 and there is no current actor to think about. The same steps then serve however many users the
 scenario has:</p>
 <pre data-lang="gherkin"><code><span class="tok-keyword">Scenario:</span> A shared document reaches the other user
@@ -449,10 +448,10 @@ scenario has:</p>
 <span class="tok-keyword">public</span> Task Notified(<span class="tok-keyword">string</span> who) =&gt;
     Assert.That(Actor.Named(who).Sees(Notifications.Latest)).ToBeVisibleAsync();</code></pre>
 
-<p>Name them in the steps of a scenario where two actors act at the same moment, too: two
+<p>Name them in the steps of a scenario where two actors act at the same moment, too. Two
 <code>AttemptsToAsync</code> calls inside one <code>Task.WhenAll</code> have no last-one-named between them.</p>
-<p>Because the cast is per test — and so is the current actor — two scenarios running in parallel each
-have their own <code>alice</code>, and a <a href="execution-model.html#retries-timeouts-and-reporting">retry</a> starts with
+<p>The cast is per test, and so is the current actor. Two scenarios running in parallel each have
+their own <code>alice</code>, and a <a href="execution-model.html#retries-timeouts-and-reporting">retry</a> starts with
 nobody on. See <a href="execution-model.html">the execution model</a>.</p>
 
     </article>

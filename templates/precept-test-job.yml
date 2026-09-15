@@ -272,7 +272,8 @@ jobs:
           PRECEPT_REPORTING__TEAMS__NOTIFYON: ${{ parameters.teamsNotifyOn }}
           PRECEPT_REPORTING__TEAMS__RUNURL: $(buildLink)
           PRECEPT_REPORTING__TEAMS__RUNURLTITLE: 'Open the build'
-          # Facts is a dictionary too — these become rows on the card.
+          # Facts is a dictionary too — these become rows on the card, labelled Build, Branch
+          # and Browser: an all-uppercase key is written as a label.
           PRECEPT_REPORTING__TEAMS__FACTS__BUILD: $(Build.BuildNumber)
           PRECEPT_REPORTING__TEAMS__FACTS__BRANCH: $(Build.SourceBranchName)
           PRECEPT_REPORTING__TEAMS__FACTS__BROWSER: ${{ parameters.browser }}

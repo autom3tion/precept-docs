@@ -117,11 +117,15 @@
       <h1 id="running">Running</h1>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> test <span class="tok-attr">--project</span> Checkout.Tests/Checkout.Tests.csproj</code></pre>
 
-<p>Or run the test binary directly for the platform's own CLI:</p>
+<p>Or run the test binary directly to reach the platform's own command line:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> Checkout.Tests -- <span class="tok-attr">--list-tests</span></code></pre>
 
-<p><code>global.json</code> opts <code>dotnet test</code> into the Microsoft.Testing.Platform runner, which the .NET 10 SDK requires for MTP-based projects. The SDK reads it from the directory the command is run in, upward — so it goes at the repository root, not beside the project; see <a href="installing.html#installing">Installing</a>.</p>
-<p>On a build agent, <a href="azure-devops.html">Running a suite on CI</a> is a complete Azure Pipelines example — environment, filters, parallelism, retries and each reporter chosen from the <strong>Run pipeline</strong> dialog — with the two YAML files to copy into a suite's repository.</p>
+<p><code>dotnet test</code> needs a <code>global.json</code> that opts into the Microsoft.Testing.Platform runner. The SDK
+reads that file from the directory the command is run in and upward, so it goes at the repository
+root, not beside the project. See <a href="installing.html#installing">Installing</a>.</p>
+<p>For a build agent, <a href="azure-devops.html">Running a suite on CI</a> is a complete Azure Pipelines example.
+It covers the environment, filters, parallelism, retries and each reporter, chosen from the
+<strong>Run pipeline</strong> dialog, with the two YAML files to copy into your repository.</p>
 
     </article>
 

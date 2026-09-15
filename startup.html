@@ -115,7 +115,8 @@
   <main id="content">
     <article class="prose">
       <h1 id="startup">Startup</h1>
-<p>A project may declare one <code>IPreceptStartup</code> to register services and run assembly-wide setup:</p>
+<p>A project may declare one <code>IPreceptStartup</code> class. It registers services and runs setup for the
+whole run:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> Startup : IPreceptStartup
 {
     <span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings)
@@ -128,22 +129,38 @@
     <span class="tok-keyword">public</span> Task BeforeRunAsync(IServiceProvider services) =&gt; SeedReferenceDataAsync();
 }</code></pre>
 
-<p><code>ConfigureServices</code> is required — write it with an empty body if the suite registers nothing, since an explicit declaration is what stops a mistyped signature from compiling. <code>BeforeRunAsync</code> and <code>AfterRunAsync</code> are optional.</p>
-<p><code>BeforeRunAsync</code> runs once, just before the first test runs, and <code>AfterRunAsync</code> once the last has finished — and neither runs when the platform only <em>lists</em> tests. <code>dotnet run -- --list-tests</code>, and a test explorer refreshing its tree after a build, open a session and discover the suite without running anything, and a hook that seeds a database or signs a browser in is not something a tree refresh should do. <code>ConfigureServices</code> does run on discovery, because the container it builds is what discovery reads settings from; keep it to registrations, and put work that touches an environment in <code>BeforeRunAsync</code>.</p>
-<p>If <code>BeforeRunAsync</code> throws, no test runs — not even a class's own <code>[BeforeSuite]</code> — and every test the run had selected is reported as failed with the hook's exception, so the cause reaches the console, the TRX, a test explorer and every reporter rather than only a log. <code>AfterRunAsync</code> still runs, because a setup that failed halfway is the one most in need of its teardown.</p>
-<p>Each <code>AddPrecept…</code> binds that module's own section of <code>precept.json</code> and takes a callback for
-anything the file cannot say — a base address the startup only learns at run time, a secret read
-from a vault rather than committed:</p>
+<p><code>ConfigureServices</code> is required. Write it with an empty body if the suite registers nothing; an
+explicit declaration is what stops a mistyped signature from compiling. <code>BeforeRunAsync</code> and
+<code>AfterRunAsync</code> are optional.</p>
+<h2 id="when-each-method-runs">When each method runs<a class="anchor" href="#when-each-method-runs" aria-label="Link to this section">#</a></h2>
+<p><code>BeforeRunAsync</code> runs once, just before the first test. <code>AfterRunAsync</code> runs once, after the last
+test has finished. Neither runs when the platform only <em>lists</em> tests. <code>dotnet run -- --list-tests</code>,
+and a test explorer refreshing its tree after a build, open a session and discover the suite without
+running anything, and a hook that seeds a database or signs a browser in should not run for a tree
+refresh.</p>
+<p><code>ConfigureServices</code> does run on discovery, because the container it builds is what discovery reads
+settings from. Keep it to registrations, and put work that touches an environment in
+<code>BeforeRunAsync</code>.</p>
+<p>If <code>BeforeRunAsync</code> throws, no test runs, not even a class's own <code>[BeforeSuite]</code>. Every test the run
+selected is reported as failed with the hook's exception, so the cause reaches the console, the TRX,
+a test explorer and every reporter, rather than only a log. <code>AfterRunAsync</code> still runs, because a
+setup that failed halfway is the one most in need of its teardown.</p>
+<h2 id="module-settings">Module settings<a class="anchor" href="#module-settings" aria-label="Link to this section">#</a></h2>
+<p>Each <code>AddPrecept…</code> call binds that module's own section of <code>precept.json</code>. It also takes a callback
+for anything the file cannot say, such as a base address the startup only learns at run time, or a
+secret read from a vault:</p>
 <pre data-lang="csharp"><code>services.AddPreceptApi(api =&gt; api.BaseUrl = stub.BaseUrl);
 services.AddPreceptWeb(web =&gt; web.Headless = <span class="tok-keyword">false</span>);</code></pre>
 
-<p>The callback runs when the settings are first resolved rather than here, so it may close over
-something this method has only just created. The <code>settings</code> parameter carries the run's own settings
-— parallelism, retries, the environment, the filter — and <a href="configuration.html#where-a-section-comes-from">not a module's</a>; read one of those with <code>settings.GetSection&lt;T&gt;()</code> if a decision here depends on it.</p>
-<p>Anything registered here is resolvable from <code>PreceptTestContext.Current.Services</code>.</p>
-<p>The run's container is disposed once <code>AfterRunAsync</code> has returned, so a singleton that implements
-<code>IDisposable</code> or <code>IAsyncDisposable</code> — a container host, test data created for the whole run, a
-client holding connections — gets its teardown without the project having to arrange it.</p>
+<p>The callback runs when the settings are first resolved, not inside <code>ConfigureServices</code>, so it may
+close over something this method has only just created.</p>
+<p>The <code>settings</code> parameter carries the run's own settings: parallelism, retries, the environment, the
+filter. It does <a href="configuration.html#where-a-section-comes-from">not carry a module's</a>. Read one of
+those with <code>settings.GetSection&lt;T&gt;()</code> if a decision here depends on it.</p>
+<p>Anything registered here can be resolved from <code>PreceptTestContext.Current.Services</code>.</p>
+<p>The run's container is disposed once <code>AfterRunAsync</code> has returned. A singleton that implements
+<code>IDisposable</code> or <code>IAsyncDisposable</code>, such as a container host, test data created for the whole run,
+or a client holding connections, gets its teardown without the project arranging it.</p>
 
     </article>
 
@@ -158,7 +175,11 @@ client holding connections — gets its teardown without the project having to a
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#when-each-method-runs">When each method runs</a></li>
+<li><a href="#module-settings">Module settings</a></li>
+</ul>
     </nav>
   </aside>
 </div>

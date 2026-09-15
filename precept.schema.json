@@ -460,7 +460,7 @@
               "default": true
             },
             "Facts": {
-              "description": "Extra rows for the card's fact list — a build number, a branch, a release. Values usually come from CI through PRECEPT_REPORTING__TEAMS__FACTS__BUILD.",
+              "description": "Extra rows for the card's fact list — a build number, a branch, a release. Values usually come from CI through PRECEPT_REPORTING__TEAMS__FACTS__BUILD. A key with no lowercase letter is written as a label, so that one reads Build; a key typed in its own case is shown as typed.",
               "type": "object",
               "additionalProperties": {
                 "type": "string"

@@ -115,13 +115,13 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept.files">Precept.Files</h1>
-<p>Excel, CSV, JSON and XML files for Precept tests: a workbook or a CSV written from a data table or a
-query result, a row appended to what the system under test already has, a file read back as rows,
-JSON and XML built, queried, changed in place and asserted on — every file a test writes landing in
-its artifacts and attached to its result.</p>
+<p>Excel, CSV, JSON and XML files for Precept tests. Write a workbook or a CSV from a data table or a
+query result, append a row to a file the system under test produced, read a file back as rows, and
+build, query, change and assert on JSON and XML documents. Every file a test writes lands in its
+artifacts and is attached to its result.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Files</code></pre>
 <pre data-lang="csharp"><code>services.AddPreceptFiles();</code></pre>
-<pre data-lang="csharp"><code><span class="tok-comment">// A Reqnroll DataTable&#39;s rows in, a spreadsheet out — the package never references Reqnroll:</span>
+<pre data-lang="csharp"><code><span class="tok-comment">// A Reqnroll DataTable&#39;s rows in, a spreadsheet out. The package never references Reqnroll:</span>
 <span class="tok-comment">// a row is anything dictionary-shaped, or an object whose properties are the columns.</span>
 <span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> Excel.WriteAsync(<span class="tok-str">&quot;clients.xlsx&quot;</span>, table.Rows, sheet: <span class="tok-str">&quot;Clients&quot;</span>);
 
@@ -138,13 +138,13 @@ export.Sheet(<span class="tok-str">&quot;Clients&quot;</span>).AddRow(<span clas
 <span class="tok-keyword">var</span> shipment = Xml.Load(<span class="tok-str">&quot;shipment.xml&quot;</span>).WithDefaultNamespace(<span class="tok-str">&quot;s&quot;</span>);
 <span class="tok-keyword">await</span> Assert.That(shipment).ToHaveValueAsync(<span class="tok-str">&quot;/s:shipment/s:status&quot;</span>, <span class="tok-str">&quot;accepted&quot;</span>);</code></pre>
 
-<p>A sheet, a CSV file and a JSON array share one model — a header, rows under it by column name — and
-one set of row assertions. A bare file name is written into the running test's artifact directory —
-unique to the test, and one step from every report — and read from there first, then from beside the
-test binary. The ClosedXML worksheet, the <code>JsonNode</code> and the <code>XDocument</code> underneath are one property
-away, so nothing the libraries can do is out of reach.</p>
+<p>A sheet, a CSV file and a JSON array share one model, a header with rows under it by column name,
+and one set of row assertions. A bare file name is written into the running test's artifact
+directory, which is unique to the test and one step from every report. It is read from there first,
+then from beside the test binary. The ClosedXML worksheet, the <code>JsonNode</code> and the <code>XDocument</code>
+underneath are one property away, so nothing the libraries can do is out of reach.</p>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
 Full documentation: <a href="files.html#files">files</a> ·
 <a href="files.html#excel">Excel</a> ·
 <a href="files.html#csv">CSV</a> ·

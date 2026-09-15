@@ -115,11 +115,15 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept.testplatform">Precept.TestPlatform</h1>
-<p>Precept's test runner: a <a href="https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro">Microsoft.Testing.Platform</a>
-test framework that discovers and executes Precept tests. <strong>A test project starts here</strong> — this
-package brings in <code>Precept.Core</code>, makes the project an executable and generates its entry point.</p>
+<p>Precept is a test framework for .NET 10, built on <a href="https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro">Microsoft.Testing.Platform</a>
+(MTP). This package is its test runner: it implements MTP's <code>ITestFramework</code>, so Precept controls
+how tests are discovered, scheduled, retried and reported, while the platform runs them under
+<code>dotnet test</code>, <code>dotnet run</code>, IDE test explorers and TRX reporting.</p>
+<p><strong>A test project starts here.</strong> This package brings in <code>Precept.Core</code>, makes the project an
+executable and generates its entry point. There is no <code>Main</code> and no <code>OutputType</code> to write.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.TestPlatform</code></pre>
-<pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">class</span> CheckoutTests
+<pre data-lang="csharp"><code><span class="tok-attr">[TestSuite(&quot;Checkout&quot;)]</span>
+<span class="tok-keyword">public</span> <span class="tok-keyword">class</span> CheckoutTests
 {
 <span class="tok-attr">    [Test(&quot;A customer can check out&quot;)]</span>
 <span class="tok-attr">    [Retry(2, DelayMilliseconds = 200)]</span>
@@ -133,26 +137,27 @@ package brings in <code>Precept.Core</code>, makes the project an executable and
     }
 }</code></pre>
 
-<p>There is no <code>Main</code> and no <code>OutputType</code> to write. The first build leaves a commented <code>precept.json</code>
-in the project.</p>
-<p>One thing a NuGet package cannot do for you: on the .NET 10 SDK, <code>dotnet test</code> has to be told to use
-Microsoft.Testing.Platform, in a <code>global.json</code> at the repository root — the SDK reads it from the
-directory <code>dotnet test</code> is run in and upward, not from the project's.</p>
+<p>The first build writes a commented <code>precept.json</code> into the project. That file, its
+<code>precept.{environment}.json</code> overlays and <code>PRECEPT_*</code> environment variables configure the run.</p>
+<p>On the .NET 10 SDK, <code>dotnet test</code> has to be told to use Microsoft.Testing.Platform. Put this
+<code>global.json</code> at the repository root. The SDK reads it from the directory you run <code>dotnet test</code> in
+and upward, not from the project's directory:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;test&quot;</span>: {
     <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span>
   }
 }</code></pre>
 
-<p>Without it <code>dotnet test</code> fails with <em>&quot;Testing with VSTest target is no longer supported&quot;</em>. Running the
-test binary directly — <code>dotnet run -- --list-tests</code> — works either way.</p>
+<p>Without it <code>dotnet test</code> fails with <em>&quot;Testing with VSTest target is no longer supported&quot;</em>. Running
+the test binary directly with <code>dotnet run -- --list-tests</code> works either way.</p>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
-Full documentation: <a href="running.html#running">running a suite</a> ·
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
+Full documentation: <a href="installing.html#installing">installing</a> ·
+<a href="writing-tests.html#writing-tests">writing tests</a> ·
+<a href="running.html#running">running a suite</a> ·
 <a href="execution-model.html#execution-model">execution model</a> ·
 <a href="filtering.html#filtering">filtering</a> ·
-<a href="configuration.html#configuration">configuration</a> ·
-<a href="environment-variables.html">environment variables</a></p>
+<a href="configuration.html#configuration">configuration</a></p>
 
     </article>
 

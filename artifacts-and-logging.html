@@ -115,29 +115,37 @@
   <main id="content">
     <article class="prose">
       <h1 id="artifacts-and-logging">Artifacts and logging</h1>
-<p><code>PreceptTestContext.Current</code> is ambient for the running test and flows across <code>await</code>. <code>Log(...)</code> lines become that test's standard output; <code>AttachAsync(...)</code> records files. <code>RegisterForDisposal(...)</code> ties a resource to the test — disposed after the after-scenario hook, so hooks can still capture diagnostics from it.</p>
+<p><code>PreceptTestContext.Current</code> is the running test's context. It is ambient and flows across <code>await</code>, so any code the test calls can reach it. It has three jobs:</p>
+<ul>
+<li><code>Log(...)</code> writes a line to the test's output.</li>
+<li><code>AttachAsync(...)</code> records a file against the test.</li>
+<li><code>RegisterForDisposal(...)</code> ties a resource to the test. It is disposed after the after-scenario hook, so hooks can still capture diagnostics from it.</li>
+</ul>
 <h2 id="failing-a-test-after-its-last-line">Failing a test after its last line<a class="anchor" href="#failing-a-test-after-its-last-line" aria-label="Link to this section">#</a></h2>
-<p><code>RegisterVerification(...)</code> registers a check that runs after the test body <em>and</em> its after-scenario hook, and whose failure fails a test that would otherwise have passed:</p>
+<p><code>RegisterVerification(...)</code> registers a check that runs after the test body <em>and</em> its after-scenario hook. If the check fails, the test fails, even if every assertion in the body passed:</p>
 <pre data-lang="csharp"><code>PreceptTestContext.Current?.RegisterVerification(() =&gt; session.VerifyNoErrorsAsync());</code></pre>
 
-<p>For a verdict a module reaches on the test's behalf rather than one the test asked for — a console error the page logged while nobody was looking, a request that failed after the last assertion passed. The test cannot check those itself, because the moment they matter is after the last line it wrote. <code>Precept.Web</code> uses it for <a href="browsers.html#what-the-page-says-about-itself"><code>FailOnConsoleErrors</code> and <code>FailOnPageErrors</code></a>.</p>
-<p>Checks run in the order they were registered, before anything registered for disposal is disposed — so a check still has the page or the connection it is checking — and the outcome is settled before disposal, so a failure decided here still gets that module's failure screenshot and trace captured on the way out. A test that already failed keeps its own failure and the check's is logged instead: the first thing to go wrong is the one worth reporting, and a console error is usually a symptom of it.</p>
-<p>What a test logged is reported as the platform's <code>StandardOutputProperty</code>, so it reaches a TRX as <code>&lt;StdOut&gt;</code>, a test explorer's output pane, and every <a href="reporting.html#reporting">reporter</a> — whether the test passed or failed. A failure additionally repeats the log under its message, so a failed test explains itself even where output is suppressed.</p>
+<p>Use it for a verdict a module reaches on the test's behalf: a console error the page logged after the last assertion, or a request that failed after the test was already done. <code>Precept.Web</code> uses it for <a href="browsers.html#what-the-page-says-about-itself"><code>FailOnConsoleErrors</code> and <code>FailOnPageErrors</code></a>.</p>
+<p>Checks run in the order they were registered, before anything registered for disposal is disposed, so a check still has the page or connection it is checking. The outcome is settled before disposal, so a failure decided here still gets the module's failure screenshot and trace. A test that already failed keeps its own failure, and the check's failure is logged instead. The first thing to go wrong is the one worth reporting.</p>
+<p>What a test logged is reported as the platform's <code>StandardOutputProperty</code>. It reaches a TRX as <code>&lt;StdOut&gt;</code>, a test explorer's output pane, and every <a href="reporting.html#reporting">reporter</a>, whether the test passed or failed. A failure also repeats the log under its message, so a failed test explains itself even where output is suppressed.</p>
 <h2 id="seeing-the-gherkin-steps-a-scenario-ran">Seeing the Gherkin steps a scenario ran<a class="anchor" href="#seeing-the-gherkin-steps-a-scenario-ran" aria-label="Link to this section">#</a></h2>
-<p>Reqnroll traces each step as it executes, and Precept routes that trace into the running test rather than to the process console. That is what puts the steps in the TRX, in a test explorer, and on a ReportPortal test item — and it is why two scenarios running in parallel no longer interleave their steps.</p>
-<p>The console is the platform's decision, not Precept's, and it takes two flags — <code>Normal</code> output does not list passing tests at all, so there is nowhere to hang their output:</p>
+<p>Reqnroll traces each step as it runs. Precept routes that trace into the running test's log rather than to the process console. That is what puts the steps in the TRX, in a test explorer, and on a ReportPortal test item. It is also why two scenarios running in parallel do not interleave their steps.</p>
+<p>Whether the steps also appear on the console is the platform's decision, and it takes two flags. The <code>Normal</code> output level does not list passing tests at all, so there is nowhere for their output to go:</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> run <span class="tok-attr">--project</span> tests/Acme.Tests -- <span class="tok-attr">--output</span> Detailed <span class="tok-attr">--show-stdout</span> All</code></pre>
-<pre><code>пройдено Adding two numbers (105ms)
+<pre><code>passed Adding two numbers (105ms)
   Standard output
     Given a clean calculator
-    -&gt; done: CalculatorSteps.GivenACleanCalculator() (0,0s)
+    -&gt; done: CalculatorSteps.GivenACleanCalculator() (0.0s)
     When I press add
     add(50 + 70) = 120
-    -&gt; done: CalculatorSteps.WhenIPressAdd() (0,0s)</code></pre>
+    -&gt; done: CalculatorSteps.WhenIPressAdd() (0.0s)</code></pre>
 
-<p>Anything a step logs itself lands in the right place in that sequence. Under <code>dotnet test</code> the same flags work for failing and skipped tests, but the SDK's own logger never lists passing ones, so a passing scenario's steps are only in the TRX and the reporters. Whether successful steps are traced at all stays Reqnroll's call, through <code>trace.traceSuccessfulSteps</code> in <code>reqnroll.json</code>.</p>
-<p>Each test writes into its own directory under <code>ArtifactDirectory</code>. The directory is named after the test but deliberately kept short — Windows caps a full path at 260 characters, and past that an artifact is still written while the TRX writer's copy of it fails with &quot;attachment not found&quot;. The directory is created the first time something asks for a path inside it, which a module recording on failure does before the test runs, so a test that passes is left with an empty one — and that is removed once the test is over. What survives a run is a directory per test that produced a file, which is what a pipeline publishing the root should ship. A <a href="execution-model.html#retries-timeouts-and-reporting">retried</a> test's reruns write into <code>attempt-2</code>, <code>attempt-3</code> and so on under that directory, so the first attempt's files survive them.</p>
-<p>Recorded files are reported to the platform as file artifacts of the test that produced them. With <code>--report-trx</code> they are copied next to the <code>.trx</code> and listed as <code>&lt;ResultFile&gt;</code> entries of that test's result, which is what Azure DevOps' <code>PublishTestResults</code> task uploads as attachments. The TRX copies every file whatever its size; the reporters that upload files apply a size cap of their own, see <a href="reporting.html#what-gets-attached-and-what-does-not">what gets attached</a>:</p>
+<p>Anything a step logs itself lands in the right place in that sequence. Under <code>dotnet test</code> the same flags work for failing and skipped tests, but the SDK's own logger never lists passing ones, so a passing scenario's steps are only in the TRX and the reporters. Whether successful steps are traced at all is Reqnroll's setting, <code>TraceSuccessfulSteps</code> in the <code>Reqnroll</code> section of <code>precept.json</code>.</p>
+<h2 id="where-files-go">Where files go<a class="anchor" href="#where-files-go" aria-label="Link to this section">#</a></h2>
+<p>Each test writes into its own directory under <code>ArtifactDirectory</code>. The directory is named after the test but kept short on purpose: Windows caps a full path at 260 characters, and past that an artifact is still written but the TRX writer's copy of it fails with &quot;attachment not found&quot;.</p>
+<p>The directory is created the first time something asks for a path inside it. A module that records on failure does that before the test runs, so a passing test is left with an empty directory, and that is removed once the test is over. What survives a run is one directory per test that produced a file, which is what a pipeline publishing the root should ship. A <a href="execution-model.html#retries-timeouts-and-reporting">retried</a> test's reruns write into <code>attempt-2</code>, <code>attempt-3</code> and so on under the test's directory, so the first attempt's files survive.</p>
+<h2 id="what-reaches-the-trx">What reaches the TRX<a class="anchor" href="#what-reaches-the-trx" aria-label="Link to this section">#</a></h2>
+<p>Recorded files are reported to the platform as file artifacts of the test that produced them. With <code>--report-trx</code> they are copied next to the <code>.trx</code> and listed as <code>&lt;ResultFile&gt;</code> entries of that test's result, which is what Azure DevOps' <code>PublishTestResults</code> task uploads as attachments. The TRX copies every file whatever its size. The reporters that upload files apply a size cap of their own; see <a href="reporting.html#what-gets-attached-and-what-does-not">what gets attached</a>.</p>
 <pre data-lang="yaml"><code><span class="tok-key">- task</span>: PublishTestResults@<span class="tok-number">2</span>
 <span class="tok-key">  inputs</span>:
 <span class="tok-key">    testResultsFormat</span>: VSTest
@@ -163,6 +171,8 @@
 <ul>
 <li><a href="#failing-a-test-after-its-last-line">Failing a test after its last line</a></li>
 <li><a href="#seeing-the-gherkin-steps-a-scenario-ran">Seeing the Gherkin steps a scenario ran</a></li>
+<li><a href="#where-files-go">Where files go</a></li>
+<li><a href="#what-reaches-the-trx">What reaches the TRX</a></li>
 </ul>
     </nav>
   </aside>

@@ -115,25 +115,25 @@
   <main id="content">
     <article class="prose">
       <h1 id="every-setting">Every setting</h1>
-<p>One <code>precept.json</code> with every setting Precept ships, each at the value it takes when nothing sets it.
-It is generated from the settings classes themselves, so it is the file <em>this</em> version of Precept
-reads — nothing on this page is written by hand.</p>
+<p>This page is one <code>precept.json</code> with every setting Precept ships, each at the value it takes when
+nothing sets it. It is generated from the settings classes themselves, so it is the file <em>this</em>
+version of Precept reads. Nothing in the generated block is written by hand.</p>
 <p><strong>You are not meant to copy all of it.</strong> Every key here is already its own default, so a file
-containing it changes nothing about a run; the shortest correct <code>precept.json</code> is <code>{}</code>. Take the
-handful of lines you want to change and leave the rest out, where they cost nothing and cannot go
-stale against a later release. <a href="configuration.html#configuration">Configuration</a> covers how the file is
-found, overlaid and overridden; this page is the inventory.</p>
-<p>Two things worth knowing before reading it:</p>
+containing all of them changes nothing about a run. The shortest correct <code>precept.json</code> is <code>{}</code>.
+Take the handful of lines you want to change and leave the rest out, where they cost nothing and
+cannot go stale against a later release. <a href="configuration.html#configuration">Configuration</a> covers how
+the file is found, overlaid and overridden. This page is the inventory.</p>
+<p>Two things to know before reading it:</p>
 <ul>
 <li><strong>A section is only read if the module that owns it is registered.</strong> A <code>Web</code> block in a project
-that never calls <code>AddPreceptWeb()</code> is read by nothing and reports nothing — see
+that never calls <code>AddPreceptWeb()</code> is read by nothing and reports nothing. See
 <a href="configuration.html#where-a-section-comes-from">where a section comes from</a>.</li>
-<li><strong>Every key here can also come from the environment</strong>, which is how a pipeline overrides a run and
-how a credential stays out of source control. <code>Web:Headless</code> is <code>PRECEPT_WEB__HEADLESS</code>;
+<li><strong>Every key here can also come from the environment.</strong> That is how a pipeline overrides a run and
+how a credential stays out of source control. <code>Web:Headless</code> is <code>PRECEPT_WEB__HEADLESS</code>.
 <a href="environment-variables.html#environment-variables">Environment variables</a> is that list.</li>
 </ul>
-<p>Comments and trailing commas are allowed in these files — .NET's JSON configuration provider skips
-them — so the annotations below can stay in anything you copy.</p>
+<p>Comments and trailing commas are allowed in these files, because .NET's JSON configuration provider
+skips them, so the annotations below can stay in anything you copy.</p>
 <!-- generated: settings -->
 <pre data-lang="jsonc"><code>{
   <span class="tok-comment">// The schema this file is validated against. Read by editors, and by nothing in Precept.</span>
@@ -416,7 +416,9 @@ them — so the annotations below can stay in anything you copy.</p>
       <span class="tok-key">&quot;Enabled&quot;</span>: <span class="tok-keyword">true</span>,
 
       <span class="tok-comment">// Extra rows for the card&#39;s fact list — a build number, a branch, a release. Values usually</span>
-      <span class="tok-comment">// come from CI through PRECEPT_REPORTING__TEAMS__FACTS__BUILD.</span>
+      <span class="tok-comment">// come from CI through PRECEPT_REPORTING__TEAMS__FACTS__BUILD. A key with no lowercase letter</span>
+      <span class="tok-comment">// is written as a label, so that one reads Build; a key typed in its own case is shown as</span>
+      <span class="tok-comment">// typed.</span>
       <span class="tok-key">&quot;Facts&quot;</span>: {},
 
       <span class="tok-comment">// What a screen reader says in place of ImageUrl.</span>
@@ -704,7 +706,7 @@ them — so the annotations below can stay in anything you copy.</p>
 }</code></pre>
 <!-- /generated -->
 <p>Sections of your own go in the same file and are bound the same way, and nothing above reserves a
-name — see <a href="configuration.html#your-own-settings">your own settings</a>. The
+name. See <a href="configuration.html#your-own-settings">your own settings</a>. The
 <a href="configuration.html#completion-in-an-editor">JSON schema</a> describes everything on this page to an
 editor, so most of it can be discovered by typing rather than by reading.</p>
 

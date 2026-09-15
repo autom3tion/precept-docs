@@ -115,9 +115,9 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept.testdata">Precept.TestData</h1>
-<p>Test data management for Precept: environment-specific data sets for the users, clients, vehicles and
-anything else a suite needs, dynamic value generation, factories that create and clean up data in the
-system under test, and pooled records leased exclusively to parallel tests.</p>
+<p>Test data management for Precept: environment-specific data sets for the users, clients, vehicles
+and anything else a suite needs, generated values, factories that create and clean up data in the
+system under test, and pooled records leased to one test at a time.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.TestData</code></pre>
 <pre data-lang="csharp"><code>services.AddPreceptTestData();</code></pre>
 <pre data-lang="json"><code><span class="tok-comment">// testdata.json, beside the test binary</span>
@@ -133,22 +133,25 @@ system under test, and pooled records leased exclusively to parallel tests.</p>
 <span class="tok-keyword">var</span> password = TestData.Value(<span class="tok-str">&quot;users:admin:password&quot;</span>);</code></pre>
 
 <p><code>testdata.json</code> is overlaid by <code>testdata.{environment}.json</code> and then by <code>PRECEPT_TESTDATA__*</code>
-environment variables — which is how a password reaches a run without being written down in the
+environment variables. That is how a password reaches a run without being written down in the
 repository.</p>
-<p><code>{{unique}}</code>, <code>{{guid}}</code>, <code>{{now:+2d}}</code>, <code>{{random:1000-9999}}</code> and friends are expanded when a value
-is <em>read</em>, so a suite that inserts the same email address on every run stops failing on the second
-one. Within a scenario the values are stable, so every step sees what the first one created; a retry
-generates fresh ones, so a test that failed on a duplicate key stops colliding with itself.</p>
-<p>The module's types live in the root <code>Precept</code> namespace, so a step definition needs no further <code>using</code>.</p>
-<p>A coding agent can get all of this — checked against the project in front of it, down to which set a
-type reads and whether the data files reach the output directory — from <code>precept_explain_testdata</code> in
-<a href="Precept.Mcp.html">Precept.Mcp</a>.</p>
+<p>Values may carry tokens such as <code>{{unique}}</code>, <code>{{run}}</code>, <code>{{guid}}</code>, <code>{{now:+2d}}</code>,
+<code>{{date:-80y:-18y}}</code>, <code>{{decimal:1.00-99.99}}</code> and <code>{{pick:red|green|blue}}</code>. They are expanded when
+a value is <em>read</em>, so a suite that inserts the same email address on every run stops failing on the
+second one. <code>{{unique}}</code> is the same value throughout a scenario, so every step sees what the first
+one created, and a retry generates a fresh one. <code>TestData.Resolve</code> expands tokens in a string that
+came from a feature file, and <code>Resolve&lt;T&gt;</code> reads the result as a number or a date.</p>
+<p>The module's types live in the root <code>Precept</code> namespace, so a step definition needs no further
+<code>using</code>.</p>
+<p>A coding agent can get all of this, checked against the project in front of it, from
+<code>precept_explain_testdata</code> in <a href="Precept.Mcp.html">Precept.Mcp</a>.</p>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
 Full documentation: <a href="test-data.html#test-data">test data</a> ·
 <a href="test-data.html#dynamic-values">dynamic values</a> ·
 <a href="test-data.html#data-the-tests-have-to-create">factories</a> ·
-<a href="test-data.html#pooled-data">pooled data</a></p>
+<a href="test-data.html#pooled-data">pooled data</a> ·
+<a href="test-data.html#from-gherkin">from Gherkin</a></p>
 
     </article>
 

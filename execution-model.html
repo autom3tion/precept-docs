@@ -115,7 +115,8 @@
   <main id="content">
     <article class="prose">
       <h1 id="execution-model">Execution model</h1>
-<p>Tests are grouped by declaring class, and <code>MaxParallelism</code> bounds how many units of work are in flight at once. <code>ParallelScope</code> decides what a unit is:</p>
+<p>Tests are grouped by their declaring class. <code>MaxParallelism</code> bounds how many units of work run at
+once, and <code>ParallelScope</code> decides what a unit is:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -137,23 +138,36 @@
 </tr>
 </tbody>
 </table></div>
-<p>Anything marked <code>[NonParallelizable]</code> runs afterwards, one class at a time, whichever scope is set — a single non-parallelizable test takes its whole class into that phase, so its <code>[BeforeSuite]</code>/<code>[AfterSuite]</code> pair stays in one piece.</p>
+<p>Anything marked <code>[NonParallelizable]</code> runs afterwards, one class at a time, whichever scope is set.
+A single non-parallelizable test takes its whole class into that phase, so the class's
+<code>[BeforeSuite]</code> and <code>[AfterSuite]</code> pair stays together.</p>
 <h2 id="why-a-high-maxparallelism-can-look-ignored">Why a high <code>MaxParallelism</code> can look ignored<a class="anchor" href="#why-a-high-maxparallelism-can-look-ignored" aria-label="Link to this section">#</a></h2>
-<p>Because the default unit is a class, and the Reqnroll generator emits <strong>one class per <code>.feature</code> file</strong>, a suite of two feature files never puts more than two units in flight — <code>&quot;MaxParallelism&quot;: 8</code> leaves six slots empty and the run is as slow as its longest feature. Precept says so at the start of a run when the gap is large enough to matter.</p>
-<p>Setting <code>&quot;ParallelScope&quot;: &quot;Test&quot;</code> schedules every scenario individually, so few-but-long feature files can use the whole limit. What you give up is ordering <em>within</em> a feature:</p>
+<p>The default unit is a class, and the Reqnroll generator emits <strong>one class per <code>.feature</code> file</strong>. A
+suite of two feature files therefore never runs more than two units at once. With
+<code>&quot;MaxParallelism&quot;: 8</code>, six slots stay empty and the run takes as long as its longest feature.
+Precept prints a warning at the start of a run when the gap is large enough to matter.</p>
+<p>Setting <code>&quot;ParallelScope&quot;: &quot;Test&quot;</code> schedules every scenario individually, so a suite with a few long
+feature files can use the whole limit. What you give up is ordering <em>within</em> a feature:</p>
 <ul>
-<li>Scenarios of one feature no longer see each other's leftovers in a fixed order — a static field, a row a previous scenario inserted, a value stashed in a step-definition field.</li>
-<li>Reqnroll takes a pooled runner per scenario, so its own <code>[BeforeFeature]</code>/<code>[AfterFeature]</code> hooks run once per runner rather than once per feature. This is how Reqnroll behaves under every parallel-capable provider.</li>
-<li>Precept's own <code>[BeforeSuite]</code> still completes before the class's first test starts, and <code>[AfterSuite]</code> still runs after its last one finishes.</li>
+<li>Scenarios of one feature no longer see each other's leftovers in a fixed order: a static field, a
+row a previous scenario inserted, a value stashed in a step-definition field.</li>
+<li>Reqnroll takes a pooled runner per scenario, so its own <code>[BeforeFeature]</code> and <code>[AfterFeature]</code>
+hooks run once per runner rather than once per feature. Reqnroll behaves this way under every
+parallel-capable provider.</li>
+<li>Precept's own <code>[BeforeSuite]</code> still completes before the class's first test starts, and
+<code>[AfterSuite]</code> still runs after its last one finishes.</li>
 </ul>
-<p>Put <code>[NonParallelizable]</code> on the few classes that genuinely need the old ordering and leave the rest test-scoped, rather than holding the whole run back for them.</p>
+<p>Put <code>[NonParallelizable]</code> on the few classes that need the old ordering, and leave the rest
+test-scoped, rather than holding the whole run back for them.</p>
 <h2 id="retries-timeouts-and-reporting">Retries, timeouts and reporting<a class="anchor" href="#retries-timeouts-and-reporting" aria-label="Link to this section">#</a></h2>
-<p><code>[Retry(n)]</code> counts <strong>reruns, not runs</strong>: a test always runs once, and <code>n</code> is how many further goes it gets while it keeps failing. <code>[Retry(1)]</code> runs a failing test twice, <code>[Retry(0)]</code> is the same as no attribute at all. <code>&quot;DefaultRetries&quot;</code> in <code>precept.json</code> says the same for tests carrying no attribute, and defaults to <code>0</code>.</p>
-<p>Retry only reruns hard failures — a skip or an inconclusive verdict will not change on a rerun. Each result carries timing information, category metadata and artifact paths through to the platform's reporters.</p>
-<p><strong>A single test has no time limit by default.</strong> An end-to-end test takes as long as the system under test makes it take, and a limit chosen in advance for every test is either too short for the slowest or too long to mean anything. What a run needs protecting from is never ending — a step waiting on a socket that will not answer, a loop that never exits — and one ceiling on the run is enough for that: <code>&quot;RunTimeoutMinutes&quot;</code> in <code>precept.json</code>, 12 hours (<code>720</code>) unless the file says otherwise, <code>0</code> for no limit at all. When it fires, every test still running is cut off and reported as failed with the reason, every test not yet started is reported as failed without running, and the runner writes one line saying the run was over time. The TRX and the reporters get a verdict for everything the run selected, which a build agent killing the process would never have given them.</p>
-<p>A test that wants its own limit can have one — <code>[Timeout(ms)]</code> on the test or its class, or <code>&quot;DefaultTimeoutMilliseconds&quot;</code> for every test carrying no attribute, which defaults to <code>0</code>. Either limit is enforced in two steps. When the time is up, <code>PreceptTestContext.Current.CancellationToken</code> is cancelled, and a body that stops on it fails with a <code>TimeoutException</code> there and then. A body that never looks at the token — every Reqnroll step, and most tests — is abandoned instead: the verdict is the same <code>TimeoutException</code>, reported at the timeout rather than whenever the body would have finished, and the <code>[AfterTest]</code> hook, the module verifications and disposal all run as they do for any failure, so a browser test that overran still gets its screenshot and trace. The abandoned body keeps running in the background until what it holds is disposed under it, which is usually at once; anything it throws after that is logged to the test, not raised. Observe the token where a test can — a wait, an HTTP call, a database command — and it ends cleanly instead.</p>
-<p><strong>No limit is enforced while a debugger is attached</strong> — not the run's and not a test's. The clock keeps running at a breakpoint, and a limit that fires there fails the test being looked at and closes its browser under the person looking. Debug for as long as the investigation takes; the limits return on the next run without a debugger.</p>
-<p>A test that was actually rerun keeps every attempt in its output, each block headed by the attempt it belongs to and how that attempt ended:</p>
+<h3 id="retries">Retries<a class="anchor" href="#retries" aria-label="Link to this section">#</a></h3>
+<p><code>[Retry(n)]</code> counts <strong>reruns, not runs</strong>. A test always runs once, and <code>n</code> is how many more times
+it runs while it keeps failing. <code>[Retry(1)]</code> runs a failing test twice; <code>[Retry(0)]</code> is the same as
+no attribute. <code>&quot;DefaultRetries&quot;</code> in <code>precept.json</code> does the same for tests without the attribute,
+and defaults to <code>0</code>.</p>
+<p>Only hard failures are rerun. A skip or an inconclusive verdict will not change on a rerun.</p>
+<p>A test that was rerun keeps every attempt in its output. Each block is headed by the attempt it
+belongs to and how that attempt ended:</p>
 <pre><code>[Attempt 1 of 3] Failed: Expected status 200 but received 503.
 Given the catalogue service is reachable
 When the client requests the catalogue
@@ -161,8 +175,49 @@ When the client requests the catalogue
 Given the catalogue service is reachable
 When the client requests the catalogue</code></pre>
 
-<p>Without it a scenario that failed twice and passed on the third reported one clean green run, with nothing to say what had gone wrong. The header appears only when a rerun actually happened, so a test that passes first time reads as it always did. A test's duration covers every attempt it made, including the <code>DelayMilliseconds</code> between them.</p>
-<p>The same goes for what the attempts wrote. A rerun gets a directory of its own under the test's — <code>attempt-2</code>, <code>attempt-3</code> — rather than writing its <code>failure.png</code> and <code>trace.zip</code> over the first attempt's, and the result attaches every attempt's files, each labelled <code>[Attempt n of m]</code> the way the log is. A test that passed on its rerun therefore still carries the screenshot and trace of the failure it retried past, which is the thing a flaky test has to show.</p>
+<p>Without this, a scenario that failed twice and passed on the third would report one clean green
+run. The header appears only when a rerun happened, so a test that passes first time reads as it
+always did. A test's duration covers every attempt, including the <code>DelayMilliseconds</code> between them.</p>
+<p>The same goes for files. A rerun writes into its own directory under the test's, <code>attempt-2</code>,
+<code>attempt-3</code> and so on, instead of writing its <code>failure.png</code> and <code>trace.zip</code> over the first
+attempt's. The result attaches every attempt's files, each labelled <code>[Attempt n of m]</code> like the log.
+A test that passed on its rerun therefore still carries the screenshot and trace of the failure it
+retried past, which is what a flaky test has to show.</p>
+<h3 id="timeouts">Timeouts<a class="anchor" href="#timeouts" aria-label="Link to this section">#</a></h3>
+<p><strong>A single test has no time limit by default.</strong> An end-to-end test takes as long as the system
+under test makes it take, and a limit chosen in advance for every test is either too short for the
+slowest test or too long to mean anything.</p>
+<p>What a run needs protecting from is never ending: a step waiting on a socket that will not answer,
+a loop that never exits. One ceiling on the whole run is enough for that. <code>&quot;RunTimeoutMinutes&quot;</code> in
+<code>precept.json</code> defaults to 12 hours (<code>720</code>); <code>0</code> removes the limit. When it fires:</p>
+<ul>
+<li>every test still running is cut off and reported as failed with the reason,</li>
+<li>every test not yet started is reported as failed without running,</li>
+<li>the runner writes one line saying the run was over time.</li>
+</ul>
+<p>The TRX and the reporters get a verdict for everything the run selected, which a build agent
+killing the process would never give them.</p>
+<p>A test that wants its own limit can have one: <code>[Timeout(ms)]</code> on the test or its class, or
+<code>&quot;DefaultTimeoutMilliseconds&quot;</code> for every test without the attribute, which defaults to <code>0</code>. Either
+limit is enforced in two steps:</p>
+<ol>
+<li><code>PreceptTestContext.Current.CancellationToken</code> is cancelled. A body that observes the token fails
+with a <code>TimeoutException</code> there and then.</li>
+<li>A body that never looks at the token, which is every Reqnroll step and most tests, is abandoned.
+The verdict is the same <code>TimeoutException</code>, reported at the timeout rather than whenever the
+body would have finished. The <code>[AfterTest]</code> hook, the module verifications and disposal all run
+as they do for any failure, so a browser test that overran still gets its screenshot and trace.</li>
+</ol>
+<p>The abandoned body keeps running in the background until what it holds is disposed under it, which
+is usually at once. Anything it throws after that is logged to the test, not raised. Observe the
+token where a test can, in a wait, an HTTP call or a database command, and it ends cleanly instead.</p>
+<p><strong>No limit is enforced while a debugger is attached</strong>, neither the run's nor a test's. The clock
+keeps running at a breakpoint, and a limit that fired there would fail the test being looked at
+and close its browser. Debug for as long as you need; the limits return on the next run without a
+debugger.</p>
+<h3 id="what-reaches-the-reporters">What reaches the reporters<a class="anchor" href="#what-reaches-the-reporters" aria-label="Link to this section">#</a></h3>
+<p>Each result carries its timing, category metadata and artifact paths through to the platform's
+reporters and to every <a href="reporting.html">Precept reporter</a>.</p>
 
     </article>
 

@@ -118,17 +118,17 @@
 <p>An <a href="https://modelcontextprotocol.io">MCP</a> server that lets a coding agent inspect a Precept test
 project. It answers the questions Precept cannot answer for itself at runtime: why a green build
 found no tests, which of five sources decided the environment, why raising <code>MaxParallelism</code> changed
-nothing, what a filter expression will actually select, and how the suite's test data is meant to be
+nothing, what a filter expression will select, and how the suite's test data is meant to be
 written.</p>
-<p>This is a <strong>tool</strong>, not a library — nothing in your test code references it.</p>
+<p>This is a <strong>tool</strong>, not a library. Nothing in your test code references it.</p>
 <p>It is one of two things Precept ships for an agent. The other is a set of skills, a Copilot agent
 and an instructions file, installed from
-<a href="https://github.com/autom3tion/precept-skills">autom3tion/precept-skills</a> — see
+<a href="https://github.com/autom3tion/precept-skills">autom3tion/precept-skills</a>. See
 <a href="coding-agents.html">Working with a coding agent</a>.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
 
 <p>Then point an MCP client at it. Checked into the repository as <code>.mcp.json</code>, this is picked up by
-Claude Code and other clients that read it:</p>
+Claude Code and other clients that read that file:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;mcpServers&quot;</span>: {
     <span class="tok-key">&quot;precept&quot;</span>: {
@@ -137,8 +137,8 @@ Claude Code and other clients that read it:</p>
   }
 }</code></pre>
 
-<p>To skip the install entirely, use <code>&quot;command&quot;: &quot;dnx&quot;</code> with
-<code>&quot;args&quot;: [&quot;Precept.Mcp&quot;, &quot;--yes&quot;]</code> — the package is fetched and run on demand.</p>
+<p>To skip the install entirely, use <code>&quot;command&quot;: &quot;dnx&quot;</code> with <code>&quot;args&quot;: [&quot;Precept.Mcp&quot;, &quot;--yes&quot;]</code>. The
+package is then fetched and run on demand.</p>
 <h2 id="what-it-does">What it does<a class="anchor" href="#what-it-does" aria-label="Link to this section">#</a></h2>
 <div class="table-wrap"><table>
 <thead>
@@ -150,7 +150,7 @@ Claude Code and other clients that read it:</p>
 <tbody>
 <tr>
 <td><code>precept_diagnose_project</code></td>
-<td>Feature files that generate no code-behind, duplicate scenarios from a stray <code>.feature</code> under <code>bin</code>, settings that never reach the test binary, test data files that never reach it either, <code>dotnet test</code> pointed at the wrong runner, a <code>.runsettings</code> nothing reads, an environment with no overlay, a reporter the CI gate will drop.</td>
+<td>Feature files that generate no code-behind, duplicate scenarios from a stray <code>.feature</code> under <code>bin</code>, settings or test data files that never reach the test binary, <code>dotnet test</code> pointed at the wrong runner, a <code>.runsettings</code> nothing reads, an environment with no overlay, a reporter the CI gate will drop.</td>
 </tr>
 <tr>
 <td><code>precept_explain_environment</code></td>
@@ -166,11 +166,11 @@ Claude Code and other clients that read it:</p>
 </tr>
 <tr>
 <td><code>precept_explain_module</code></td>
-<td>What a module is for, its one-line registration, its entry point and settings section with the real defaults, the assertions it adds — and which modules a project already references, registers and configures.</td>
+<td>What a module is for, its registration, its entry point and settings section with the real defaults, the assertions it adds, and which modules the project already references, registers and configures.</td>
 </tr>
 <tr>
 <td><code>precept_explain_testdata</code></td>
-<td>How <code>Precept.TestData</code> is used — files and overlays, <code>{{token}}</code> generators, the type-to-set convention, factories and pools — plus what the project already has and whether its data files reach the output directory.</td>
+<td>How <code>Precept.TestData</code> is used: files and overlays, <code>{{token}}</code> generators, the type-to-set convention, factories and pools, plus what the project already has and whether its data files reach the output directory.</td>
 </tr>
 <tr>
 <td><code>precept_validate_filter</code></td>
@@ -178,37 +178,33 @@ Claude Code and other clients that read it:</p>
 </tr>
 </tbody>
 </table></div>
-<p>Every check is one of Precept's <em>silent</em> failure modes — the ones where the build is green, the run
-is green, and the answer is quietly wrong. A compiler error needs no help. The explanations are
-there for the same reason: a convention, a precedence order or a copy step that is nowhere in the
-project's own source is the thing an agent guesses at, and guesses wrong.</p>
+<p>Every check targets one of Precept's <em>silent</em> failure modes, where the build is green, the run is
+green, and the answer is quietly wrong. The explanations cover the conventions and precedence rules
+that are nowhere in the project's own source, which is what an agent otherwise guesses at.</p>
 <p>The server is read-only. It reports each finding with the edit that would fix it and leaves the
 edit to you.</p>
 <h2 id="which-precept-is-answering">Which Precept is answering<a class="anchor" href="#which-precept-is-answering" aria-label="Link to this section">#</a></h2>
-<p>The server references <strong>every</strong> Precept package, not just <code>Precept.Core</code>, and reads the answers out
-of those assemblies: settings sections with their real defaults, the assertions each module adds,
-the test data naming convention, which <code>{{token}}</code> names are built in. Nothing here is a
-transcription that a release can quietly falsify.</p>
-<p>A tool package bundles its dependencies, so the server carries its own copy of them and answers
-out of that: the filter parser, the environment order and the settings names it reports are the
-server's version, not necessarily the project's. A global install is one version for the whole
-machine, which is how a second repository on a second Precept version gets answered for by the
-first.</p>
-<p>The server says so rather than leaving you to find out. Every answer names the version behind it,
-and <code>precept_diagnose_project</code> reports <code>PMCP008</code> when the two are far enough apart to disagree. To
-pin the server to a project instead, run it per invocation:</p>
+<p>The server references every Precept package and reads its answers out of those assemblies:
+settings sections with their real defaults, the assertions each module adds, the test data naming
+convention, and which <code>{{token}}</code> names are built in.</p>
+<p>A tool package bundles its dependencies, so the server answers from <em>its</em> version of Precept, not
+necessarily the project's. A global install is one version for the whole machine, so it can answer
+a second repository with the first one's rules. Every answer names the version behind it, and
+<code>precept_diagnose_project</code> reports <code>PMCP008</code> when the two are far enough apart to disagree. To pin
+the server to a project, run it per invocation:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;mcpServers&quot;</span>: {
     <span class="tok-key">&quot;precept&quot;</span>: { <span class="tok-key">&quot;command&quot;</span>: <span class="tok-str">&quot;dnx&quot;</span>, <span class="tok-key">&quot;args&quot;</span>: [<span class="tok-str">&quot;Precept.Mcp@0.10.0&quot;</span>, <span class="tok-str">&quot;--yes&quot;</span>] }
   }
 }</code></pre>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
-Full documentation: <a href="configuration.html#configuration">configuration</a> ·
-<a href="azure-devops.html#environments">environments</a> ·
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
+Full documentation: <a href="coding-agents.html#working-with-a-coding-agent">working with a coding agent</a> ·
+<a href="configuration.html#configuration">configuration</a> ·
+<a href="environments.html#environments">environments</a> ·
 <a href="execution-model.html#execution-model">execution model</a> ·
 <a href="filtering.html#filtering">filtering</a> ·
-<a href="azure-devops.html#reporting">reporting</a></p>
+<a href="reporting.html#reporting">reporting</a></p>
 
     </article>
 

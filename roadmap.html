@@ -116,8 +116,12 @@
     <article class="prose">
       <h1 id="not-yet-built">Not yet built</h1>
 <ul>
-<li><strong>Broker transports.</strong> <code>Precept.Grpc</code> covers gRPC; Kafka, RabbitMQ and Azure Service Bus would land as a <code>Precept.Messaging</code> package over the same <code>Precept.Containers</code> foundation.</li>
-<li><strong>Assertions over gRPC and the database.</strong> <a href="assertions.html#assertions">Assertions</a> cover values, the page and HTTP responses. <code>Precept.Grpc</code> and <code>Precept.Data</code> still carry the older helpers that throw on their own — <code>Rpc.ShouldFailAsync</code>, <code>Status.ShouldHaveDetailContaining</code>, <code>Db.ShouldReturnRowCountAsync</code> — and are the next two modules to move onto <code>Subject&lt;T&gt;</code>.</li>
+<li><strong>Broker transports.</strong> <code>Precept.Grpc</code> covers gRPC. Kafka, RabbitMQ and Azure Service Bus would
+land as a <code>Precept.Messaging</code> package on the same <code>Precept.Containers</code> foundation.</li>
+<li><strong>Assertions over gRPC and the database.</strong> <a href="assertions.html#assertions">Assertions</a> cover values,
+the page and HTTP responses. <code>Precept.Grpc</code> and <code>Precept.Data</code> still carry older helpers that throw
+on their own, such as <code>Rpc.ShouldFailAsync</code>, <code>Status.ShouldHaveDetailContaining</code> and
+<code>Db.ShouldReturnRowCountAsync</code>. They are the next two modules to move onto <code>Subject&lt;T&gt;</code>.</li>
 </ul>
 
     </article>

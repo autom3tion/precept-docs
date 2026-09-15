@@ -115,7 +115,7 @@
   <main id="content">
     <article class="prose">
       <h1 id="precept.screenplay">Precept.Screenplay</h1>
-<p>The screenplay pattern for Precept: an <strong>actor</strong> holds the <strong>abilities</strong> they were granted, performs
+<p>The screenplay pattern for Precept. An <strong>actor</strong> holds the <strong>abilities</strong> they were granted, performs
 <strong>interactions</strong> against <strong>targets</strong>, and is asked <strong>questions</strong> about what they can see.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Screenplay</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">using</span> Precept.Screenplay;
@@ -131,13 +131,15 @@
 
 <span class="tok-keyword">await</span> Assert.That(alice.Sees(Dashboard.Greeting)).ToHaveTextAsync(<span class="tok-str">&quot;Hello, Ada&quot;</span>);</code></pre>
 
-<p>There is nothing to register: an actor is created inside a test and belongs to it. The package brings
-<code>Precept.Web</code> with it, which is what the browser interactions are carried out through — a suite that
-drives a browser through page objects installs that one on its own and is offered none of this.</p>
-<p>It replaces nothing. Page objects and screenplay can share a project, and <code>actor.Sees(target)</code> hands
-back a Playwright locator, so the assertions are the same ones <code>Precept.Web</code> already has.</p>
+<p>There is nothing to register. An actor is created inside a test and belongs to it. The package
+brings <code>Precept.Web</code> with it, which is what the browser interactions run through. A suite that
+drives a browser through page objects installs <code>Precept.Web</code> on its own and is offered none of
+this.</p>
+<p>Screenplay replaces nothing. Page objects and screenplay can share a project, and
+<code>actor.Sees(target)</code> returns a Playwright locator, so the assertions are the same ones
+<code>Precept.Web</code> already has.</p>
 <hr />
-<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test automation framework.
+<p>Part of <strong><a href="index.html">Precept</a></strong>, a .NET 10 test framework built on Microsoft.Testing.Platform.
 Full documentation: <a href="screenplay.html#screenplay">screenplay</a> ·
 <a href="screenplay.html#interactions">interactions</a> ·
 <a href="screenplay.html#questions-and-assertions">questions and assertions</a> ·

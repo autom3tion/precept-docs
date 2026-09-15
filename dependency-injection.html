@@ -115,7 +115,8 @@
   <main id="content">
     <article class="prose">
       <h1 id="dependency-injection">Dependency injection</h1>
-<p>Registrations go in one place — the <code>IServiceCollection</code> above — and reach both plain C# tests and Reqnroll step definitions.</p>
+<p>Registrations go in one place, the <code>IServiceCollection</code> in <a href="startup.html">startup</a>, and they reach
+both plain C# tests and Reqnroll step definitions.</p>
 <p>Each test runs in its own DI scope, so the lifetimes mean what you would expect:</p>
 <div class="table-wrap"><table>
 <thead>
@@ -139,7 +140,9 @@
 </tr>
 </tbody>
 </table></div>
-<p>Step definitions take their dependencies through the constructor. Precept builds <code>[Binding]</code> classes out of its own container, so a step class can mix both sides — a page object from <code>ConfigureServices</code>, a <code>ScenarioContext</code> from Reqnroll:</p>
+<p>Step definitions take their dependencies through the constructor. Precept builds <code>[Binding]</code>
+classes from its own container, so a step class can take a page object from <code>ConfigureServices</code> and
+a <code>ScenarioContext</code> from Reqnroll in the same constructor:</p>
 <pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
 <span class="tok-keyword">public</span> <span class="tok-keyword">class</span> WebSteps(SignInPage signIn, ScenarioContext scenario)
 {
@@ -147,9 +150,15 @@
     <span class="tok-keyword">public</span> Task WhenISignIn(<span class="tok-keyword">string</span> user) =&gt; signIn.SignInAsync(user, <span class="tok-str">&quot;secret&quot;</span>);
 }</code></pre>
 
-<p>One instance of a binding class serves the whole scenario, as it does under Reqnroll's own container, so field state survives from step to step. A binding class that is <code>IDisposable</code> is disposed with the test. Registering a type with Reqnroll directly — from your own plugin or a <code>[BeforeScenario]</code> hook — still wins for that type.</p>
+<p>One instance of a binding class serves the whole scenario, as under Reqnroll's own container, so
+field state survives from step to step. A binding class that is <code>IDisposable</code> is disposed with the
+test. A type registered with Reqnroll directly, from your own plugin or a <code>[BeforeScenario]</code> hook,
+still wins for that type.</p>
 <h2 id="page-objects">Page objects<a class="anchor" href="#page-objects" aria-label="Link to this section">#</a></h2>
-<p>A page object takes an <code>IPageContext</code> — registered scoped by <code>AddPreceptWeb()</code>, as is the <code>PageContext</code> class behind it, both resolving to one instance per test — and reads <code>Page</code> from it where it uses it. Locators are then plain properties, and no method on a page object has to be <code>async</code> just to reach the browser:</p>
+<p>A page object takes an <code>IPageContext</code> and reads <code>Page</code> from it wherever it uses it. <code>AddPreceptWeb()</code>
+registers <code>IPageContext</code> and the <code>PageContext</code> class behind it as scoped, so both resolve to one
+instance per test. Locators are then plain properties, and no method on a page object has to be
+<code>async</code> just to reach the browser:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">sealed</span> <span class="tok-keyword">class</span> SignInPage(IPageContext context)
 {
     <span class="tok-keyword">public</span> ILocator Heading =&gt; context.Page.Locator(<span class="tok-str">&quot;#heading&quot;</span>);
@@ -167,17 +176,24 @@
 <span class="tok-keyword">public</span> Task ThenThePageShouldSay(<span class="tok-keyword">string</span> expected) =&gt;
     Assert.That(signIn.Result, <span class="tok-str">&quot;the page&quot;</span>).ToHaveTextAsync(expected);</code></pre>
 
-<p>The indirection is what makes moving between tabs work. Assign <code>Page</code> and every page object holding that context follows, because each one re-reads the property — including one that took the class where another took the interface:</p>
+<p>Reading <code>Page</code> on every use is what makes moving between tabs work. Assign <code>Page</code> and every page
+object holding that context follows, because each one re-reads the property:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> popup = <span class="tok-keyword">await</span> context.Page.RunAndWaitForPopupAsync(() =&gt; context.Page.ClickAsync(<span class="tok-str">&quot;#invoice&quot;</span>));
 context.Page = popup;                      <span class="tok-comment">// or: await context.NewPageAsync();</span></code></pre>
 
-<p>Read <code>context.Page</code> per use rather than copying it into a field in the constructor — a stored page keeps pointing at the tab it was, which is the staleness this type exists to avoid.</p>
-<p>The same assignment is how a scenario with two signed-in users works. Each user is a <a href="browsers.html#more-than-one-user-in-a-scenario">session</a> of its own, and pointing the context at one of them points every page object at that user:</p>
+<p>Do not copy <code>context.Page</code> into a field in the constructor. A stored page keeps pointing at the tab
+it was, which is exactly the staleness this type exists to avoid.</p>
+<p>The same assignment is how a scenario with two signed-in users works. Each user is a
+<a href="browsers.html#more-than-one-user-in-a-scenario">session</a> of its own, and pointing the context at one
+of them points every page object at that user:</p>
 <pre data-lang="csharp"><code>context.Page = (<span class="tok-keyword">await</span> Browser.StartAsync(<span class="tok-str">&quot;bob&quot;</span>)).Page;
 <span class="tok-keyword">await</span> signIn.SignInAsync(<span class="tok-str">&quot;bob&quot;</span>, password);</code></pre>
 
-<p>One context per test means the page objects move together, and that they point at one user at a time — so two users acting at the same moment, rather than in turn, is a case for their <code>IPage</code>s directly.</p>
-<p>Precept never opens a browser on its own. A session belongs to the test that started it, so the suite decides which tests pay for one — normally a tagged hook:</p>
+<p>One context per test means the page objects move together and point at one user at a time. Two
+users acting at the same moment, rather than in turn, is a case for their <code>IPage</code>s directly.</p>
+<h2 id="starting-a-browser">Starting a browser<a class="anchor" href="#starting-a-browser" aria-label="Link to this section">#</a></h2>
+<p>Precept never opens a browser on its own. A session belongs to the test that started it, so the
+suite decides which tests pay for one. Normally that is a tagged hook:</p>
 <pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
 <span class="tok-keyword">public</span> <span class="tok-keyword">class</span> BrowserHooks
 {
@@ -185,7 +201,10 @@ context.Page = popup;                      <span class="tok-comment">// or: awai
     <span class="tok-keyword">public</span> Task StartBrowser() =&gt; Browser.StartAsync();
 }</code></pre>
 
-<p><code>[BeforeTest]</code> does the same for a plain C# suite, and a step that calls <code>Browser.PageAsync()</code> or <code>Browser.GoToAsync(...)</code> starts one implicitly. A test that reaches <code>context.Page</code> having started nothing fails saying so. <code>Browser.Current</code> answers whether this test has a session without starting one.</p>
+<p><code>[BeforeTest]</code> does the same for a plain C# suite. A step that calls <code>Browser.PageAsync()</code> or
+<code>Browser.GoToAsync(...)</code> starts one implicitly. A test that reaches <code>context.Page</code> without having
+started a session fails saying so. <code>Browser.Current</code> answers whether this test has a session,
+without starting one.</p>
 
     </article>
 
@@ -200,7 +219,11 @@ context.Page = popup;                      <span class="tok-comment">// or: awai
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#page-objects">Page objects</a></li>
+<li><a href="#starting-a-browser">Starting a browser</a></li>
+</ul>
     </nav>
   </aside>
 </div>

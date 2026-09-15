@@ -115,13 +115,22 @@
   <main id="content">
     <article class="prose">
       <h1 id="containers">Containers</h1>
-<p><code>Precept.Containers</code> starts a dependency once per run and hands tests its address, falling back to a configured address so the same suite runs against a throwaway container locally and a deployed environment in CI:</p>
+<p><code>Precept.Containers</code> starts a Docker dependency through Testcontainers and hands tests its address.
+A container starts once per run, on first use, not once per test. A configured address overrides
+the container entirely, so the same suite runs against a throwaway container locally and against a
+deployed environment in CI:</p>
 <pre data-lang="csharp"><code>services.AddPreceptContainers(host =&gt; host.Register(
     <span class="tok-str">&quot;greeter&quot;</span>,
     <span class="tok-str">&quot;my/greeter:latest&quot;</span>,
     c =&gt; c.WithPortBinding(<span class="tok-number">5000</span>, <span class="tok-keyword">true</span>)
           .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(<span class="tok-number">5000</span>)),
     addressOverride: settings.Configuration[<span class="tok-str">&quot;Greeter:Address&quot;</span>]));</code></pre>
+
+<p>A test asks for the address by name. <code>ContainerHost.AddressAsync(&quot;greeter&quot;, 5000)</code> returns the
+configured address if there is one, and otherwise starts the container and returns its mapped
+address. <code>GetAsync(&quot;greeter&quot;)</code> returns the running Testcontainers <code>IContainer</code> instead.</p>
+<p>Every container is stopped when the run's service container is disposed, after <code>AfterRunAsync</code>. The
+builder callback receives Testcontainers' own builder, so every option the library has is available.</p>
 
     </article>
 

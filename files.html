@@ -115,10 +115,9 @@
   <main id="content">
     <article class="prose">
       <h1 id="files">Files</h1>
-<p>A suite that tests an import writes the spreadsheet the system under test is going to read; a suite
-that tests an export reads the one it produced back and checks the rows. <code>Precept.Files</code> is those
-two motions, for Excel workbooks, CSV files, JSON and XML documents, without a test knowing an
-OpenXML part from a shared string.</p>
+<p>A suite that tests an import writes the spreadsheet the system under test is going to read. A suite
+that tests an export reads the file it produced and checks the rows. <code>Precept.Files</code> does both, for
+Excel workbooks, CSV files, JSON and XML documents, without a test having to know the file formats.</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">public</span> <span class="tok-keyword">void</span> ConfigureServices(IServiceCollection services, PreceptSettings settings) =&gt;
     services.AddPreceptFiles();</code></pre>
 <pre data-lang="csharp"><code><span class="tok-attr">[When(&quot;the clients are imported from a spreadsheet&quot;)]</span>
@@ -135,33 +134,36 @@ OpenXML part from a shared string.</p>
     <span class="tok-keyword">await</span> Assert.That(export).ToContainRowsAsync(table.Rows);
 }</code></pre>
 
-<p>The module never references Reqnroll. It takes <strong>rows</strong>, and a row is anything dictionary-shaped —
-a Reqnroll <code>table.Rows</code>, a <a href="Precept.Data.html"><code>Db.QueryAsync</code></a> result, a list of dictionaries — or
-an object, whose public properties are the columns. One method takes all of them, so the step above
+<p>The module never references Reqnroll. It takes <strong>rows</strong>, and a row is anything dictionary-shaped: a
+Reqnroll <code>table.Rows</code>, a <a href="Precept.Data.html"><code>Db.QueryAsync</code></a> result, a list of dictionaries, or an
+object whose public properties are the columns. One method takes all of them, so the step above
 works the same in a suite with no feature files.</p>
-<p>Every type hands out what is underneath: a sheet's <code>Worksheet</code> is ClosedXML's <code>IXLWorksheet</code>, an XML
+<p>Every type hands out what is underneath. A sheet's <code>Worksheet</code> is ClosedXML's <code>IXLWorksheet</code>, an XML
 document's <code>Document</code> is an <code>XDocument</code>, a JSON document's <code>Root</code> is a <code>JsonNode</code>. Formatting,
-formulas, named ranges, LINQ to XML — nothing is fenced off.</p>
-<p>The three tabular formats — a sheet, a CSV file, a JSON array of objects — share one model and one
-set of <a href="#assertions">row assertions</a>: the first row is the header, rows are added under it by column
+formulas, named ranges and LINQ to XML are all available.</p>
+<p>The three tabular formats, a sheet, a CSV file and a JSON array of objects, share one model and one
+set of <a href="#assertions">row assertions</a>. The first row is the header, rows are added under it by column
 name, and <code>ToContainRowsAsync(table.Rows)</code> reads the same against any of them.</p>
 <h2 id="where-files-go">Where files go<a class="anchor" href="#where-files-go" aria-label="Link to this section">#</a></h2>
-<p>A bare file name — <code>clients.xlsx</code> — is written into the running test's
-<a href="artifacts-and-logging.html#artifacts-and-logging">artifact directory</a>, the directory its screenshots
-and logs already go to. It is unique to the test, so parallel scenarios writing <code>import.xlsx</code> do
-not overwrite each other, and the file is attached to the test's result: it reaches the TRX, the
+<p>A bare file name such as <code>clients.xlsx</code> is written into the running test's
+<a href="artifacts-and-logging.html#artifacts-and-logging">artifact directory</a>, where its screenshots and
+logs already go. That directory is unique to the test, so parallel scenarios writing <code>import.xlsx</code>
+do not overwrite each other. The file is attached to the test's result, so it reaches the TRX, the
 test explorer and every reporter. The path <code>SaveAsync</code> returns is the one to hand to an upload.</p>
-<p>A file is <em>read</em> from that directory first, since the file a test most often reads back is the one
-it just wrote, then from beside the test binary, where a fixture with <code>CopyToOutputDirectory</code> lands,
-then from the current directory. A rooted path is used as it is. A file found nowhere fails naming
-every place it looked.</p>
-<p>Outside a test — a run-level hook seeding an environment — there is no artifact directory, so a
-bare name is relative to the current directory, and nothing is attached.</p>
+<p>A file is <em>read</em> from three places, in order:</p>
+<ol>
+<li>the test's artifact directory, since the file a test reads back is usually the one it just wrote,</li>
+<li>beside the test binary, where a fixture with <code>CopyToOutputDirectory</code> lands,</li>
+<li>the current directory.</li>
+</ol>
+<p>A rooted path is used as it is. A file found nowhere fails, naming every place it looked.</p>
+<p>Outside a test, for example in a run-level hook seeding an environment, there is no artifact
+directory. A bare name is then relative to the current directory, and nothing is attached.</p>
 <h2 id="excel">Excel<a class="anchor" href="#excel" aria-label="Link to this section">#</a></h2>
 <h3 id="writing">Writing<a class="anchor" href="#writing" aria-label="Link to this section">#</a></h3>
-<p><code>Excel.WriteAsync</code> is the one-liner: a new workbook, one sheet, the rows, saved. The columns are
-the rows' keys in the order first seen, or the objects' properties in declaration order; the header
-is row one, in bold.</p>
+<p><code>Excel.WriteAsync</code> is the one-liner: a new workbook, one sheet, the rows, saved. The columns are the
+rows' keys in the order first seen, or the objects' properties in declaration order. The header is
+row one, in bold.</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> Excel.WriteAsync(<span class="tok-str">&quot;clients.xlsx&quot;</span>, table.Rows, sheet: <span class="tok-str">&quot;Clients&quot;</span>);
 <span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> Excel.WriteAsync(<span class="tok-str">&quot;orders.xlsx&quot;</span>, <span class="tok-keyword">await</span> Db.QueryAsync(<span class="tok-str">&quot;select * from orders&quot;</span>));
 <span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> Excel.WriteAsync(<span class="tok-str">&quot;vehicles.xlsx&quot;</span>, [<span class="tok-keyword">new</span> Vehicle { Registration = <span class="tok-str">&quot;AB12 CDE&quot;</span>, Seats = <span class="tok-number">5</span> }]);</code></pre>
@@ -177,22 +179,25 @@ workbook.Sheet(<span class="tok-str">&quot;Orders&quot;</span>)
 
 <span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> workbook.SaveAsync(<span class="tok-str">&quot;import.xlsx&quot;</span>);</code></pre>
 
-<p><code>Sheet(name)</code> returns the sheet, creating it if the workbook has none of that name; <code>Sheet()</code> is
-the first one. <code>Header</code> lays out the columns of an empty sheet before any rows arrive, for an
-importer that wants columns the rows do not all carry. <code>AddRow</code> takes an object or a dictionary,
-placed by column name, or positional cells, placed left to right. <code>ToBytes()</code> is the workbook as
-<code>.xlsx</code> bytes, for a request body that never needs a file.</p>
+<ul>
+<li><code>Sheet(name)</code> returns the sheet, creating it if the workbook has none of that name. <code>Sheet()</code> is
+the first one.</li>
+<li><code>Header</code> lays out the columns of an empty sheet before any rows arrive, for an importer that wants
+columns the rows do not all carry.</li>
+<li><code>AddRow</code> takes an object or a dictionary, placed by column name, or positional cells, placed left
+to right.</li>
+<li><code>ToBytes()</code> returns the workbook as <code>.xlsx</code> bytes, for a request body that never needs a file.</li>
+</ul>
 <p>Every cell of a Gherkin table is a string, and a sheet of text-typed numbers is what an importer
 rejects. So a text cell that unambiguously spells a number, a date or a boolean is written as one:
-<code>42</code>, <code>-1.5</code>, <code>true</code>, <code>2026-03-01</code>, <code>2026-03-01T09:30:00</code>. The rule is deliberately narrow — <code>007</code>
-stays text, because an identifier that happens to be digits must; so do <code>1,000</code>, <code>1e5</code> and any date
-not written ISO-style. <code>Files:InferCellTypes</code> turns it off for a suite whose importer wants text.
-A value that is already typed — a <code>decimal</code> from a query, a <code>DateTime</code> on an object — is written as
-what it is.</p>
+<code>42</code>, <code>-1.5</code>, <code>true</code>, <code>2026-03-01</code>, <code>2026-03-01T09:30:00</code>. The rule is deliberately narrow. <code>007</code>
+stays text, because an identifier that happens to be digits must. So do <code>1,000</code>, <code>1e5</code> and any date
+not written ISO-style. <code>Files:InferCellTypes</code> turns this off for a suite whose importer wants text.
+A value that is already typed, such as a <code>decimal</code> from a query or a <code>DateTime</code> on an object, is
+written as what it is.</p>
 <h3 id="appending">Appending<a class="anchor" href="#appending" aria-label="Link to this section">#</a></h3>
-<p>The reason this is a module and not a <code>File.WriteAllBytes</code>: a row added to a sheet the system
-under test produced goes under the columns it names, in the sheet's order, without the test knowing
-that order.</p>
+<p>A row added to a sheet the system under test produced goes under the columns it names, in the
+sheet's order, without the test knowing that order:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">using</span> <span class="tok-keyword">var</span> workbook = Excel.Open(<span class="tok-str">&quot;export.xlsx&quot;</span>);
 
 workbook.Sheet(<span class="tok-str">&quot;Clients&quot;</span>).AddRow(<span class="tok-keyword">new</span> { Email = <span class="tok-str">&quot;grace@example.test&quot;</span>, FirstName = <span class="tok-str">&quot;Grace&quot;</span>, Id = <span class="tok-number">2</span> });
@@ -201,9 +206,9 @@ workbook.Sheet(<span class="tok-str">&quot;Clients&quot;</span>).AddRow(<span cl
 
 <p>Column names match loosely: <code>First name</code>, <code>first_name</code> and <code>FirstName</code> are one column, so a table
 can name a column the way a person would and a property the way C# does. A name the header does not
-have becomes a new column on the right rather than an error — which is the behaviour a test adding
-a field wants and the behaviour a typo in a table header gets, so
-<a href="#assertions"><code>ToHaveColumnsAsync</code></a> is the check for the second.</p>
+have becomes a new column on the right rather than an error. That is what a test adding a field
+wants, and also what a typo in a table header gets, so use <a href="#assertions"><code>ToHaveColumnsAsync</code></a> to
+check for the second.</p>
 <h3 id="reading">Reading<a class="anchor" href="#reading" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> rows = Excel.Read(<span class="tok-str">&quot;export.xlsx&quot;</span>, <span class="tok-str">&quot;Clients&quot;</span>);           <span class="tok-comment">// IReadOnlyList&lt;IReadOnlyDictionary&lt;string, object?&gt;&gt;</span>
 <span class="tok-keyword">var</span> clients = Excel.Read&lt;Client&gt;(<span class="tok-str">&quot;export.xlsx&quot;</span>, <span class="tok-str">&quot;Clients&quot;</span>);   <span class="tok-comment">// columns matched to properties by name</span>
@@ -217,9 +222,9 @@ sheet.Rows();         <span class="tok-comment">// every row, as a case-insensit
 sheet.Rows&lt;Client&gt;(); <span class="tok-comment">// every row, as an object</span>
 sheet.Value(<span class="tok-str">&quot;B2&quot;</span>);    <span class="tok-comment">// one cell</span></code></pre>
 
-<p>Cells come back as the sheet holds them: a number as a <code>double</code> — Excel has no other kind — a date
-as a <code>DateTime</code>, a boolean as a <code>bool</code>, a blank as <code>null</code>. <code>Rows&lt;T&gt;()</code> converts on the way into a
-property, so a <code>double</code> lands in an <code>int</code>, a date in a <code>DateOnly</code> and text in an enum. <code>Excel.Open</code>
+<p>Cells come back as the sheet holds them: a number as a <code>double</code>, because Excel has no other kind, a
+date as a <code>DateTime</code>, a boolean as a <code>bool</code>, a blank as <code>null</code>. <code>Rows&lt;T&gt;()</code> converts on the way into
+a property, so a <code>double</code> lands in an <code>int</code>, a date in a <code>DateOnly</code> and text in an enum. <code>Excel.Open</code>
 also takes a <code>Stream</code> or bytes, for a download that never touched the disk.</p>
 <h3 id="assertions">Assertions<a class="anchor" href="#assertions" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> export = Excel.Open(<span class="tok-str">&quot;export.xlsx&quot;</span>);
@@ -232,15 +237,15 @@ also takes a <code>Stream</code> or bytes, for a download that never touched the
 <span class="tok-keyword">await</span> Assert.That(sheet).ToContainRowAsync(<span class="tok-keyword">new</span> { Name = <span class="tok-str">&quot;Acme&quot;</span>, Email = <span class="tok-str">&quot;acme@example.test&quot;</span> });
 <span class="tok-keyword">await</span> Assert.That(sheet).ToContainRowsAsync(table.Rows);</code></pre>
 
-<p>Cells are compared the way a data table compares them, by the text each would show: a cell the
+<p>Cells are compared by the text each would show, the way a data table compares them. A cell the
 sheet holds as the number <code>3</code> matches the <code>| 3 |</code> a scenario wrote, <code>12.50</code> matches <code>12.5</code>, and a
-date matches its ISO spelling. <code>ToContainRowAsync</code> compares only the columns the expected row
-names, and <code>ToContainRowsAsync</code> allows rows beyond the ones expected — pair it with
-<code>ToHaveRowCountAsync</code> when the sheet must hold exactly those. A failure lists the rows that were
-missing and the rows the sheet had.</p>
+date matches its ISO spelling. <code>ToContainRowAsync</code> compares only the columns the expected row names.
+<code>ToContainRowsAsync</code> allows rows beyond the ones expected, so pair it with <code>ToHaveRowCountAsync</code>
+when the sheet must hold exactly those. A failure lists the rows that were missing and the rows the
+sheet had.</p>
 <h2 id="csv">CSV<a class="anchor" href="#csv" aria-label="Link to this section">#</a></h2>
-<p>The model is a sheet's, minus the types: the first record is the header, rows go under it by
-column name, every cell is text.</p>
+<p>The model is a sheet's, minus the types: the first record is the header, rows go under it by column
+name, and every cell is text.</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> Csv.WriteAsync(<span class="tok-str">&quot;clients.csv&quot;</span>, table.Rows);
 <span class="tok-keyword">var</span> rows = Csv.Read(<span class="tok-str">&quot;export.csv&quot;</span>);                          <span class="tok-comment">// IReadOnlyList&lt;IReadOnlyDictionary&lt;string, string&gt;&gt;</span>
 <span class="tok-keyword">var</span> clients = Csv.Read&lt;Client&gt;(<span class="tok-str">&quot;export.csv&quot;</span>);               <span class="tok-comment">// text converted into each property&#39;s type</span>
@@ -252,12 +257,12 @@ file.AddRow(<span class="tok-keyword">new</span> { Name = <span class="tok-str">
 <span class="tok-keyword">await</span> Assert.That(file).ToHaveColumnsAsync(<span class="tok-str">&quot;Name&quot;</span>, <span class="tok-str">&quot;Email&quot;</span>);
 <span class="tok-keyword">await</span> Assert.That(file).ToContainRowsAsync(table.Rows);</code></pre>
 
-<p>Reading and writing follow RFC 4180: a field holding the delimiter, a quote or a line break is
-quoted and a quote inside one is doubled, both undone on the way back in; records end in CRLF; a
-byte-order mark, either line ending and a ragged record are all read. The delimiter is
-<code>Files:CsvDelimiter</code> — a comma — unless the call names one, so a suite in a locale whose exports use
-a semicolon changes it once. <code>Csv.New()</code>, <code>Csv.Parse(text)</code> and <code>Csv.Open(stream)</code> are there for a
-file that is built up, or arrives as a download.</p>
+<p>Reading and writing follow RFC 4180. A field holding the delimiter, a quote or a line break is
+quoted, a quote inside one is doubled, and both are undone on the way back in. Records end in CRLF.
+A byte-order mark, either line ending and a ragged record are all read. The delimiter is
+<code>Files:CsvDelimiter</code>, a comma, unless the call names one, so a suite in a locale whose exports use a
+semicolon changes it once. <code>Csv.New()</code>, <code>Csv.Parse(text)</code> and <code>Csv.Open(stream)</code> cover a file that is
+built up or arrives as a download.</p>
 <h2 id="json">JSON<a class="anchor" href="#json" aria-label="Link to this section">#</a></h2>
 <h3 id="building">Building<a class="anchor" href="#building" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> order = Json.New()
@@ -269,16 +274,16 @@ file that is built up, or arrives as a download.</p>
 <span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> order.SaveAsync(<span class="tok-str">&quot;order.json&quot;</span>);</code></pre>
 
 <p><code>Json.Array(rows)</code> is the data-table shape: one object per row, property names as the columns are.
-A row's cells are text by necessity, so they are the one place text is inferred into a number, a
-boolean or a date under the same rule as a <a href="#writing">sheet's</a> — <code>Set(&quot;id&quot;, &quot;42&quot;)</code> writes the string
-it was given, and <code>Set(&quot;id&quot;, 42)</code> a number. <code>Json.From(value)</code> makes a document from an object,
-serialised with the web defaults (<code>camelCase</code>, as <code>Precept.Api</code> sends one), a dictionary, or rows.
-A <code>JsonNode</code> built by hand goes anywhere a value does.</p>
+A row's cells are text, so they are the one place text is inferred into a number, a boolean or a
+date, under the same rule as a <a href="#writing">sheet's</a>. <code>Set(&quot;id&quot;, &quot;42&quot;)</code> writes the string it was
+given, and <code>Set(&quot;id&quot;, 42)</code> writes a number. <code>Json.From(value)</code> makes a document from an object,
+serialised with the web defaults (<code>camelCase</code>, as <code>Precept.Api</code> sends one), from a dictionary, or
+from rows. A <code>JsonNode</code> built by hand goes anywhere a value does.</p>
 <h3 id="querying">Querying<a class="anchor" href="#querying" aria-label="Link to this section">#</a></h3>
 <p>Paths are the ones <code>Precept.Api</code> uses for <code>ToHaveJsonValueAsync</code>: property names joined by dots, an
-array element by its index, with or without a leading <code>$.</code> — <code>data.items.0.name</code> or
-<code>data.items[0].name</code>. A property is matched exactly first and by any case second, so a step can say
-<code>Status</code> for a <code>status</code>.</p>
+array element by its index, with or without a leading <code>$.</code>. Both <code>data.items.0.name</code> and
+<code>data.items[0].name</code> work. A property is matched exactly first and by any case second, so a step can
+say <code>Status</code> for a <code>status</code>.</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> confirmation = Json.Parse(response.Body);    <span class="tok-comment">// or Json.Load(&quot;confirmation.json&quot;), or a Stream</span>
 
 confirmation.Value(<span class="tok-str">&quot;confirmation.order&quot;</span>);        <span class="tok-comment">// &quot;42&quot; — a value as its text, null for nothing</span>
@@ -297,7 +302,7 @@ confirmation.Rows(<span class="tok-str">&quot;confirmation.lines&quot;</span>); 
 
 <span class="tok-keyword">await</span> confirmation.SaveAsync();</code></pre>
 
-<p>An index may be at most one past the end, which appends; further is an error. A <code>Remove</code> of
+<p>An index may be at most one past the end, which appends. Further is an error. A <code>Remove</code> of
 something that is not there throws rather than passing quietly.</p>
 <h3 id="assertions-1">Assertions<a class="anchor" href="#assertions-1" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(confirmation).ToHaveNodeAsync(<span class="tok-str">&quot;confirmation&quot;</span>);
@@ -308,7 +313,7 @@ something that is not there throws rather than passing quietly.</p>
 <span class="tok-keyword">await</span> Assert.That(confirmation.At(<span class="tok-str">&quot;confirmation.lines&quot;</span>)).ToHaveRowCountAsync(<span class="tok-number">2</span>);
 <span class="tok-keyword">await</span> Assert.That(confirmation.At(<span class="tok-str">&quot;confirmation.lines&quot;</span>)).ToContainRowsAsync(table.Rows);</code></pre>
 
-<p><code>ToBeEquivalentToAsync</code> ignores property order and formatting and nothing else. The row assertions
+<p><code>ToBeEquivalentToAsync</code> ignores property order and formatting, and nothing else. The row assertions
 apply to a document whose root is an array of objects, which is what <code>At(path)</code> narrows to.</p>
 <h2 id="xml">XML<a class="anchor" href="#xml" aria-label="Link to this section">#</a></h2>
 <h3 id="building-1">Building<a class="anchor" href="#building-1" aria-label="Link to this section">#</a></h3>
@@ -319,9 +324,9 @@ apply to a document whose root is an array of objects, which is what <code>At(pa
 <span class="tok-keyword">await</span> Rest.Post(<span class="tok-str">&quot;/orders&quot;</span>).WithBody(order.ToText(), <span class="tok-str">&quot;application/xml&quot;</span>).SendAsync();
 <span class="tok-keyword">var</span> path = <span class="tok-keyword">await</span> order.SaveAsync(<span class="tok-str">&quot;order.xml&quot;</span>);</code></pre>
 
-<p><code>Xml.Elements(name, rows)</code> is the data-table shape: one element per row, a child element per column
-holding the cell as text — or an attribute per column with <code>asAttributes: true</code>. A column with a
-space in its name becomes an element without one, since XML allows no other. Anything LINQ to XML
+<p><code>Xml.Elements(name, rows)</code> is the data-table shape: one element per row, with a child element per
+column holding the cell as text, or an attribute per column with <code>asAttributes: true</code>. A column with
+a space in its name becomes an element without one, since XML allows no other. Anything LINQ to XML
 builds goes into <code>Add</code> as it would into <code>XElement.Add</code>, and <code>Xml.New(XElement)</code> or
 <code>Xml.From(XDocument)</code> wraps a document built entirely that way.</p>
 <h3 id="querying-1">Querying<a class="anchor" href="#querying-1" aria-label="Link to this section">#</a></h3>
@@ -334,15 +339,16 @@ confirmation.Count(<span class="tok-str">&quot;//line&quot;</span>);
 confirmation.Exists(<span class="tok-str">&quot;//error&quot;</span>);
 confirmation.Element(<span class="tok-str">&quot;//line[1]&quot;</span>);                  <span class="tok-comment">// an XElement, for LINQ to XML from there</span></code></pre>
 
-<p>Every prefix the document declares works in an XPath as it stands: a document that says
-<code>xmlns:soap=&quot;…&quot;</code> answers <code>//soap:Body</code> with nothing registered. A <strong>default</strong> namespace is the trap
-— it has no prefix, XPath 1.0 has no way to name it, and a path that looks right finds nothing:</p>
+<p>Every prefix the document declares works in an XPath as it stands. A document that says
+<code>xmlns:soap=&quot;…&quot;</code> answers <code>//soap:Body</code> with nothing registered. A <strong>default</strong> namespace is the
+trap: it has no prefix, XPath 1.0 has no way to name it, and a path that looks right finds nothing.
+Bind a prefix to it:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> order = Xml.Load(<span class="tok-str">&quot;order.xml&quot;</span>).WithDefaultNamespace(<span class="tok-str">&quot;o&quot;</span>);   <span class="tok-comment">// binds &quot;o&quot; to the root&#39;s xmlns</span>
 order.Value(<span class="tok-str">&quot;/o:order/o:id&quot;</span>);</code></pre>
 
 <p><code>WithNamespace(prefix, uri)</code> binds any other. When a <code>Set</code>, <code>Add</code> or <code>Remove</code> selects nothing on a
-document with a default namespace and the path has no prefix, the exception says that this is the
-likely reason; so does a failing assertion.</p>
+document with a default namespace, and the path has no prefix, the exception says that this is the
+likely reason. So does a failing assertion.</p>
 <h3 id="changing-1">Changing<a class="anchor" href="#changing-1" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code>order.Set(<span class="tok-str">&quot;/order/@id&quot;</span>, <span class="tok-number">43</span>)                  <span class="tok-comment">// every element or attribute selected; a number is written as text</span>
      .Set(<span class="tok-str">&quot;//status&quot;</span>, <span class="tok-str">&quot;accepted&quot;</span>)
@@ -351,14 +357,14 @@ likely reason; so does a failing assertion.</p>
 
 <span class="tok-keyword">await</span> order.SaveAsync();                     <span class="tok-comment">// back where it was loaded from</span></code></pre>
 
-<p>A path that selects nothing throws rather than doing nothing — a test that meant to change a value
-and silently changed none would then pass for the wrong reason.</p>
+<p>A path that selects nothing throws rather than doing nothing. A test that meant to change a value
+and silently changed none would otherwise pass for the wrong reason.</p>
 <h3 id="validating">Validating<a class="anchor" href="#validating" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> errors = order.SchemaErrors(<span class="tok-str">&quot;schemas/order.xsd&quot;</span>);      <span class="tok-comment">// empty for a valid document</span>
 <span class="tok-keyword">await</span> Assert.That(order).ToBeValidAgainstAsync(<span class="tok-str">&quot;schemas/order.xsd&quot;</span>);</code></pre>
 
-<p>A schema path resolves the way a file to read does, so <code>schemas/order.xsd</code> beside the test binary
-is found by that name.</p>
+<p>A schema path resolves the way a file to read does, so <code>schemas/order.xsd</code> beside the test binary is
+found by that name.</p>
 <h3 id="assertions-2">Assertions<a class="anchor" href="#assertions-2" aria-label="Link to this section">#</a></h3>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(confirmation).ToHaveNodeAsync(<span class="tok-str">&quot;//confirmation&quot;</span>);
 <span class="tok-keyword">await</span> Assert.That(confirmation).ToHaveCountAsync(<span class="tok-str">&quot;//line&quot;</span>, <span class="tok-number">2</span>);
@@ -366,10 +372,10 @@ is found by that name.</p>
 <span class="tok-keyword">await</span> Assert.That(confirmation).ToBeEquivalentToAsync(expectedXml);
 <span class="tok-keyword">await</span> Assert.That(confirmation).ToBeValidAgainstAsync(<span class="tok-str">&quot;schemas/confirmation.xsd&quot;</span>);</code></pre>
 
-<p><code>ToBeEquivalentToAsync</code> compares what two documents <em>say</em>: indentation, comments, the XML
-declaration and attribute order are ignored, element order and text are not. A failure shows both
-documents in that normalised form. <code>Normalised()</code> on a document is the same view, for a comparison
-of your own.</p>
+<p><code>ToBeEquivalentToAsync</code> compares what two documents <em>say</em>. Indentation, comments, the XML
+declaration and attribute order are ignored; element order and text are not. A failure shows both
+documents in that normalised form. <code>Normalised()</code> on a document gives the same view, for a
+comparison of your own.</p>
 <h2 id="settings">Settings<a class="anchor" href="#settings" aria-label="Link to this section">#</a></h2>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Files&quot;</span>: {
@@ -380,14 +386,14 @@ of your own.</p>
 }</code></pre>
 
 <p>The section is registered by <code>AddPreceptFiles()</code>, so a project that never installed the module is
-never offered it. Inside a test, every entry point — <code>Excel</code>, <code>Csv</code>, <code>Json</code>, <code>Xml</code> — checks for that
-registration before doing anything else, so a suite that forgot it hears so on the first file a step
-touches, whichever kind that is, with the call to add. Outside a test — a run-level hook, a
-project's own unit tests — there is no container to have registered anything, and the defaults
-apply. <code>AttachWrittenFiles</code> off keeps a large generated file out of every report while
-still writing it where a test can find it. Like every setting, each can be overridden as
-<code>PRECEPT_FILES__INFERCELLTYPES</code>, <code>PRECEPT_FILES__ATTACHWRITTENFILES</code> and
-<code>PRECEPT_FILES__CSVDELIMITER</code> — see <a href="configuration.html#configuration">configuration</a>.</p>
+never offered it. Inside a test, every entry point (<code>Excel</code>, <code>Csv</code>, <code>Json</code>, <code>Xml</code>) checks for that
+registration before doing anything else. A suite that forgot it hears so on the first file a step
+touches, with the call to add. Outside a test, in a run-level hook or a project's own unit tests,
+there is no container to have registered anything, and the defaults apply.</p>
+<p>Turn <code>AttachWrittenFiles</code> off to keep a large generated file out of every report while still
+writing it where a test can find it. Like every setting, each can be overridden from the
+environment: <code>PRECEPT_FILES__INFERCELLTYPES</code>, <code>PRECEPT_FILES__ATTACHWRITTENFILES</code> and
+<code>PRECEPT_FILES__CSVDELIMITER</code>. See <a href="configuration.html#configuration">configuration</a>.</p>
 
     </article>
 

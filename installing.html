@@ -115,7 +115,7 @@
   <main id="content">
     <article class="prose">
       <h1 id="installing">Installing</h1>
-<p>Precept ships as a set of NuGet packages. Pick the one for what you are testing; each brings in
+<p>Precept ships as a set of NuGet packages. Pick the ones for what you are testing. Each brings in
 <code>Precept.Core</code> and everything else it needs.</p>
 <div class="table-wrap"><table>
 <thead>
@@ -127,7 +127,7 @@
 <tbody>
 <tr>
 <td><code>Precept.TestPlatform</code></td>
-<td>Run Precept tests. This is the runner — a test project starts here.</td>
+<td>Run Precept tests. This is the runner, and every test project starts here.</td>
 </tr>
 <tr>
 <td><code>Precept.Reqnroll</code></td>
@@ -179,22 +179,10 @@
 </tr>
 </tbody>
 </table></div>
-<p><code>Precept.Core</code> is published too, but referencing it directly is only useful for a library of shared
-step definitions or helpers that must not drag in the runner — or for a
-<a href="reporting.html#writing-a-reporter">reporter of your own</a>, which needs nothing else.</p>
-<p><code>Precept.Mcp</code> is published as a <strong><code>dotnet tool</code></strong>, not a library — it is a server a coding agent
-talks to, so nothing in a test project references it:</p>
-<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
-
-<p>Point an MCP client at the <code>precept-mcp</code> command, or at <code>dnx Precept.Mcp</code> to run it without
-installing anything. See <a href="Precept.Mcp.html"><code>docs/packages/Precept.Mcp.md</code></a>, and
-<a href="coding-agents.html">Working with a coding agent</a> for the skills and the Copilot agent that go with it.</p>
-<p>The tool package bundles its own <code>Precept.Core</code>, so the server answers out of <em>its</em> version rather
-than the project's — which is why a global install, being one version for the whole machine, can
-answer a second repository with the first one's rules. It reports the difference rather than hiding
-it: every answer names the version behind it, and <code>precept_diagnose_project</code> raises <code>PMCP008</code> when
-the two could disagree. <code>dnx Precept.Mcp@&lt;version&gt;</code> pins it per project.</p>
-<p>A complete test project:</p>
+<p><code>Precept.Core</code> is published too. Reference it directly only for a library of shared step definitions
+or helpers that must not depend on the runner, or for a
+<a href="reporting.html#writing-a-reporter">reporter of your own</a>.</p>
+<h2 id="a-complete-test-project">A complete test project<a class="anchor" href="#a-complete-test-project" aria-label="Link to this section">#</a></h2>
 <pre data-lang="xml"><code><span class="tok-keyword">&lt;Project</span> Sdk=<span class="tok-str">&quot;Microsoft.NET.Sdk&quot;</span><span class="tok-keyword">&gt;</span>
 
   <span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
@@ -210,25 +198,40 @@ the two could disagree. <code>dnx Precept.Mcp@&lt;version&gt;</code> pins it per
 <span class="tok-keyword">&lt;/Project</span><span class="tok-keyword">&gt;</span></code></pre>
 
 <p>That is the whole file. <code>Precept.TestPlatform</code> makes the project an executable and generates the
-entry point, so there is no <code>Main</code> and no <code>OutputType</code> to write; <code>Precept.Reqnroll</code> brings the
-code-behind generator, so <code>.feature</code> files compile on their own. The first build leaves a commented
-<code>precept.json</code> in the project — see <a href="configuration.html#configuration">Configuration</a>.</p>
-<p>One thing a NuGet package cannot do for you: <code>dotnet test</code> on the .NET 10 SDK has to be told to use
-Microsoft.Testing.Platform, and that setting lives in <code>global.json</code>. The SDK reads that file from the
-directory <code>dotnet test</code> is run in and the directories above it — not from the project's — so put it
-at the repository root, beside the solution, and merge the section into the <code>global.json</code> already
-there if the repository pins an SDK version. A copy inside the project directory works only when the
-command is run from inside that directory, and it replaces the root's SDK pin for that subtree.</p>
+entry point, so there is no <code>Main</code> and no <code>OutputType</code> to write. <code>Precept.Reqnroll</code> brings the
+code-behind generator, so <code>.feature</code> files compile on their own. The first build writes a commented
+<code>precept.json</code> into the project; see <a href="configuration.html#configuration">Configuration</a>.</p>
+<h2 id="global.json"><code>global.json</code><a class="anchor" href="#global.json" aria-label="Link to this section">#</a></h2>
+<p><code>dotnet test</code> on the .NET 10 SDK has to be told to use Microsoft.Testing.Platform, and that setting
+lives in <code>global.json</code>:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;test&quot;</span>: {
     <span class="tok-key">&quot;runner&quot;</span>: <span class="tok-str">&quot;Microsoft.Testing.Platform&quot;</span>
   }
 }</code></pre>
 
+<p>Put it at the repository root, beside the solution. If the repository already has a <code>global.json</code>
+that pins an SDK version, merge the <code>test</code> section into it.</p>
+<p>The SDK reads <code>global.json</code> from the directory you run <code>dotnet test</code> in and the directories above
+it, not from the project's directory. A copy inside the project directory only works when the
+command is run from inside that directory, and it replaces the root's SDK pin for that subtree.</p>
 <p>Without it <code>dotnet test</code> fails with <em>&quot;Testing with VSTest target is no longer supported&quot;</em>. Running
-the test binary directly — <code>dotnet run -- --list-tests</code> — works either way. <code>precept_diagnose_project</code>
-reports a missing declaration as <code>PMCP003</code>, and one that sits inside a project under a repository
-root as <code>PMCP010</code>.</p>
+the test binary directly, with <code>dotnet run -- --list-tests</code>, works either way.
+<code>precept_diagnose_project</code> reports a missing declaration as <code>PMCP003</code>, and one that sits inside a
+project under a repository root as <code>PMCP010</code>.</p>
+<h2 id="the-mcp-server">The MCP server<a class="anchor" href="#the-mcp-server" aria-label="Link to this section">#</a></h2>
+<p><code>Precept.Mcp</code> is published as a <strong><code>dotnet tool</code></strong>, not a library. It is a server a coding agent
+talks to, so nothing in a test project references it:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
+
+<p>Point an MCP client at the <code>precept-mcp</code> command, or at <code>dnx Precept.Mcp</code> to run it without
+installing anything. See <a href="Precept.Mcp.html"><code>Precept.Mcp</code></a> and
+<a href="coding-agents.html">Working with a coding agent</a> for the skills and the Copilot agent that go with it.</p>
+<p>The tool bundles its own copy of <code>Precept.Core</code>, so it answers from <em>its</em> version rather than the
+project's. A global install is one version for the whole machine, so it can answer a second
+repository with the first one's rules. Every answer names the version behind it, and
+<code>precept_diagnose_project</code> raises <code>PMCP008</code> when the two could disagree. Use
+<code>dnx Precept.Mcp@&lt;version&gt;</code> to pin it per project.</p>
 
     </article>
 
@@ -243,7 +246,12 @@ root as <code>PMCP010</code>.</p>
 
   <aside class="toc">
     <nav>
-      
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#a-complete-test-project">A complete test project</a></li>
+<li><a href="#global.json">global.json</a></li>
+<li><a href="#the-mcp-server">The MCP server</a></li>
+</ul>
     </nav>
   </aside>
 </div>

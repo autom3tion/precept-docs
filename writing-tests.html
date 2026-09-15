@@ -115,6 +115,9 @@
   <main id="content">
     <article class="prose">
       <h1 id="writing-tests">Writing tests</h1>
+<p>A Precept test is a C# method with a <code>[Test]</code> attribute, in a class with a <code>[TestSuite]</code> attribute.
+You can write those classes by hand, or let <code>Precept.Reqnroll</code> generate them from <code>.feature</code> files.
+Both kinds can live in one project.</p>
 <h2 id="gherkin">Gherkin<a class="anchor" href="#gherkin" aria-label="Link to this section">#</a></h2>
 <pre data-lang="gherkin"><code><span class="tok-attr">@smoke</span>
 <span class="tok-keyword">Scenario Outline:</span> Adding two numbers
@@ -128,11 +131,12 @@
 		| 1    | 2     | 3     |
 		| -5   | 5     | 0     |</code></pre>
 
-<p>Step definitions are ordinary Reqnroll <code>[Binding]</code> classes. Everything Reqnroll supports — data tables, <code>ScenarioContext</code>, constructor injection, hooks — works unchanged.</p>
+<p>Step definitions are ordinary Reqnroll <code>[Binding]</code> classes. Everything Reqnroll supports works
+unchanged: data tables, <code>ScenarioContext</code>, constructor injection, hooks.</p>
 <h3 id="configuring-reqnroll">Configuring Reqnroll<a class="anchor" href="#configuring-reqnroll" aria-label="Link to this section">#</a></h3>
-<p>Reqnroll is configured from the <code>Reqnroll</code> section of <code>precept.json</code>. There is no <code>reqnroll.json</code> to
-write: <code>Precept.Reqnroll</code> registers itself as the unit test provider on both sides, and the section
-carries what that file would otherwise have held.</p>
+<p>Reqnroll is configured from the <code>Reqnroll</code> section of <code>precept.json</code>. There is no <code>reqnroll.json</code>
+to write: <code>Precept.Reqnroll</code> registers itself as the unit test provider, and the section carries
+what that file would otherwise hold.</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Reqnroll&quot;</span>: {
     <span class="tok-key">&quot;MissingOrPendingStepsOutcome&quot;</span>: <span class="tok-str">&quot;Error&quot;</span>,
@@ -141,24 +145,25 @@ carries what that file would otherwise have held.</p>
   }
 }</code></pre>
 
-<p>Every key defaults to what Reqnroll itself defaults to, so a project with no section runs exactly as
-one with no <code>reqnroll.json</code> did. <a href="settings-reference.html#every-setting">Every setting</a> lists the keys,
-and the section is overlaid and overridden like any other — with one distinction worth knowing:</p>
+<p>Every key defaults to Reqnroll's own default, so a project with no section runs exactly as one with
+no <code>reqnroll.json</code>. <a href="settings-reference.html#every-setting">Every setting</a> lists the keys. The section
+is overlaid and overridden like any other, with one distinction:</p>
 <ul>
-<li><strong>Runtime keys</strong> — the binding culture, <code>StopAtFirstError</code>, the outcome of a missing step, the
-trace settings, <code>BindingAssemblies</code> — are read when the first scenario starts, out of the run's
-real configuration, so <code>precept.{environment}.json</code> and <code>PRECEPT_REQNROLL__*</code> apply to them.</li>
-<li><strong>Build-time keys</strong> — <code>FeatureLanguage</code>, <code>AllowRowTests</code>, <code>AddNonParallelizableMarkerForTags</code>,
-<code>AllowDebugGeneratedFiles</code>, <code>DisableFriendlyTestNames</code> — shape the generated code, so they are read
-from the project's <code>precept.json</code> while the feature files compile. An overlay or a variable cannot
-reach them: the code-behind is compiled once, before any environment is chosen. Editing the file
-regenerates it.</li>
+<li><strong>Runtime keys</strong> are read when the first scenario starts, from the run's real configuration. The
+binding culture, <code>StopAtFirstError</code>, the outcome of a missing step, the trace settings and
+<code>BindingAssemblies</code> are runtime keys, so <code>precept.{environment}.json</code> and <code>PRECEPT_REQNROLL__*</code>
+apply to them.</li>
+<li><strong>Build-time keys</strong> shape the generated code, so they are read from the project's <code>precept.json</code>
+while the feature files compile. <code>FeatureLanguage</code>, <code>AllowRowTests</code>,
+<code>AddNonParallelizableMarkerForTags</code>, <code>AllowDebugGeneratedFiles</code> and <code>DisableFriendlyTestNames</code>
+are build-time keys. An overlay or a variable cannot reach them, because the code-behind is
+compiled once, before any environment is chosen. Editing the file regenerates it.</li>
 </ul>
-<p>A project that still has a <code>reqnroll.json</code> keeps working. The keys the section models are taken
-from <code>precept.json</code> whether or not the file sets them; only what the section does not model —
-<code>dependencies</code>, and the Cucumber Messages <code>formatters</code> — is still read from <code>reqnroll.json</code>, which is
-the one reason to keep one. To override a key in code, register the settings the way you would
-<a href="configuration.html#your-own-settings">your own</a>, and the plugin reads that instance first:</p>
+<p>A project that still has a <code>reqnroll.json</code> keeps working. The keys the section models are always
+taken from <code>precept.json</code>. Only <code>dependencies</code> and the Cucumber Messages <code>formatters</code> are still read
+from <code>reqnroll.json</code>, which is the one reason to keep that file.</p>
+<p>To override a key in code, register the settings the way you would
+<a href="configuration.html#your-own-settings">your own</a>. The plugin reads that instance first:</p>
 <pre data-lang="csharp"><code>services.AddPreceptSettings&lt;PreceptReqnrollSettings&gt;(configure: r =&gt; r.StopAtFirstError = <span class="tok-keyword">true</span>);</code></pre>
 <h2 id="plain-c">Plain C#<a class="anchor" href="#plain-c" aria-label="Link to this section">#</a></h2>
 <pre data-lang="csharp"><code><span class="tok-attr">[TestSuite(&quot;Checkout&quot;)]</span>
@@ -196,11 +201,11 @@ the one reason to keep one. To override a key in code, register the settings the
 </tr>
 <tr>
 <td><code>[TestCase(...)]</code></td>
-<td>One test case per row; values are coerced to the parameter types. Implies <code>[Test]</code>.</td>
+<td>One test case per row; values are converted to the parameter types. Implies <code>[Test]</code>.</td>
 </tr>
 <tr>
 <td><code>[TestCategory]</code></td>
-<td>Tag for filtering and reporting.</td>
+<td>A tag for filtering and reporting.</td>
 </tr>
 <tr>
 <td><code>[Ignore]</code></td>
@@ -208,7 +213,7 @@ the one reason to keep one. To override a key in code, register the settings the
 </tr>
 <tr>
 <td><code>[Retry(n)]</code></td>
-<td>Rerun on failure <code>n</code> further times, so <code>[Retry(1)]</code> gives a failing test one more go.</td>
+<td>Rerun on failure up to <code>n</code> more times. <code>[Retry(1)]</code> gives a failing test one more go.</td>
 </tr>
 <tr>
 <td><code>[Timeout(ms)]</code></td>
@@ -228,23 +233,70 @@ the one reason to keep one. To override a key in code, register the settings the
 </tr>
 <tr>
 <td><code>[BeforeTest]</code> / <code>[AfterTest]</code></td>
-<td>Per test; the after-hook runs even on failure.</td>
+<td>Per test. The after-hook runs even on failure.</td>
 </tr>
 </tbody>
 </table></div>
-<p>Discovery is strict about what it finds, and fails the session rather than running what it could see. A hook with the wrong shape, a test taking parameters with no <code>[TestCase]</code> to supply them, and a test assembly some of whose types cannot be loaded — a referenced assembly missing from the output directory, or present at a different version from the one the project was compiled against — all stop the run with the cause on the console. A suite that lost tests to a bad restore would otherwise report green with fewer results and nothing to say why.</p>
+<p>Discovery is strict. If something is wrong with the assembly, the session fails with the cause on
+the console rather than running the tests it could see. That includes a hook with the wrong shape, a
+test taking parameters with no <code>[TestCase]</code> to supply them, and an assembly some of whose types
+cannot be loaded, for example because a referenced assembly is missing from the output directory
+or present at a different version. Without this, a suite that lost tests to a bad restore would
+report green with fewer results and nothing to say why.</p>
 <h2 id="outcomes">Outcomes<a class="anchor" href="#outcomes" aria-label="Link to this section">#</a></h2>
-<p>Throw <code>PreceptIgnoreException</code> to skip at runtime, <code>PreceptPendingException</code> for unimplemented work, <code>PreceptInconclusiveException</code> when the environment cannot produce a verdict, and <code>PreceptAssertionException</code> for assertion failures — which is what <a href="assertions.html#assertions">assertions</a> throw.</p>
+<p>A test can report an outcome other than pass or fail by throwing one of these:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Exception</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PreceptIgnoreException</code></td>
+<td>Skipped at runtime.</td>
+</tr>
+<tr>
+<td><code>PreceptPendingException</code></td>
+<td>Pending: the work is not implemented yet.</td>
+</tr>
+<tr>
+<td><code>PreceptInconclusiveException</code></td>
+<td>Inconclusive: the environment could not produce a verdict.</td>
+</tr>
+<tr>
+<td><code>PreceptAssertionException</code></td>
+<td>Failed. This is what <a href="assertions.html#assertions">assertions</a> throw.</td>
+</tr>
+</tbody>
+</table></div>
 <h2 id="test-explorer-navigation">Test explorer navigation<a class="anchor" href="#test-explorer-navigation" aria-label="Link to this section">#</a></h2>
-<p>Every discovered test reports the file and line it was written at, so &quot;Go to test&quot; in Visual Studio, Rider or the VS Code Testing pane opens the source — and for a Gherkin test that source is the <code>.feature</code> file, at the <code>Scenario:</code> line, not the generated code-behind. An <code>Examples</code> row navigates to its own line in the table.</p>
-<p>Nothing needs to be configured for this. Precept reads the test assembly's portable PDB and takes the first sequence point of each test method; Reqnroll's code-behind carries <code>#line</code> directives back into the feature file, so that sequence point already names the Gherkin. Async and iterator methods are followed onto their state machine, where the compiler actually put the body.</p>
-<p>The generated classes also carry <code>[TestSource(&quot;Features/Checkout.feature&quot;, 12)]</code>, which takes precedence and keeps navigation working for a build without symbols. The path is project-relative so generated code stays free of machine-specific directories; the runner puts the directory back from the PDB, or by searching upwards from the test binary.</p>
+<p>Every discovered test reports the file and line it was written at, so &quot;Go to test&quot; in Visual
+Studio, Rider or the VS Code Testing pane opens the source. For a Gherkin test the source is the
+<code>.feature</code> file, at the <code>Scenario:</code> line, not the generated code-behind. An <code>Examples</code> row navigates
+to its own line in the table.</p>
+<p>Nothing needs to be configured. Precept reads the test assembly's portable PDB and takes the first
+sequence point of each test method. Reqnroll's code-behind carries <code>#line</code> directives back into the
+feature file, so that sequence point already names the Gherkin. Async and iterator methods are
+followed onto their state machine, where the compiler put the body.</p>
+<p>The generated classes also carry <code>[TestSource(&quot;Features/Checkout.feature&quot;, 12)]</code>. It takes
+precedence over the PDB and keeps navigation working for a build without symbols. The path is
+project-relative, so generated code stays free of machine-specific directories; the runner works out
+the directory from the PDB, or by searching upwards from the test binary.</p>
 <p>Two things turn navigation off:</p>
 <ul>
-<li><code>&lt;DebugType&gt;none&lt;/DebugType&gt;</code>, or any build that does not put a <code>.pdb</code> beside the test binary. Embedded PDBs (<code>&lt;DebugType&gt;embedded&lt;/DebugType&gt;</code>) are read too. Plain C# tests then have no location at all; Gherkin tests fall back to the attribute.</li>
-<li>A deterministic build (<code>ContinuousIntegrationBuild=true</code>) rewrites source paths to a placeholder root. Precept checks that a path from the PDB exists before believing it, so Gherkin tests still resolve through the attribute — but plain C# tests will not resolve on the build agent. This does not affect a developer machine.</li>
+<li><code>&lt;DebugType&gt;none&lt;/DebugType&gt;</code>, or any build that does not put a <code>.pdb</code> beside the test binary.
+Embedded PDBs (<code>&lt;DebugType&gt;embedded&lt;/DebugType&gt;</code>) are read too. Plain C# tests then have no
+location at all; Gherkin tests fall back to the attribute.</li>
+<li>A deterministic build (<code>ContinuousIntegrationBuild=true</code>) rewrites source paths to a placeholder
+root. Precept checks that a path from the PDB exists before using it, so Gherkin tests still
+resolve through the attribute, but plain C# tests will not resolve on the build agent. A developer
+machine is unaffected.</li>
 </ul>
-<p>Apply <code>Precept.Generated.TestSourceAttribute</code> by hand when a test is generated by something other than Reqnroll and should point at whatever produced it. It is public for that reason and no other: it sits in its own namespace, out of IntelliSense, so it does not crowd the attributes tests are written with.</p>
+<p>Apply <code>Precept.Generated.TestSourceAttribute</code> by hand when a test is generated by something other
+than Reqnroll and should point at whatever produced it. It is public for that reason only. It sits in
+its own namespace, out of IntelliSense, so it does not crowd the attributes tests are written with.</p>
 
     </article>
 

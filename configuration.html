@@ -115,7 +115,9 @@
   <main id="content">
     <article class="prose">
       <h1 id="configuration">Configuration</h1>
-<p><code>precept.json</code> beside the test binary, overlaid in turn by <code>precept.{environment}.json</code> and <code>PRECEPT_*</code> environment variables — each one winning over the last:</p>
+<p>Precept reads its settings from <code>precept.json</code> beside the test binary. Two more sources overlay it,
+each one winning over the last:</p>
+<pre><code>precept.json  →  precept.{environment}.json  →  PRECEPT_* environment variables</code></pre>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;MaxParallelism&quot;</span>: <span class="tok-number">8</span>,
   <span class="tok-key">&quot;ParallelScope&quot;</span>: <span class="tok-str">&quot;Class&quot;</span>,
@@ -125,74 +127,87 @@
   <span class="tok-key">&quot;ConnectionStrings&quot;</span>: { <span class="tok-key">&quot;Default&quot;</span>: <span class="tok-str">&quot;Host=localhost;Database=app&quot;</span> }
 }</code></pre>
 
-<p>Comments and trailing commas are allowed in these files; .NET's JSON configuration provider skips them.</p>
-<p>Every setting in these files can also be set from the environment — <code>Web:Headless</code> is
-<code>PRECEPT_WEB__HEADLESS</code> — which is how a pipeline overrides a run and how a credential stays out of
-source control. <a href="environment-variables.html">Environment variables</a> is the complete
-list, with each default.</p>
-<p><code>Precept.TestPlatform</code> copies <code>precept.json</code> and every <code>precept.*.json</code> beside it to the output directory, so adding one of these files is all there is to it — no <code>&lt;None Update&gt;</code> to write. Set <code>&lt;EnablePreceptSettingsCopy&gt;false&lt;/EnablePreceptSettingsCopy&gt;</code> to take that over yourself; a file the project already gives <code>CopyToOutputDirectory</code> is left alone either way.</p>
-<p>You do not have to write the first one. A project that builds with no <code>precept*.json</code> in it gets a commented <code>precept.json</code> from the package — created and copied to the output directory in that same build, then yours to edit and commit. The file is only ever written when the project has none at all, so an existing one is never touched and a suite that keeps nothing but an overlay is left alone. Deleting the file, though, is not remembered: the next build writes it again unless the project says otherwise.</p>
+<p>Comments and trailing commas are allowed in these files. .NET's JSON configuration provider skips
+them.</p>
+<p>Every setting can also be set from the environment. <code>Web:Headless</code> becomes
+<code>PRECEPT_WEB__HEADLESS</code>. That is how a pipeline overrides a run, and how a credential stays out of
+source control. <a href="environment-variables.html">Environment variables</a> is the complete list, with each
+default.</p>
+<h2 id="getting-the-files-into-the-output-directory">Getting the files into the output directory<a class="anchor" href="#getting-the-files-into-the-output-directory" aria-label="Link to this section">#</a></h2>
+<p><code>Precept.TestPlatform</code> copies <code>precept.json</code> and every <code>precept.*.json</code> beside it to the output
+directory. Adding one of these files is all there is to it; there is no <code>&lt;None Update&gt;</code> to write.
+Set <code>&lt;EnablePreceptSettingsCopy&gt;false&lt;/EnablePreceptSettingsCopy&gt;</code> to take that over yourself. A
+file the project already gives <code>CopyToOutputDirectory</code> is left alone either way.</p>
+<p>You do not have to write the first one. A project that builds with no <code>precept*.json</code> gets a
+commented <code>precept.json</code> from the package, created and copied to the output directory in that same
+build. From then on it is yours to edit and commit. The file is only written when the project has no
+<code>precept*.json</code> at all, so an existing file is never touched, and a suite that keeps only an overlay
+is left alone. Deleting the file is not remembered, though: the next build writes it again unless
+the project says otherwise:</p>
 <pre data-lang="xml"><code><span class="tok-keyword">&lt;PropertyGroup</span><span class="tok-keyword">&gt;</span>
   <span class="tok-keyword">&lt;EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>false<span class="tok-keyword">&lt;/EnablePreceptSettingsScaffold</span><span class="tok-keyword">&gt;</span>
 <span class="tok-keyword">&lt;/PropertyGroup</span><span class="tok-keyword">&gt;</span></code></pre>
 <h2 id="completion-in-an-editor">Completion in an editor<a class="anchor" href="#completion-in-an-editor" aria-label="Link to this section">#</a></h2>
-<p>Precept publishes a JSON schema for these files, generated from the settings classes themselves, so
-every key, its type, its default and its documentation are the ones this version of Precept actually
-reads. Name it at the top of the file and an editor completes the sections, offers the values an enum
-accepts, and shows each setting's description as you type:</p>
+<p>Precept publishes a JSON schema for these files, generated from the settings classes themselves.
+Every key, its type, its default and its documentation are the ones this version of Precept reads.
+Name the schema at the top of the file and an editor completes the sections, offers the values an
+enum accepts, and shows each setting's description as you type:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;$schema&quot;</span>: <span class="tok-str">&quot;https://autom3tion.github.io/precept-docs/precept.schema.json&quot;</span>,
   <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Browser&quot;</span>: <span class="tok-str">&quot;chromium&quot;</span> }
 }</code></pre>
 
-<p>The templates and the scaffolded <code>precept.json</code> already carry that line, and it belongs in the
-<code>precept.{environment}.json</code> overlays too — they bind the same shape. Precept itself reads nothing
-from it; <code>$schema</code> is a key like any other that nothing is bound to.</p>
+<p>The templates and the scaffolded <code>precept.json</code> already carry that line. It belongs in the
+<code>precept.{environment}.json</code> overlays too, since they bind the same shape. Precept itself reads
+nothing from it; <code>$schema</code> is just a key that nothing binds to.</p>
 <p>Sections and keys the schema does not name are <strong>allowed everywhere</strong>, at the top level and inside
 any block. A suite's <a href="#your-own-settings">own settings</a> are as legitimate as Precept's, so they
-complete nothing and warn about nothing. Two things follow from that, both worth knowing:</p>
+complete nothing and warn about nothing. Two things follow from that:</p>
 <ul>
 <li><p><strong>Completion is case-sensitive, and binding is not.</strong> <code>&quot;headless&quot;</code> binds exactly as <code>&quot;Headless&quot;</code>
-does, but the schema will not have suggested it and will not describe it. Nothing is underlined —
+does, but the schema will not have suggested it and will not describe it. Nothing is underlined;
 it is simply a key the editor has nothing to say about.</p>
 </li>
-<li><p><strong>Comments come from the editor, not from the schema.</strong> Precept allows <code>//</code> comments and trailing
-commas in these files, and so does .NET's JSON configuration provider, but an editor that reads
-<code>precept.json</code> as strict JSON flags them anyway. Tell it otherwise once:</p>
+<li><p><strong>Comments are the editor's business, not the schema's.</strong> Precept and .NET's configuration
+provider both allow <code>//</code> comments and trailing commas, but an editor that reads <code>precept.json</code> as
+strict JSON flags them anyway. Tell it otherwise once:</p>
 <pre data-lang="json"><code>{ <span class="tok-key">&quot;files.associations&quot;</span>: { <span class="tok-key">&quot;precept*.json&quot;</span>: <span class="tok-str">&quot;jsonc&quot;</span> } }</code></pre>
 </li>
 </ul>
-<p>The schema is <a href="precept.schema.json">precept.schema.json</a>, and it is regenerated on every release, so
-a settings key added by a new version is offered as soon as the project is on it.
-<a href="settings-reference.html#every-setting">Every setting</a> is the same information as a file you can read
-top to bottom: one <code>precept.json</code> with every key at its default, generated from the same place.</p>
+<p>The schema is <a href="precept.schema.json">precept.schema.json</a>. It is regenerated on every release, so a
+key added by a new version is offered as soon as the project is on it.
+<a href="settings-reference.html#every-setting">Every setting</a> is the same information as one file you can
+read top to bottom: a <code>precept.json</code> with every key at its default, generated from the same place.</p>
 <h2 id="where-a-section-comes-from">Where a section comes from<a class="anchor" href="#where-a-section-comes-from" aria-label="Link to this section">#</a></h2>
-<p>One file, but not one owner. The runner owns the top level — <code>MaxParallelism</code>, <code>ParallelScope</code>,
-<code>RunTimeoutMinutes</code>, <code>DefaultTimeoutMilliseconds</code>, <code>DefaultRetries</code>, <code>ArtifactDirectory</code>, <code>Environment</code>,
-<code>IsContinuousIntegration</code> — plus <code>Filter</code>, <code>Assertions</code>, <code>Reporting</code> and <code>ConnectionStrings</code>. Those
-are on <code>PreceptSettings</code>, the object <a href="startup.html#startup">startup</a> is handed.</p>
+<p>It is one file, but not one owner.</p>
+<p>The runner owns the top level: <code>MaxParallelism</code>, <code>ParallelScope</code>, <code>RunTimeoutMinutes</code>,
+<code>DefaultTimeoutMilliseconds</code>, <code>DefaultRetries</code>, <code>ArtifactDirectory</code>, <code>Environment</code> and
+<code>IsContinuousIntegration</code>, plus the <code>Filter</code>, <code>Assertions</code>, <code>Reporting</code> and <code>ConnectionStrings</code>
+sections. Those are on <code>PreceptSettings</code>, the object <a href="startup.html#startup">startup</a> is handed.</p>
 <p>Every other section belongs to the package that reads it, and is registered by that package's
 <code>AddPrecept…</code> call: <code>Web</code> by <code>Precept.Web</code>, <code>Api</code> by <code>Precept.Api</code>, <code>Grpc</code> by <code>Precept.Grpc</code>,
-<code>TestData</code> by <code>Precept.TestData</code>, <code>Files</code> by <code>Precept.Files</code>, and each <code>Reporting:&lt;Name&gt;</code> subsection by its reporter. A browser
-setting is then versioned with the browser module, and a project that never installed one is never
-offered its settings. <code>Reqnroll</code> is the one section with no registration call: <code>Precept.Reqnroll</code>'s
-plugins read it themselves, at build time and as the first scenario starts — see
-<a href="writing-tests.html#configuring-reqnroll">configuring Reqnroll</a>.</p>
-<p>This shows up in two places, and nowhere else:</p>
+<code>TestData</code> by <code>Precept.TestData</code>, <code>Files</code> by <code>Precept.Files</code>, and each <code>Reporting:&lt;Name&gt;</code> subsection
+by its reporter. A browser setting is versioned with the browser module, and a project that never
+installed a module is never offered its settings. <code>Reqnroll</code> is the one section with no
+registration call: <code>Precept.Reqnroll</code>'s plugins read it themselves, at build time and as the first
+scenario starts. See <a href="writing-tests.html#configuring-reqnroll">configuring Reqnroll</a>.</p>
+<p>Two things follow:</p>
 <ul>
-<li><p><strong>The section is read only if the module is registered.</strong> A <code>Web</code> block in a project that never
-calls <code>AddPreceptWeb()</code> is read by nothing. Given a project, <code>precept_explain_module</code> says so for
-each module, since configuration that does nothing looks identical to configuration that works.</p>
+<li><p><strong>A section is read only if its module is registered.</strong> A <code>Web</code> block in a project that never
+calls <code>AddPreceptWeb()</code> is read by nothing. The MCP server's <code>precept_explain_module</code> says so for
+each module, because configuration that does nothing looks identical to configuration that works.</p>
 </li>
-<li><p><strong>Overriding one in code is an argument to the registration</strong>, not an assignment on
-<code>PreceptSettings</code> — see <a href="startup.html#startup">startup</a>:</p>
+<li><p><strong>Overriding a module's setting in code is an argument to its registration</strong>, not an assignment
+on <code>PreceptSettings</code>. See <a href="startup.html#startup">startup</a>:</p>
 <pre data-lang="csharp"><code>services.AddPreceptWeb(web =&gt; web.BaseUrl = stub.BaseUrl);</code></pre>
 </li>
 </ul>
-<p>The file itself is unaffected: sections sit at the top level of <code>precept.json</code> whoever owns them,
-and are overlaid and overridden by environment variables all the same way.</p>
+<p>The file itself does not care who owns what. Every section sits at the top level of <code>precept.json</code>,
+and every section is overlaid and overridden by environment variables the same way.</p>
 <h2 id="your-own-settings">Your own settings<a class="anchor" href="#your-own-settings" aria-label="Link to this section">#</a></h2>
-<p>Precept does not try to model everything a suite might need to configure — auth, tenants, feature flags, a service address. Put those in the same file under a section of your own, and bind them onto a class you write:</p>
+<p>Precept does not try to model everything a suite might need to configure: authentication, tenants,
+feature flags, a service address. Put those in the same file, under a section of your own, and bind
+them onto a class you write:</p>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Api&quot;</span>: { <span class="tok-key">&quot;BaseUrl&quot;</span>: <span class="tok-str">&quot;https://api.staging.example.com&quot;</span> },
   <span class="tok-key">&quot;Auth&quot;</span>: { <span class="tok-key">&quot;TokenEndpoint&quot;</span>: <span class="tok-str">&quot;https://id.example.com/token&quot;</span>, <span class="tok-key">&quot;ClientId&quot;</span>: <span class="tok-str">&quot;test-runner&quot;</span> }
@@ -214,16 +229,23 @@ and are overlaid and overridden by environment variables all the same way.</p>
     }
 }</code></pre>
 
-<p><code>AuthSettings</code> is then a singleton like any other, injected into step definitions, page objects and fixtures:</p>
+<p><code>AuthSettings</code> is then a singleton like any other, injected into step definitions, page objects and
+fixtures:</p>
 <pre data-lang="csharp"><code><span class="tok-attr">[Binding]</span>
 <span class="tok-keyword">public</span> <span class="tok-keyword">class</span> AuthSteps(AuthSettings auth, ITokenProvider tokens) { }</code></pre>
 
-<p>The section name defaults to the type's name without a <code>Precept</code> prefix or a <code>Settings</code>/<code>Options</code> suffix — <code>AuthSettings</code> reads <code>&quot;Auth&quot;</code>. Pass one explicitly for anything else, including nested sections:</p>
+<p>The section name defaults to the type's name without a <code>Precept</code> prefix or a <code>Settings</code>/<code>Options</code>
+suffix, so <code>AuthSettings</code> reads <code>&quot;Auth&quot;</code>. Pass a name for anything else, including nested sections:</p>
 <pre data-lang="csharp"><code>services.AddPreceptSettings&lt;AuthSettings&gt;(<span class="tok-str">&quot;Tenants:Primary&quot;</span>);
 services.AddPreceptSettings&lt;AuthSettings&gt;(configure: a =&gt; a.ClientSecret = Vault.Read(<span class="tok-str">&quot;client-secret&quot;</span>));</code></pre>
 
-<p>Custom sections get the same treatment as the built-in ones: overlaid by <code>precept.{environment}.json</code>, then overridden by environment variables — <code>PRECEPT_AUTH__CLIENTSECRET</code> sets <code>Auth:ClientSecret</code>, which is how a secret stays out of source control. Properties absent from configuration keep their defaults, so a section is optional. A <code>configure</code> callback runs after binding and wins.</p>
-<p>To read a section without registering it — to branch on it while wiring services, say — use <code>settings.GetSection&lt;T&gt;()</code>. The raw <code>IConfiguration</code> is on <code>settings.Configuration</code> if you need it.</p>
+<p>Custom sections get the same treatment as the built-in ones. They are overlaid by
+<code>precept.{environment}.json</code> and then overridden by environment variables:
+<code>PRECEPT_AUTH__CLIENTSECRET</code> sets <code>Auth:ClientSecret</code>, which is how a secret stays out of source
+control. Properties absent from configuration keep their defaults, so a section is optional. A
+<code>configure</code> callback runs after binding and wins.</p>
+<p>To read a section without registering it, for example to branch on it while wiring services, use
+<code>settings.GetSection&lt;T&gt;()</code>. The raw <code>IConfiguration</code> is on <code>settings.Configuration</code>.</p>
 
     </article>
 
@@ -240,6 +262,7 @@ services.AddPreceptSettings&lt;AuthSettings&gt;(configure: a =&gt; a.ClientSecre
     <nav>
       <p class="toc-title">On this page</p>
 <ul>
+<li><a href="#getting-the-files-into-the-output-directory">Getting the files into the output directory</a></li>
 <li><a href="#completion-in-an-editor">Completion in an editor</a></li>
 <li><a href="#where-a-section-comes-from">Where a section comes from</a></li>
 <li><a href="#your-own-settings">Your own settings</a></li>
