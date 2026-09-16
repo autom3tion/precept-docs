@@ -166,17 +166,19 @@ it runs while it keeps failing. <code>[Retry(1)]</code> runs a failing test twic
 no attribute. <code>&quot;DefaultRetries&quot;</code> in <code>precept.json</code> does the same for tests without the attribute,
 and defaults to <code>0</code>.</p>
 <p>Only hard failures are rerun. A skip or an inconclusive verdict will not change on a rerun.</p>
-<p>A test that was rerun keeps every attempt in its output. Each block is headed by the attempt it
-belongs to and how that attempt ended:</p>
-<pre><code>[Attempt 1 of 3] Failed: Expected status 200 but received 503.
+<p>A test that was rerun keeps every attempt in its output. Each block opens with the attempt it
+belongs to and closes with how that attempt ended:</p>
+<pre><code>[Attempt 1 of 3]
 Given the catalogue service is reachable
 When the client requests the catalogue
-[Attempt 2 of 3] Passed
+[Attempt 1 of 3] Failed: Expected status 200 but received 503.
+[Attempt 2 of 3]
 Given the catalogue service is reachable
-When the client requests the catalogue</code></pre>
+When the client requests the catalogue
+[Attempt 2 of 3] Passed</code></pre>
 
 <p>Without this, a scenario that failed twice and passed on the third would report one clean green
-run. The header appears only when a rerun happened, so a test that passes first time reads as it
+run. The labels appear only when a rerun happened, so a test that passes first time reads as it
 always did. A test's duration covers every attempt, including the <code>DelayMilliseconds</code> between them.</p>
 <p>The same goes for files. A rerun writes into its own directory under the test's, <code>attempt-2</code>,
 <code>attempt-3</code> and so on, instead of writing its <code>failure.png</code> and <code>trace.zip</code> over the first
