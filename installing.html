@@ -232,6 +232,48 @@ project's. A global install is one version for the whole machine, so it can answ
 repository with the first one's rules. Every answer names the version behind it, and
 <code>precept_diagnose_project</code> raises <code>PMCP008</code> when the two could disagree. Use
 <code>dnx Precept.Mcp@&lt;version&gt;</code> to pin it per project.</p>
+<h2 id="upgrading">Upgrading<a class="anchor" href="#upgrading" aria-label="Link to this section">#</a></h2>
+<p>Move every <code>Precept.*</code> package to the new version at once. They are released together and a mixed
+set is not supported.</p>
+<p>While the major version is 0, a minor release may rename an API or a setting. Plan for a short pass
+over the suite rather than a version bump on its own.</p>
+<p>After the bump, three things tell you what changed. Work through all of them:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Finds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build the solution</td>
+<td>Types and members that were renamed or removed.</td>
+</tr>
+<tr>
+<td>Compare every settings file against <a href="precept.schema.json">the schema</a></td>
+<td>Keys the new version no longer knows.</td>
+</tr>
+<tr>
+<td>Compare the values you rely on against the <a href="settings-reference.html">settings reference</a></td>
+<td>Defaults that moved.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The middle one is the one to be deliberate about. A <code>precept.json</code> key that no longer exists is not
+an error and is not underlined in an editor — the schema accepts <a href="configuration.html#configuration">your own sections</a>
+and cannot tell them from a mistake. The key simply stops doing anything, and the suite keeps
+passing with the setting ignored.</p>
+<p>Update the tooling in the same change, so it describes the version you now reference:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">npx</span> skills add autom3tion/precept-skills
+<span class="tok-keyword">dotnet</span> tool update <span class="tok-attr">--global</span> Precept.Mcp</code></pre>
+
+<p><code>precept_diagnose_project</code> reports a server that could disagree with the project as <code>PMCP008</code>. Run
+it after the upgrade, then run the suite.</p>
+<p>If <code>.feature</code> files stop producing tests, delete every <code>*.feature.cs</code> and rebuild. Reqnroll caches
+the generated code against the feature file, so a new generator does not regenerate anything by
+itself. See <a href="coding-agents.html">Working with a coding agent</a> for the <code>precept-upgrading</code> skill, which
+walks an agent through all of this.</p>
 
     </article>
 
@@ -251,6 +293,7 @@ repository with the first one's rules. Every answer names the version behind it,
 <li><a href="#a-complete-test-project">A complete test project</a></li>
 <li><a href="#global.json">global.json</a></li>
 <li><a href="#the-mcp-server">The MCP server</a></li>
+<li><a href="#upgrading">Upgrading</a></li>
 </ul>
     </nav>
   </aside>
