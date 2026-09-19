@@ -281,7 +281,7 @@ skips them, so the annotations below can stay in anything you copy.</p>
       <span class="tok-comment">// REST API version the calls ask for.</span>
       <span class="tok-key">&quot;ApiVersion&quot;</span>: <span class="tok-str">&quot;7.1&quot;</span>,
 
-      <span class="tok-comment">// Upload each failed test&#39;s captured files as attachments of its result.</span>
+      <span class="tok-comment">// Upload a test&#39;s captured files as attachments of its result.</span>
       <span class="tok-key">&quot;AttachArtifacts&quot;</span>: <span class="tok-keyword">true</span>,
 
       <span class="tok-comment">// How many results are sent per call. Results are batched so that a thousand-scenario suite</span>
@@ -603,8 +603,9 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// The position the browser reports, as LATITUDE,LONGITUDE — 51.5074,-0.1278.</span>
     <span class="tok-key">&quot;Geolocation&quot;</span>: <span class="tok-keyword">null</span>,
 
-    <span class="tok-comment">// Record the session&#39;s network traffic as a HAR file; attached to the test when it fails.</span>
-    <span class="tok-key">&quot;HarOnFailure&quot;</span>: <span class="tok-keyword">false</span>,
+    <span class="tok-comment">// When the session&#39;s network traffic is recorded as a HAR file and attached to the test. Never</span>
+    <span class="tok-comment">// by default. One of: Never, OnFailure, Always.</span>
+    <span class="tok-key">&quot;Har&quot;</span>: <span class="tok-str">&quot;Never&quot;</span>,
 
     <span class="tok-comment">// Run without a visible browser window.</span>
     <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span>,
@@ -634,8 +635,9 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// that never downloads anything.</span>
     <span class="tok-key">&quot;SaveDownloads&quot;</span>: <span class="tok-keyword">true</span>,
 
-    <span class="tok-comment">// Capture a screenshot when a test fails.</span>
-    <span class="tok-key">&quot;ScreenshotOnFailure&quot;</span>: <span class="tok-keyword">true</span>,
+    <span class="tok-comment">// When a screenshot of the page is captured and attached to the test. OnFailure by default. One</span>
+    <span class="tok-comment">// of: Never, OnFailure, Always.</span>
+    <span class="tok-key">&quot;Screenshot&quot;</span>: <span class="tok-str">&quot;OnFailure&quot;</span>,
 
     <span class="tok-comment">// Slow each Playwright operation down by this many milliseconds, for debugging.</span>
     <span class="tok-key">&quot;SlowMoMilliseconds&quot;</span>: <span class="tok-number">0</span>,
@@ -652,15 +654,17 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// midnight.</span>
     <span class="tok-key">&quot;TimezoneId&quot;</span>: <span class="tok-keyword">null</span>,
 
-    <span class="tok-comment">// Record a Playwright trace; attached to the test when it fails.</span>
-    <span class="tok-key">&quot;TraceOnFailure&quot;</span>: <span class="tok-keyword">true</span>,
+    <span class="tok-comment">// When a Playwright trace is recorded and attached to the test. OnFailure by default. One of:</span>
+    <span class="tok-comment">// Never, OnFailure, Always.</span>
+    <span class="tok-key">&quot;Trace&quot;</span>: <span class="tok-str">&quot;OnFailure&quot;</span>,
 
     <span class="tok-comment">// The user agent every page reports. Unset leaves the browser&#39;s own — and a Device&#39;s, which is</span>
     <span class="tok-comment">// part of what makes the emulation convincing.</span>
     <span class="tok-key">&quot;UserAgent&quot;</span>: <span class="tok-keyword">null</span>,
 
-    <span class="tok-comment">// Record a video of each test; attached when it fails.</span>
-    <span class="tok-key">&quot;VideoOnFailure&quot;</span>: <span class="tok-keyword">false</span>,
+    <span class="tok-comment">// When a video of the test is recorded and attached to it. Never by default. One of: Never,</span>
+    <span class="tok-comment">// OnFailure, Always.</span>
+    <span class="tok-key">&quot;Video&quot;</span>: <span class="tok-str">&quot;Never&quot;</span>,
 
     <span class="tok-comment">// Viewport height in pixels. Ignored when Resolution names one.</span>
     <span class="tok-key">&quot;ViewportHeight&quot;</span>: <span class="tok-number">800</span>,

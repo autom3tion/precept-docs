@@ -201,7 +201,7 @@
               "default": "7.1"
             },
             "AttachArtifacts": {
-              "description": "Upload each failed test's captured files as attachments of its result.",
+              "description": "Upload a test's captured files as attachments of its result.",
               "type": "boolean",
               "default": true
             },
@@ -782,9 +782,15 @@
             "null"
           ]
         },
-        "HarOnFailure": {
-          "description": "Record the session's network traffic as a HAR file; attached to the test when it fails.",
-          "type": "boolean"
+        "Har": {
+          "description": "When the session's network traffic is recorded as a HAR file and attached to the test. Never by default.",
+          "type": "string",
+          "enum": [
+            "Never",
+            "OnFailure",
+            "Always"
+          ],
+          "default": "Never"
         },
         "Headless": {
           "description": "Run without a visible browser window.",
@@ -900,10 +906,15 @@
           "type": "boolean",
           "default": true
         },
-        "ScreenshotOnFailure": {
-          "description": "Capture a screenshot when a test fails.",
-          "type": "boolean",
-          "default": true
+        "Screenshot": {
+          "description": "When a screenshot of the page is captured and attached to the test. OnFailure by default.",
+          "type": "string",
+          "enum": [
+            "Never",
+            "OnFailure",
+            "Always"
+          ],
+          "default": "OnFailure"
         },
         "SlowMoMilliseconds": {
           "description": "Slow each Playwright operation down by this many milliseconds, for debugging.",
@@ -928,10 +939,15 @@
             "null"
           ]
         },
-        "TraceOnFailure": {
-          "description": "Record a Playwright trace; attached to the test when it fails.",
-          "type": "boolean",
-          "default": true
+        "Trace": {
+          "description": "When a Playwright trace is recorded and attached to the test. OnFailure by default.",
+          "type": "string",
+          "enum": [
+            "Never",
+            "OnFailure",
+            "Always"
+          ],
+          "default": "OnFailure"
         },
         "UserAgent": {
           "description": "The user agent every page reports. Unset leaves the browser's own — and a Device's, which is part of what makes the emulation convincing.",
@@ -940,9 +956,15 @@
             "null"
           ]
         },
-        "VideoOnFailure": {
-          "description": "Record a video of each test; attached when it fails.",
-          "type": "boolean"
+        "Video": {
+          "description": "When a video of the test is recorded and attached to it. Never by default.",
+          "type": "string",
+          "enum": [
+            "Never",
+            "OnFailure",
+            "Always"
+          ],
+          "default": "Never"
         },
         "ViewportHeight": {
           "description": "Viewport height in pixels. Ignored when Resolution names one.",

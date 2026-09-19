@@ -117,8 +117,9 @@
     <article class="prose">
       <h1 id="precept.web">Precept.Web</h1>
 <p>Browser automation for Precept, built on <a href="https://playwright.dev/dotnet/">Playwright</a>. Each
-scenario gets an isolated browser context, and a failing test captures a screenshot, a trace and a
-video automatically.</p>
+scenario gets an isolated browser context, and a failing test captures a screenshot and a
+Playwright trace automatically. Video and network recording are
+<a href="browsers.html#what-a-test-records">a setting away</a>.</p>
 <pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> add package Precept.Web</code></pre>
 <pre data-lang="csharp"><code>services.AddPreceptWeb();</code></pre>
 <pre data-lang="csharp"><code><span class="tok-keyword">var</span> page = <span class="tok-keyword">await</span> Browser.PageAsync();

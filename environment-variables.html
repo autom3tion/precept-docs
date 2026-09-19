@@ -379,19 +379,24 @@ takes.</p>
 <td>Viewport height in pixels. Used when no resolution is named.</td>
 </tr>
 <tr>
-<td><code>PRECEPT_WEB__SCREENSHOTONFAILURE</code></td>
-<td><code>true</code></td>
-<td>Capture a screenshot when a test fails.</td>
+<td><code>PRECEPT_WEB__SCREENSHOT</code></td>
+<td><code>OnFailure</code></td>
+<td>When a screenshot is <a href="browsers.html#what-a-test-records">kept</a>: <code>Never</code>, <code>OnFailure</code> or <code>Always</code>.</td>
 </tr>
 <tr>
-<td><code>PRECEPT_WEB__TRACEONFAILURE</code></td>
-<td><code>true</code></td>
-<td>Record a Playwright trace, attached on failure.</td>
+<td><code>PRECEPT_WEB__TRACE</code></td>
+<td><code>OnFailure</code></td>
+<td>When a Playwright trace is kept. Same three values.</td>
 </tr>
 <tr>
-<td><code>PRECEPT_WEB__VIDEOONFAILURE</code></td>
-<td><code>false</code></td>
-<td>Record a video of each test, attached on failure.</td>
+<td><code>PRECEPT_WEB__VIDEO</code></td>
+<td><code>Never</code></td>
+<td>When a video of the test is kept. Same three values.</td>
+</tr>
+<tr>
+<td><code>PRECEPT_WEB__HAR</code></td>
+<td><code>Never</code></td>
+<td>When the session's network traffic is kept as a HAR file. Same three values.</td>
 </tr>
 </tbody>
 </table></div>
@@ -913,7 +918,7 @@ From there a missing API key <em>is</em> an error, because you have just asked t
 <tr>
 <td><code>PRECEPT_REPORTING__AZUREDEVOPS__ATTACHARTIFACTS</code></td>
 <td><code>true</code></td>
-<td>Upload each failed test's captured files.</td>
+<td>Upload a test's captured files.</td>
 </tr>
 <tr>
 <td><code>PRECEPT_REPORTING__AZUREDEVOPS__MAXATTACHMENTBYTES</code></td>

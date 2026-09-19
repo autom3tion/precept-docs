@@ -324,6 +324,78 @@ screenshot and trace.</p>
 <p>The errors are on the session as well, for a test that would rather assert on them than be failed
 by them:</p>
 <pre data-lang="csharp"><code><span class="tok-keyword">await</span> Assert.That(Browser.Current!.ConsoleErrors).ToBeEmptyAsync();</code></pre>
+<h2 id="what-a-test-records">What a test records<a class="anchor" href="#what-a-test-records" aria-label="Link to this section">#</a></h2>
+<p>A browser test can leave four kinds of file behind. Each one is a setting with the same three
+values:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Value</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Never</code></td>
+<td>Nothing is recorded.</td>
+</tr>
+<tr>
+<td><code>OnFailure</code></td>
+<td>Recorded, kept only when the test fails.</td>
+</tr>
+<tr>
+<td><code>Always</code></td>
+<td>Recorded, kept whatever the outcome.</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>The file</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Screenshot</code></td>
+<td><code>OnFailure</code></td>
+<td><code>failure.png</code>, or <code>screenshot.png</code> after a test that passed.</td>
+</tr>
+<tr>
+<td><code>Trace</code></td>
+<td><code>OnFailure</code></td>
+<td><code>trace.zip</code>, opened in the <a href="https://playwright.dev/dotnet/docs/trace-viewer">Playwright trace viewer</a>.</td>
+</tr>
+<tr>
+<td><code>Video</code></td>
+<td><code>Never</code></td>
+<td>The recording of the whole test.</td>
+</tr>
+<tr>
+<td><code>Har</code></td>
+<td><code>Never</code></td>
+<td><code>network.har</code>, the session's network traffic.</td>
+</tr>
+</tbody>
+</table></div>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Video&quot;</span>: <span class="tok-str">&quot;Always&quot;</span>, <span class="tok-key">&quot;Har&quot;</span>: <span class="tok-str">&quot;OnFailure&quot;</span> }
+}</code></pre>
+
+<p>The trace, the video and the HAR have to cover the whole test, so they run from the first line
+whenever the value is not <code>Never</code>. A failure cannot be recorded from the moment it happens. The
+value decides what becomes of the file at the end, not whether the browser was recording.</p>
+<p>Video and HAR are off because the trace already carries both the screen and the requests, and it is
+searchable. Turn the HAR on when the traffic is read somewhere else: by an API team, in a browser's
+own network panel, or by a tool that reads HARs.</p>
+<p><code>Always</code> is for a run whose files are the point: a regulated release, or a record of what was
+exercised. Every test then keeps its files, so a large suite costs a large amount of disk, and
+upload time wherever a <a href="reporting.html">reporter</a> attaches artifacts.</p>
+<p>The files land in the test's artifact directory and are listed with its result; see
+<a href="artifacts-and-logging.html">Artifacts and logging</a>. A <a href="#more-than-one-user-in-a-scenario">named session</a>
+puts its name in the file name, so <code>alice</code> and <code>bob</code> do not overwrite each other.</p>
 <h2 id="files-the-page-produced">Files the page produced<a class="anchor" href="#files-the-page-produced" aria-label="Link to this section">#</a></h2>
 <p>A file the page downloads is saved into the test's artifacts and reported with it. Playwright
 deletes a download when its context closes, which is the end of the test, so without this the
@@ -332,15 +404,6 @@ export a test just triggered would be gone by the time anyone reads the report. 
 <p>The copy is waited for as the test tears down, for no longer than <code>TimeoutMilliseconds</code>. A download
 the server never finishes sending is logged as missing from the artifacts instead of holding the
 test open.</p>
-<p><code>HarOnFailure</code> records the session's network traffic and attaches it to a failing test. After a
-passing test the recording is deleted:</p>
-<pre data-lang="json"><code>{
-  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;HarOnFailure&quot;</span>: <span class="tok-keyword">true</span> }
-}</code></pre>
-
-<p>It is off by default, because the Playwright trace already carries the requests for a failure being
-investigated in the trace viewer. A HAR is for a failure being investigated somewhere else: by an
-API team, in a browser's own network panel, or by a tool that reads HARs.</p>
 <h2 id="a-browser-somewhere-else">A browser somewhere else<a class="anchor" href="#a-browser-somewhere-else" aria-label="Link to this section">#</a></h2>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;WsEndpoint&quot;</span>: <span class="tok-str">&quot;ws://grid.internal:3000/&quot;</span> }
@@ -481,6 +544,7 @@ with a message about <code>Web:Args</code> rather than reaching a browser as a m
 <li><a href="#more-than-one-user-in-a-scenario">More than one user in a scenario</a></li>
 <li><a href="#signing-in-once">Signing in once</a></li>
 <li><a href="#what-the-page-says-about-itself">What the page says about itself</a></li>
+<li><a href="#what-a-test-records">What a test records</a></li>
 <li><a href="#files-the-page-produced">Files the page produced</a></li>
 <li><a href="#a-browser-somewhere-else">A browser somewhere else</a></li>
 <li><a href="#viewport-size">Viewport size</a></li>
