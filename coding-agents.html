@@ -120,9 +120,9 @@
 <ul>
 <li>The <a href="Precept.Mcp.html">MCP server</a> answers questions the project cannot answer for itself: which
 environment a run will use, why a green build found no tests, what a filter selects.</li>
-<li>The <strong>skills</strong> describe how to write the tests: what a test class looks like, how a feature file
-and its bindings are shaped, where a setting goes and which registration reads it, how to run and
-filter, and how each module is used. A Copilot agent and an instructions file come with them.</li>
+<li>The <strong>skills</strong> are the workflows: the steps to add a test, debug a run, migrate a suite, upgrade
+Precept and set up a pipeline. Each is one task, not one module — the API itself the agent reads
+from the MCP server and these pages. A Copilot agent and an instructions file come with them.</li>
 </ul>
 <p>The skills are published as <a href="https://github.com/autom3tion/precept-skills">autom3tion/precept-skills</a>
 in the <a href="https://agentskills.io">Agent Skills</a> format, which GitHub Copilot, Claude Code, Cursor and
@@ -133,59 +133,43 @@ other agents that read <code>SKILL.md</code> files understand:</p>
 <thead>
 <tr>
 <th>Skill</th>
-<th>Covers</th>
+<th>The agent loads it when</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>precept-tests</code></td>
-<td><code>[TestSuite]</code>/<code>[Test]</code> classes, hooks, retries, outcomes and awaited assertions. See <a href="writing-tests.html">Writing tests</a> and <a href="assertions.html">Assertions</a>.</td>
+<td><code>precept-writing-tests</code></td>
+<td>Adding or changing a test, a Gherkin step, or the setting or registration it needs. See <a href="writing-tests.html">Writing tests</a> and <a href="assertions.html">Assertions</a>.</td>
 </tr>
 <tr>
-<td><code>precept-gherkin</code></td>
-<td>A <code>.feature</code> file, its Reqnroll bindings and the <code>Reqnroll</code> section. See <a href="writing-tests.html#gherkin">Gherkin</a>.</td>
-</tr>
-<tr>
-<td><code>precept-settings</code></td>
-<td><code>precept.json</code>, overlays, <code>PRECEPT_*</code> variables, startup and your own settings. See <a href="configuration.html">Configuration</a>.</td>
-</tr>
-<tr>
-<td><code>precept-running</code></td>
-<td>Running, listing and filtering, environments and artifacts. See <a href="running.html">Running</a> and <a href="filtering.html">Filtering</a>.</td>
-</tr>
-<tr>
-<td><code>precept-modules</code></td>
-<td><code>Rest</code>, <code>Browser</code>, <code>Db</code>, <code>TestData</code>, <code>Rpc</code> and <a href="screenplay.html">screenplay</a>, one example each.</td>
-</tr>
-<tr>
-<td><code>precept-page-objects</code></td>
-<td>Page objects and components on <code>IPageContext</code>, and when to move to screenplay. See <a href="dependency-injection.html#page-objects">Dependency injection</a>.</td>
+<td><code>precept-debugging-runs</code></td>
+<td>A run fails, finds no tests, lists them twice or ignores a setting. See <a href="running.html">Running</a>.</td>
 </tr>
 <tr>
 <td><code>precept-migrating</code></td>
-<td>Moving a suite from NUnit, xUnit, MSTest, SpecFlow, FluentAssertions, Selenium or RestSharp, with every old test accounted for.</td>
+<td>Moving a suite in from NUnit, xUnit, MSTest, SpecFlow, FluentAssertions, Selenium or RestSharp.</td>
 </tr>
 <tr>
 <td><code>precept-upgrading</code></td>
-<td>Moving the suite to a newer Precept: renamed APIs, settings keys that silently stopped working, and defaults that moved. See <a href="installing.html#upgrading">Upgrading</a>.</td>
+<td>Moving the suite to a newer Precept. See <a href="installing.html#upgrading">Upgrading</a>.</td>
 </tr>
 <tr>
 <td><code>precept-pipelines</code></td>
-<td>Running the suite on Azure Pipelines with the shipped <a href="azure-devops.html">pipeline and job template</a>: settings as <code>PRECEPT_*</code> variables, TRX and attachments, exit codes.</td>
+<td>Running the suite on Azure Pipelines with the shipped <a href="azure-devops.html">pipeline and job template</a>.</td>
 </tr>
 </tbody>
 </table></div>
+<p>The installer only adds. After an update that removes a skill, delete the <code>precept-*</code> folders that
+are no longer in the published set.</p>
 <h2 id="github-copilot">GitHub Copilot<a class="anchor" href="#github-copilot" aria-label="Link to this section">#</a></h2>
 <p>Copy <code>.github/agents</code> and <code>.github/instructions</code> from the published repository into your own
 <code>.github/</code> folder, and put the skills under <code>.github/skills/</code>. The installer above already puts them
 there for Copilot.</p>
 <p>The <strong>Precept</strong> agent declares the MCP server itself, launched with <code>dnx Precept.Mcp</code>, so a project
-that adopts the agent needs no separate MCP configuration. The agent loads the matching skill before
-it acts, reads <code>precept.json</code> and your <code>IPreceptStartup</code> before writing anything, and finishes by
-listing and running the tests it changed.</p>
+that adopts the agent needs no separate MCP configuration. The agent loads the skill for the task,
+follows its steps, and finishes by running what it changed.</p>
 <h2 id="keeping-them-in-step">Keeping them in step<a class="anchor" href="#keeping-them-in-step" aria-label="Link to this section">#</a></h2>
-<p>The skills name Precept's API: the entry points, the assertions, the settings keys, the order the
-environment is resolved in. They are versioned with Precept. The published README says which
+<p>The skills name Precept's API: the entry points, the assertions, the settings keys. They are versioned with Precept. The published README says which
 Precept version it describes, and every release republishes them.</p>
 <p>Use the version your project references. If the MCP server reports a different version, trust the
 project's: that is the code the agent will compile against.</p>
