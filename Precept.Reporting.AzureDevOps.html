@@ -143,7 +143,8 @@ run. Set <code>&quot;OnlyMappedTests&quot;: true</code> if the run should contai
 (<code>^\s*(?:\[(?&lt;id&gt;\d+)\]\s*)+</code> by default), so <code>41207: A customer checks out</code> or <code>TC-41207 …</code> is
 a pattern away. See
 <a href="reporting.html#linking-scenarios-to-azure-devops-test-cases">linking scenarios to test cases</a>.</p>
-<p>Add <code>&quot;TestPlanId&quot;: 412</code>, and optionally <code>&quot;TestSuiteId&quot;</code>, to file the run under a test plan.
+<p>Add <code>&quot;TestPlanId&quot;: 412</code> to file the run under a test plan, and <code>&quot;TestSuiteId&quot;</code> to file only that
+suite and the suites below it.
 Precept then resolves the test point each scenario's work item occupies in that plan, which Azure
 DevOps requires of a planned result. A test that fills no point in the plan is left out of the run
 and counted in its comment. The token needs no scope beyond <code>Test Management</code>, though

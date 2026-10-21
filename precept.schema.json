@@ -295,7 +295,7 @@
               ]
             },
             "TestSuiteId": {
-              "description": "Suite within TestPlanId whose points the results are filed against. Optional: left unset, every point the plan has for a test case is filed, which is what a plan with one suite per feature means.",
+              "description": "Suite within TestPlanId whose points the results are filed against, together with every suite below it. Optional: left unset, the whole plan is.",
               "type": [
                 "integer",
                 "null"

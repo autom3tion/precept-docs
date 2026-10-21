@@ -606,7 +606,8 @@ run's comment:</p>
 <pre><code>Precept run 3f2a…, 240 tests against &#39;stage&#39;. 12 test(s) named no Test Case work item and were
 left out of this planned run. 3 result(s) named a Test Case with no test point in plan 412.</code></pre>
 
-<p><strong>Test suite id</strong> narrows it. Without one, a test case the plan holds in two suites, or under two
+<p><strong>Test suite id</strong> names the branch of the plan the run is for: that suite and every suite below it.
+Without one, the run covers the whole plan. A test case the branch holds in two suites, or under two
 configurations, is two planned slots, and the scenario is reported into each.</p>
 <p>Leave the plan at <code>0</code> if that is not what you want. An unplanned run still updates each Test Case's
 latest automated outcome, and it keeps the unmapped tests.</p>
@@ -754,7 +755,7 @@ queue permission can select from a dropdown.</p>
 </tr>
 <tr>
 <td>A planned run is missing most of its tests</td>
-<td>Those scenarios name no Test Case work item, or the plan holds no point for them. The run's comment says which.</td>
+<td>Those scenarios name no Test Case work item, or the plan holds no point for them under the suite the run names. The run's comment says which.</td>
 </tr>
 <tr>
 <td><code>MaxParallelism</code> looks ignored</td>

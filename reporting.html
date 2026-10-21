@@ -396,10 +396,14 @@ carry, so the mapping stays in the feature files:</p>
   }
 }</code></pre>
 
-<p><code>TestSuiteId</code> is optional and narrows the run. Without it, a test case the plan holds in two suites,
-or under two configurations, is two planned slots, and the scenario covering it is reported into
-each. Naming a suite files only that suite's point. Reading the plan's points is a test API, so
-<code>Test Management (read &amp; write)</code> is still the whole requirement.</p>
+<p><code>TestSuiteId</code> is optional. It names the branch of the plan this run is for: that suite and every
+suite below it. Without it, the run covers the whole plan. This is how one static plan serves several
+automated runs, each naming its own suite. A test case sits in the suite it was added to, not in the
+suites above it, so a suite that groups its test cases into child suites still gets every result.</p>
+<p>A test case held twice in that branch, in two suites or under two configurations, is two planned
+slots, and the scenario covering it is reported into each. Precept reads the points once per run, from
+the plan itself, so test cases shared with other plans make no difference. Reading them is a test
+API, so <code>Test Management (read &amp; write)</code> is still the whole requirement.</p>
 <p>A planned result also has to carry the test case's revision, and <em>that</em> is a work item read, a
 scope a token filing test results does not otherwise need. Precept asks for it, takes a refusal as
 the answer, and files revision 1 rather than failing the run. Azure DevOps records the number it is
