@@ -82,6 +82,7 @@
 <li><a href="execution-model.html">Execution model</a></li>
 <li><a href="filtering.html">Filtering</a></li>
 <li><a href="artifacts-and-logging.html" class="active">Artifacts and logging</a></li>
+<li><a href="dashboard.html">Watching a run</a></li>
 <li><a href="reporting.html">Reporting</a></li>
 <li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
 </ul>
@@ -103,6 +104,7 @@
 <li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
 <li><a href="Precept.Templates.html">Precept.Templates</a></li>
 <li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+<li><a href="Precept.Dashboard.html">Precept.Dashboard</a></li>
 </ul>
 <p class="nav-group">The project</p>
 <ul>
@@ -154,11 +156,43 @@
 <span class="tok-key">    publishRunAttachments</span>: true</code></pre>
 
 <p>Precept implements the platform's <code>ITrxReportCapability</code>, so a TRX also carries the declaring class name, the test's categories as <code>&lt;TestCategory&gt;</code> entries, the lines it logged as <code>&lt;StdOut&gt;</code>, and its failure split into <code>&lt;ErrorInfo&gt;&lt;Message&gt;</code> and <code>&lt;StackTrace&gt;</code>.</p>
+<h2 id="the-run-record">The run record<a class="anchor" href="#the-run-record" aria-label="Link to this section">#</a></h2>
+<p>Every local run also writes a small record of itself, in <code>PreceptRuns</code> next to the built test app, for
+example <code>bin/Debug/net10.0/PreceptRuns</code>. Each run gets a folder there named after its run ID.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run.json</code></td>
+<td>The run: its environment, start and end time, and how many tests passed, failed and were skipped.</td>
+</tr>
+<tr>
+<td><code>results.jsonl</code></td>
+<td>One line per finished test: its name, outcome, duration, attempts, failure, log and the paths of its files.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The record is for tools that show runs. You do not need to read it or configure it. The
+<a href="dashboard.html#history">dashboard</a> copies a finished run's results into its own history, so a record
+that a clean build removes is not the end of the run.</p>
+<ul>
+<li>It is not written on a build agent, or when the <code>Dashboard</code> setting is <code>Never</code>. See
+<a href="dashboard.html#turning-it-off">Turning it off</a>.</li>
+<li>Listing tests with <code>--list-tests</code> writes none.</li>
+<li>A run keeps the newest 20 records in the folder and deletes older ones when it starts.</li>
+<li>A test's log is trimmed to its last 5,000 lines in the record. The TRX has the whole log.</li>
+<li>If the record cannot be written, the run prints one warning and carries on.</li>
+</ul>
 
     </article>
 
     <nav class="pager">
-      <a class="prev" href="filtering.html"><span>Previous</span>Filtering</a><a class="next" href="reporting.html"><span>Next</span>Reporting</a>
+      <a class="prev" href="filtering.html"><span>Previous</span>Filtering</a><a class="next" href="dashboard.html"><span>Next</span>Watching a run</a>
     </nav>
 
     <footer>
@@ -174,6 +208,7 @@
 <li><a href="#seeing-the-gherkin-steps-a-scenario-ran">Seeing the Gherkin steps a scenario ran</a></li>
 <li><a href="#where-files-go">Where files go</a></li>
 <li><a href="#what-reaches-the-trx">What reaches the TRX</a></li>
+<li><a href="#the-run-record">The run record</a></li>
 </ul>
     </nav>
   </aside>

@@ -1,0 +1,981 @@
+<!doctype html>
+<html lang="en" data-page="dashboard">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watching a run · Precept</title>
+<meta name="description" content="A .NET 10 test automation framework with its own test runner and the modules an end-to-end suite needs.">
+<link rel="icon" href="assets/precept-icon.png">
+<link rel="stylesheet" href="site.css">
+<script>
+  // Applied before the first paint so a dark-mode reader never sees a white flash.
+  try {
+    var stored = localStorage.getItem('precept-theme');
+    if (stored) { document.documentElement.dataset.theme = stored; }
+  } catch (e) { /* private mode */ }
+</script>
+</head>
+<body>
+
+<a class="skip" href="#content">Skip to content</a>
+
+<header class="topbar">
+  <button class="icon-button menu" aria-label="Menu" aria-expanded="false">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <img src="assets/precept-icon.png" alt="" width="26" height="26">
+    <span>Precept</span>
+  </a>
+
+  <span class="version">0.12.1</span>
+
+  <button class="search-open" aria-label="Search the documentation">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <span>Search</span>
+    <kbd>/</kbd>
+  </button>
+
+  <button class="icon-button theme" aria-label="Switch between light and dark">
+    <svg class="sun" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="4"/><path d="M10 1v2M10 17v2M1 10h2M17 10h2M3.5 3.5l1.5 1.5M15 15l1.5 1.5M16.5 3.5L15 5M5 15l-1.5 1.5"/></svg>
+    <svg class="moon" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 12.5A7 7 0 017.5 4a7 7 0 108.5 8.5z"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">Getting started</p>
+<ul>
+<li><a href="index.html">Precept</a></li>
+<li><a href="layout.html">Layout</a></li>
+<li><a href="installing.html">Installing</a></li>
+<li><a href="project-templates.html">Project templates</a></li>
+<li><a href="running.html">Running</a></li>
+<li><a href="coding-agents.html">Working with a coding agent</a></li>
+</ul>
+<p class="nav-group">Writing tests</p>
+<ul>
+<li><a href="writing-tests.html">Writing tests</a></li>
+<li><a href="assertions.html">Assertions</a></li>
+<li><a href="screenplay.html">Screenplay</a></li>
+</ul>
+<p class="nav-group">Configuring a suite</p>
+<ul>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="settings-reference.html">Every setting</a></li>
+<li><a href="environment-variables.html">Environment variables</a></li>
+<li><a href="environments.html">Environments</a></li>
+<li><a href="startup.html">Startup</a></li>
+<li><a href="dependency-injection.html">Dependency injection</a></li>
+</ul>
+<p class="nav-group">Test data and modules</p>
+<ul>
+<li><a href="test-data.html">Test data</a></li>
+<li><a href="files.html">Files</a></li>
+<li><a href="browsers.html">Browsers</a></li>
+<li><a href="containers.html">Containers</a></li>
+</ul>
+<p class="nav-group">Execution and results</p>
+<ul>
+<li><a href="execution-model.html">Execution model</a></li>
+<li><a href="filtering.html">Filtering</a></li>
+<li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="dashboard.html" class="active">Watching a run</a></li>
+<li><a href="reporting.html">Reporting</a></li>
+<li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
+</ul>
+<p class="nav-group">Packages</p>
+<ul>
+<li><a href="Precept.TestPlatform.html">Precept.TestPlatform</a></li>
+<li><a href="Precept.Core.html">Precept.Core</a></li>
+<li><a href="Precept.Reqnroll.html">Precept.Reqnroll</a></li>
+<li><a href="Precept.Api.html">Precept.Api</a></li>
+<li><a href="Precept.Web.html">Precept.Web</a></li>
+<li><a href="Precept.Screenplay.html">Precept.Screenplay</a></li>
+<li><a href="Precept.Data.html">Precept.Data</a></li>
+<li><a href="Precept.TestData.html">Precept.TestData</a></li>
+<li><a href="Precept.Files.html">Precept.Files</a></li>
+<li><a href="Precept.Grpc.html">Precept.Grpc</a></li>
+<li><a href="Precept.Containers.html">Precept.Containers</a></li>
+<li><a href="Precept.Reporting.ReportPortal.html">Precept.Reporting.ReportPortal</a></li>
+<li><a href="Precept.Reporting.Teams.html">Precept.Reporting.Teams</a></li>
+<li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
+<li><a href="Precept.Templates.html">Precept.Templates</a></li>
+<li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+<li><a href="Precept.Dashboard.html">Precept.Dashboard</a></li>
+</ul>
+<p class="nav-group">The project</p>
+<ul>
+<li><a href="release-notes.html">Release notes</a></li>
+<li><a href="roadmap.html">Not yet built</a></li>
+</ul>
+
+    </nav>
+  </aside>
+
+  <main id="content">
+    <article class="prose">
+      <h1 id="watching-a-run">Watching a run</h1>
+<p><code>precept-dashboard</code> is a page on your own machine that shows local test runs as they happen, and
+keeps them. You can run a large suite headless and still follow which tests are running, what they
+log, and the Chromium page a test drives. Afterwards the run is still there: its results, failures
+and logs are kept for 90 days. The dashboard can also start runs for you.</p>
+<p>The page has two tabs:</p>
+<ul>
+<li><strong>Runs</strong> shows what is running now, and the runs of your listed projects from the last 90 days. A run shows its tests as
+they start and finish, their outcome and retries, and each test's log as it is written. While
+tests have browsers open, <strong>Watch browsers</strong> shows them all side by side. The page opens on this
+tab. See <a href="#runs">Runs</a>, <a href="#history">History</a> and <a href="#grid">Grid</a>.</li>
+<li><strong>Projects</strong> lists the test projects on your machine. From there you read a test's source and run
+a test, a suite or a whole project. See <a href="#projects">Projects</a>.</li>
+</ul>
+<h2 id="install-it">Install it<a class="anchor" href="#install-it" aria-label="Link to this section">#</a></h2>
+<p>It is a .NET tool, installed once per machine:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> tool install <span class="tok-attr">--global</span> Precept.Dashboard</code></pre>
+
+<p>A team that wants everyone on the same version can pin it in a tool manifest instead:</p>
+<pre data-lang="bash"><code><span class="tok-keyword">dotnet</span> new tool-manifest
+<span class="tok-keyword">dotnet</span> tool install Precept.Dashboard</code></pre>
+
+<p>Then start it with <code>dotnet precept-dashboard</code>.</p>
+<h2 id="start-it">Start it<a class="anchor" href="#start-it" aria-label="Link to this section">#</a></h2>
+<pre data-lang="bash"><code>precept-dashboard</code></pre>
+
+<p>It prints a link and opens it in your browser. The link carries a key, like
+<code>http://127.0.0.1:5123/?key=…</code>. The page works only with that key. If an editor opens instead of
+a browser, open the printed link yourself: the dashboard opens it through a small <code>.html</code> file, so
+whatever handles <code>.html</code> files gets it.</p>
+<p>Leave the dashboard running, then run your tests as usual. Your test project needs no changes and
+knows nothing about the dashboard: every local run leaves a small record beside its built app, and
+the dashboard finds the runs of the projects on its list. See <a href="#projects">Projects</a> for how a
+project gets on the list.</p>
+<p>The top bar also holds:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Control</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>⚙</strong></td>
+<td>Settings. <strong>Open tests in</strong> picks your editor. See <a href="#the-detail-panel">The detail panel</a>.</td>
+</tr>
+<tr>
+<td>Sun and moon</td>
+<td>Switches between light and dark. Your choice is remembered in this browser.</td>
+</tr>
+</tbody>
+</table></div>
+<p>If the page loses the dashboard, a banner says &quot;Connection lost. Reconnecting…&quot;. Buttons wait until
+it is back, and the page then shows everything again.</p>
+<p><code>Esc</code> closes a dialog, the detail panel, and the Grid's focused view.</p>
+<p>The dashboard answers only to the host and port in the link. It refuses any other hostname for the
+same machine.</p>
+<p>A run is usually picked up within two seconds of starting, whether the dashboard was already open
+or not, and the page shows everything the run has done so far, logs included. The first run from a
+build output folder the dashboard has not seen yet, such as a first Release build, can take up to
+half a minute to appear. Runs that ended while the dashboard was closed are added to
+<a href="#history">History</a> when it next starts.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--port &lt;n&gt;</code></td>
+<td>Listen on this port instead of a free one.</td>
+</tr>
+<tr>
+<td><code>--no-browser</code></td>
+<td>Do not open the page.</td>
+</tr>
+<tr>
+<td><code>--version</code></td>
+<td>Print the version.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Starting it a second time prints the link of the one already running, key included, and opens it.
+Use it to open the page in another browser, or after you restart yours.</p>
+<h3 id="keep-it-running">Keep it running<a class="anchor" href="#keep-it-running" aria-label="Link to this section">#</a></h3>
+<p>You can start the dashboard when you log in, so every local run shows up without you starting
+anything first. Start it with two options:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--no-browser</code></td>
+<td>No browser tab opens at every login.</td>
+</tr>
+<tr>
+<td><code>--port &lt;n&gt;</code></td>
+<td>The page keeps the same address. Your browser keeps the theme, the editor and panel widths per address, so with a new port every time they would reset.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Start it at login, as yourself, not as a Windows service or a system daemon. It runs your projects
+and reads your <code>~/.precept</code> folder, and it can reach only the runs of your own account.</p>
+<p>On Windows, create a Task Scheduler task. Run this once in PowerShell:</p>
+<pre data-lang="powershell"><code>$action   = New-ScheduledTaskAction -Execute &quot;$env:USERPROFILE\.dotnet\tools\precept-dashboard.exe&quot; -Argument &quot;--no-browser --port 5299&quot;
+$trigger  = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
+$settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+Register-ScheduledTask -TaskName &quot;Precept dashboard&quot; -Action $action -Trigger $trigger -Settings $settings</code></pre>
+
+<p>Keep <code>-ExecutionTimeLimit 0</code>. By default Task Scheduler stops a task after three days.</p>
+<p>A simpler alternative is a shortcut in the Startup folder. Press Win+R, type <code>shell:startup</code>, and
+create a shortcut with this target. Set its <strong>Run</strong> property to <strong>Minimized</strong>:</p>
+<pre data-lang="text"><code>%USERPROFILE%\.dotnet\tools\precept-dashboard.exe --no-browser --port 5299</code></pre>
+
+<p>To open the page, run <code>precept-dashboard</code>. It finds the dashboard already running and opens the
+page with the right key.</p>
+<p>Good to know:</p>
+<ul>
+<li>The dashboard keeps a console window. Closing it stops the dashboard.</li>
+<li>The key changes every time the dashboard starts. An old bookmarked link shows the locked page.
+Run <code>precept-dashboard</code> to get in again.</li>
+<li>Runs are kept on disk for 90 days. See <a href="#history">History</a>. The project list is kept on disk
+too. See <a href="#where-it-keeps-the-list">Where it keeps the list</a>.</li>
+</ul>
+<h2 id="how-it-finds-runs">How it finds runs<a class="anchor" href="#how-it-finds-runs" aria-label="Link to this section">#</a></h2>
+<p>Every local run writes a small record beside its built app and opens a pipe that only your account
+can use. See <a href="artifacts-and-logging.html#the-run-record">the run record</a>. A run does this whether or
+not a dashboard is running, and never looks for one.</p>
+<p>The dashboard looks in the output folders of the projects on its list. A run of a project that is
+not on the list is not shown. Add its folder under <a href="#adding-projects">Projects</a>.</p>
+<p>A run on a build agent, or with <code>IsContinuousIntegration</code> set, opens no pipe and writes no record,
+so the dashboard never sees it. To change that, or to turn both off on your own machine, see
+<a href="#turning-it-off">Turning it off</a>.</p>
+<h3 id="turning-it-off">Turning it off<a class="anchor" href="#turning-it-off" aria-label="Link to this section">#</a></h3>
+<p>The <code>Dashboard</code> setting in <code>precept.json</code> says whether a run opens its pipe and writes its record.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Value</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Auto</code></td>
+<td>The default. On for a local run, off on a build agent.</td>
+</tr>
+<tr>
+<td><code>Never</code></td>
+<td>Off everywhere: no pipe and no record.</td>
+</tr>
+<tr>
+<td><code>Always</code></td>
+<td>On everywhere, a build agent too.</td>
+</tr>
+</tbody>
+</table></div>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Dashboard&quot;</span>: <span class="tok-str">&quot;Never&quot;</span>
+}</code></pre>
+
+<p><code>Never</code> suits a machine whose policy does not allow programs to open local pipes, or a suite that
+does not want its test logs written down a second time. Like any setting, it can be set for one
+run with an environment variable instead: <code>PRECEPT_DASHBOARD=Never</code>.</p>
+<h2 id="runs">Runs<a class="anchor" href="#runs" aria-label="Link to this section">#</a></h2>
+<p>The <strong>Runs</strong> tab shows every run of the projects on your list, whether you started it from a
+terminal, an IDE or the Projects tab.</p>
+<ul>
+<li><strong>Now.</strong> The runs that are going, one card each. A card shows the project, the environment, when
+the run started and how long it has been going, how many tests are done, and the counts so far.</li>
+<li><strong>History.</strong> Every run the dashboard keeps, in a table. See <a href="#history">History</a>.</li>
+</ul>
+<p>A run you started from the <strong>Projects</strong> tab says so on its card, for example &quot;from Projects ·
+Checkout&quot;. Click that line to go to the project. Runs started from a terminal or an IDE have no
+such line.</p>
+<p>Before the first run the tab says &quot;No runs yet&quot;. Start one from <strong>Projects</strong>, or run your tests as
+usual.</p>
+<p>If you ran tests and nothing appeared, the project is not on the list yet. See
+<a href="#when-a-run-does-not-appear">When a run does not appear</a>.</p>
+<h3 id="opening-a-run">Opening a run<a class="anchor" href="#opening-a-run" aria-label="Link to this section">#</a></h3>
+<p>Click a card, or a row of the table, to open the run. A past run opens the same way as one that is
+running. Each run has its own address, so you can reload the page, use the browser's Back button, or
+send the link to yourself. The back arrow at the top takes you back to <strong>Runs</strong>.</p>
+<ul>
+<li><strong>Header.</strong> The project, the environment, how the run stands, and when it started. While the run
+is going, a bar shows how far it has got.</li>
+<li><strong>Tests.</strong> Running tests at the top, with their latest log line. Finished tests grouped by class,
+each with its status and duration. A retried test shows which attempt it is on.</li>
+<li><strong>Detail.</strong> Click a test to open its panel: the log, live while the test runs, its failure and
+stack trace, and its artifacts, which open from the page. See <a href="#artifacts">Artifacts</a>. <code>↑</code> and <code>↓</code>
+move between tests, and <code>Esc</code> closes the panel.</li>
+<li><strong>Browsers.</strong> A running test that drives Chromium shows a small live picture of its page. Open the
+test to watch it at full size. A test with several browser sessions gets a tab for each. Firefox
+and WebKit are not shown yet.</li>
+</ul>
+<p>A past run is loaded when you open it. Until it arrives the page says &quot;Loading the run…&quot;. If the
+dashboard no longer keeps the run, for example after you shortened how long runs are kept, it says
+&quot;This run is no longer kept.&quot;</p>
+<h3 id="history">History<a class="anchor" href="#history" aria-label="Link to this section">#</a></h3>
+<p>Under <strong>History</strong> the tab lists the runs the dashboard keeps.</p>
+<ul>
+<li>Click a column's heading to sort by it, and again to reverse the order. The table sorts the runs
+it has loaded. <strong>Show older runs</strong> loads more.</li>
+<li><strong>Project</strong> shows one project's runs, or every project's.</li>
+<li>A run that stopped before it finished says &quot;The run ended without finishing&quot;, and shows the tests
+it got to.</li>
+</ul>
+<p>Runs are kept in <code>~/.precept/dashboard.db</code>, which only you can read, for 90 days. <strong>Keep runs for</strong>,
+above the table, changes that to 30, 90 or 180 days, or a year. This is the dashboard's setting,
+not the browser's: every page open on the dashboard shares it. Choosing a shorter time deletes the
+older runs at once, and they cannot be brought back from the page.</p>
+<p>What is kept for each test: its outcome, duration, failure and log, and the paths of its artifacts.
+Screenshots, videos and traces are not copied. They stay where the run wrote them. If one has been
+deleted since, for example by a clean build, its tile says &quot;No longer on disk&quot; and still offers the
+path.</p>
+<p>If the file cannot be opened, the dashboard says why when it starts and on the <strong>Runs</strong> tab. It
+then shows runs while it is open and keeps none. A file that is not a database is kept as
+<code>dashboard.db.bak</code>. A file written by a newer dashboard is left alone.</p>
+<p>A run written by a newer Precept than the dashboard reads is listed as &quot;Written by a newer Precept&quot;,
+with no results. Update the tool.</p>
+<h3 id="filtering-tests">Filtering tests<a class="anchor" href="#filtering-tests" aria-label="Link to this section">#</a></h3>
+<p>The toolbar of an open run narrows the tests you see.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Control</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>All</strong>, <strong>Failed</strong>, <strong>Passed</strong>, <strong>Skipped</strong></td>
+<td>Shows only tests with that outcome. <strong>Skipped</strong> includes inconclusive tests. Each button shows how many tests it would show.</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>Shows only tests whose name or class contains the text. Press <code>/</code> to jump to it.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Running tests always stay visible whatever outcome you pick, so a run in progress never looks empty.
+When nothing matches, <strong>Clear the filters</strong> resets both. The search also applies in the <a href="#grid">Grid</a>.</p>
+<h2 id="grid">Grid<a class="anchor" href="#grid" aria-label="Link to this section">#</a></h2>
+<p>The Grid shows every Chromium browser that a running test has open, across all runs. Use it to
+watch a parallel run at a glance.</p>
+<p>While any test has a browser open, <strong>Runs</strong> and an open run show a <strong>Watch browsers</strong> button with
+the number of live browsers. Click it to open the Grid, and the back arrow to go back. The Grid
+stays on screen when the last browser closes. It then says &quot;No browsers open&quot;, and the back arrow takes you back.</p>
+<p>Only Chromium browsers appear for now. Firefox and WebKit get no tile yet, as in <strong>Runs</strong>.</p>
+<p>There is one tile per browser. A test with two browser sessions has two tiles.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Part of a tile</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Picture</td>
+<td>The browser's page, updated once a second.</td>
+</tr>
+<tr>
+<td>Name</td>
+<td>The test's name.</td>
+</tr>
+<tr>
+<td>Run</td>
+<td>The project and the time the run started.</td>
+</tr>
+<tr>
+<td>Clock</td>
+<td>How long the test has been running, or took.</td>
+</tr>
+<tr>
+<td>Attempt</td>
+<td>&quot;attempt 2 of 3&quot; when the test is being retried.</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>The browser session's name, when it has one.</td>
+</tr>
+<tr>
+<td>Left edge</td>
+<td>Accent while running. Green, red or amber once the test passed, failed or was skipped.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Hover over a tile, or move the focus to it, to see the test's latest log line.</p>
+<p><strong>Focus a tile.</strong> Click it to open it large, with the page at full size and the test's log beside
+it. <strong>Open in results</strong> takes you to the test in its run. Press <code>Esc</code> or <strong>Close</strong> to
+close it.</p>
+<p>The Grid keeps the search box and hides the outcome buttons, because a finished tile fades within
+seconds. Its toolbar adds:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Control</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Run list</td>
+<td>Shows all runs, or one run.</td>
+</tr>
+<tr>
+<td><strong>S</strong>, <strong>M</strong>, <strong>L</strong></td>
+<td>The tile size. <strong>M</strong> is the default. Your choice is remembered in this browser.</td>
+</tr>
+<tr>
+<td><strong>Keep finished</strong></td>
+<td>Keeps finished tests' tiles until their run ends. Without it, a finished tile stays 10 seconds, then fades out.</td>
+</tr>
+<tr>
+<td>Count</td>
+<td>How many browsers are live.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The page asks for pictures for at most 48 tiles at a time, and only for tiles on screen. Scroll to
+bring others into view.</p>
+<h2 id="projects">Projects<a class="anchor" href="#projects" aria-label="Link to this section">#</a></h2>
+<p>The <strong>Projects</strong> tab lists the Precept test projects on your machine as cards. Open one to see its
+suites and tests, and run them without a terminal.</p>
+<h3 id="adding-projects">Adding projects<a class="anchor" href="#adding-projects" aria-label="Link to this section">#</a></h3>
+<ul>
+<li><strong>Add a folder.</strong> Press <strong>+ Add folder</strong> and browse to the folder, or paste its path. See
+<a href="#the-add-folder-dialog">The Add folder dialog</a>.</li>
+</ul>
+<p>A run of a project that is not on the list is not shown. Add the project's folder first.</p>
+<p>Adding a folder asks MSBuild to evaluate each project it finds, and that runs the project's own
+MSBuild files. Add only folders you trust. Nothing is built or run until you open a project or press
+<strong>Run</strong>. An evaluation that takes longer than 2 minutes is stopped, and the card shows why. While a
+project is being read, its card says &quot;Reading project…&quot;.</p>
+<p>Projects that are not test apps are left out without a note: libraries, and executables that set
+<code>IsTestingPlatformApplication</code> to <code>false</code>. A project that has not been restored yet is listed until
+a restore shows what it is.</p>
+<p>The search skips <code>bin</code>, <code>obj</code>, <code>.git</code>, <code>node_modules</code> and hidden folders, goes 8 levels deep, and
+stops after 500 projects in one folder.</p>
+<p>To take a project off the list, press the bin button on its card and confirm with <strong>Remove</strong>. It stays
+hidden when the folder is searched again. Adding its folder again brings it back. To stop watching a folder, remove it in
+<a href="#manage-folders">Manage folders</a>. Its projects leave the list too, unless another folder you added
+still holds them. When a project leaves the list, or its project file is deleted, a run the
+dashboard started for it is stopped.</p>
+<h4 id="the-add-folder-dialog">The Add folder dialog</h4>
+<p><strong>+ Add folder</strong> opens a dialog that browses the folders of the machine the dashboard runs on.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Part</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Places</td>
+<td>Home, Desktop and Documents when they exist, the file system's roots (the drives on Windows), and the folders already on the list. A click goes there.</td>
+</tr>
+<tr>
+<td>Path</td>
+<td>Where you are, one part per folder. A click on a part goes back up to it.</td>
+</tr>
+<tr>
+<td>Path field</td>
+<td>The same folder as text. Paste a path here instead of browsing; completions appear as you type. To copy a path, Shift+right-click the folder in Explorer and choose Copy as path, or select it in Finder and press ⌥⌘C.</td>
+</tr>
+<tr>
+<td>Folders</td>
+<td>The folders inside the one you are in. A click goes in; <strong>Up</strong> goes back. Hidden folders and links are not shown. A folder with more than 500 folders shows the first 500.</td>
+</tr>
+<tr>
+<td>Found</td>
+<td>The test projects in the folder you are in, searched as you arrive.</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Add folder</strong> adds the folder you are in, and says how many test projects it found. It is off when
+there are none. For a folder already on the list it reads <strong>Search again</strong>.</p>
+<p>The dialog opens at your home folder. Arriving in a folder searches it for test projects, which
+reads folder names and project files up to eight folders deep. Home and the roots are not searched
+on arrival: go into a folder, or choose &quot;search this one for test projects&quot;. The dashboard asks
+MSBuild about a project only once its folder is added, so add only folders you trust.</p>
+<p><strong>Add</strong> names the folder it will add, for example <strong>Add &quot;samples&quot; · 1 project</strong>. Pressing Enter in
+the path field adds a path you typed or pasted there, and never a folder you only browsed to.</p>
+<p>The dialog tells you when there is no folder at that path, when it cannot read the folder, and when
+it found no test projects. If the search stops after 500 projects, the dialog says so. You can
+still add the folder, but a smaller one is better.</p>
+<p>Once added, the dialog closes, a message confirms how many projects were added, and their cards
+appear.</p>
+<h4 id="manage-folders">Manage folders</h4>
+<p><strong>Manage folders</strong> lists the folders you added. Each row shows its path, how many projects it holds
+and when it was last searched.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Button</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>↻</strong></td>
+<td>Searches the folder again. The row shows how many folders it has looked at and how many projects it has found so far.</td>
+</tr>
+<tr>
+<td><strong>✕</strong></td>
+<td>Removes the folder. If the folder holds projects, the dialog asks first.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The dialog also has <strong>+ Add folder</strong>.</p>
+<h3 id="what-a-card-shows">What a card shows<a class="anchor" href="#what-a-card-shows" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Part</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name and path</td>
+<td>The project and its folder.</td>
+</tr>
+<tr>
+<td><code>Precept x.y.z</code></td>
+<td>The Precept version the project uses.</td>
+</tr>
+<tr>
+<td>Test count</td>
+<td>How many tests the project has. The dashboard counts them when you open the project, and remembers the number. Until then the card shows &quot;—&quot;.</td>
+</tr>
+<tr>
+<td>Ring</td>
+<td>The pass rate of the latest run: passed tests out of all its results. Green when nothing failed, red otherwise.</td>
+</tr>
+<tr>
+<td>Latest run</td>
+<td>Where and when it ran, and how long it took: the environment in its colour, then for example &quot;12 min ago · 2 min 42 s&quot;. Then the passed, failed and skipped counts, each with a bar and a percentage. A run that covered only some tests says so, for example &quot;6 of 38 run&quot;. A project never run shows &quot;Not run yet&quot;. It is the latest run that finished, read from history, so it is still there after a restart.</td>
+</tr>
+<tr>
+<td>Last runs</td>
+<td>One small bar for each of the project's last runs the dashboard keeps, up to ten, oldest on the left. A bar is green for a run that passed, red for one with a failure, amber for one that only skipped, and short and grey for one that ended without finishing. Hover a bar for where and when it ran and its counts. Beside it, the average duration of the runs that finished.</td>
+</tr>
+<tr>
+<td>&quot;Building…&quot;, &quot;Running n / m&quot;</td>
+<td>A run started from the dashboard is in progress.</td>
+</tr>
+<tr>
+<td>&quot;Reading project…&quot;</td>
+<td>The dashboard is asking MSBuild about the project.</td>
+</tr>
+<tr>
+<td><code>Error: …</code></td>
+<td>Why the project could not be read. Hover for the full message.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The latest run includes runs started from a terminal or an IDE. A run saved by an older version of
+the dashboard shows no environment or duration.</p>
+<p>A card starts nothing: open the project to run its tests, which is where the environment is chosen.</p>
+<p>One line above the cards says how the projects stand, for example
+&quot;6 projects · 1,176 tests · 3 passing · 3 not run yet&quot;. A project is passing when its latest run
+had no failure.</p>
+<p>Search the list by name or path with the box at the top.</p>
+<h3 id="opening-a-project">Opening a project<a class="anchor" href="#opening-a-project" aria-label="Link to this section">#</a></h3>
+<p>Opening a card builds the project and lists its tests, grouped by suite. The first open takes a few
+seconds. The page says &quot;Building and listing tests…&quot; and shows how long it has taken. Each test
+shows its tags, its retries and its source file and line.</p>
+<p>Each test's dot, duration and <strong>Log →</strong> come from its latest run in this project. That can be a run
+you started here, from a terminal or from an IDE. A run of a few tags or suites updates only the
+tests it ran. The dot of a suite or tag shows the worst status of its tests.</p>
+<p>Press <strong>Refresh</strong> to build and list again after you change the code. If the build fails, the page
+keeps the tests from the last good build and says so. <strong>Output</strong>, at the bottom of the page, shows
+the build's messages. It opens by itself when a build fails.</p>
+<p>Press <code>/</code> to jump to the filter box.</p>
+<h4 id="suites-and-tags">Suites and tags</h4>
+<p>The list on the left groups the tests. <strong>Suites</strong> and <strong>Tags</strong> above it switch between the two.</p>
+<ul>
+<li><strong>Suites</strong> has one row per suite.</li>
+<li><strong>Tags</strong> has one row per tag, such as <code>@smoke</code>. A test with two tags is under both. <strong>No tag</strong>, at
+the end, holds the tests with none.</li>
+</ul>
+<p>Click a row to see its tests. Tick the boxes of several rows to see them all, one after another.
+The panel above them then says how many tests they hold, and <strong>▶ Run 3 tags</strong> runs every test in any
+of them. <strong>Clear</strong> goes back to one row.</p>
+<p>A selected tag lists its suites beneath it, and its tests are grouped by those suites on the right.
+Click a suite under the tag to scroll to it. Its <strong>▶</strong> runs only the tests with that tag in that
+suite, for example &quot;@smoke · Checkout&quot;.</p>
+<p><strong>A–Z</strong> sorts suites and tests by name. Without it they are in the order Precept finds them, which
+follows the source files. Tags are always in alphabetical order. The choice is remembered in this browser.</p>
+<p>Drag the list's right edge to make it wider or narrower. The width is remembered in this browser.
+On a screen narrower than 900 px the list becomes a drop-down.</p>
+<h4 id="the-detail-panel">The detail panel</h4>
+<p>Click a test to open the detail panel on the right. With the list focused, ↑/↓ moves through the
+tests and Enter opens the panel. Drag the panel's left edge to resize it. On a screen narrower than
+900 px it opens as a sheet over the list.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tab</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Source</strong></td>
+<td>A Gherkin test shows its scenario, the feature's Background, and the Examples row it ran. <strong>Show whole feature</strong> shows the whole file. A C# test shows its method. The file and line are shown with <strong>Copy path</strong>.</td>
+</tr>
+<tr>
+<td><strong>Last run</strong></td>
+<td>The test's latest run in this project: status, duration, attempts, the failure, the log, and the <a href="#artifacts">artifacts</a>. The last run may be from days ago. Its log is loaded from history when you open the tab.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The panel opens on <strong>Last run</strong> for a test that failed, and on <strong>Source</strong> otherwise.</p>
+<p><strong>Open in <em>editor</em> ↗</strong> opens the test's file at its line in your editor. Pick the editor under <strong>⚙ →
+Open tests in</strong>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Choice</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VS Code</td>
+<td>The default.</td>
+</tr>
+<tr>
+<td>VS Code Insiders</td>
+<td></td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td></td>
+</tr>
+<tr>
+<td>JetBrains Rider</td>
+<td></td>
+</tr>
+<tr>
+<td>None</td>
+<td>Hides the button.</td>
+</tr>
+</tbody>
+</table></div>
+<p>The choice is remembered in this browser. Your browser may ask before it opens the editor.</p>
+<h4 id="artifacts">Artifacts</h4>
+<p>A finished test shows the files it recorded as tiles: screenshots, videos, traces and network logs.
+Click a tile to open it. A screenshot's tile shows the picture itself.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>File</th>
+<th>What a click does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Playwright trace (<code>trace.zip</code>)</td>
+<td>Opens it in Playwright's trace viewer, in a new browser tab.</td>
+</tr>
+<tr>
+<td>Image (<code>.png</code>, <code>.jpg</code>, <code>.gif</code>, <code>.webp</code>, <code>.svg</code>)</td>
+<td>Shows it fitted to the window. Click the image for actual size.</td>
+</tr>
+<tr>
+<td>Video (<code>.webm</code>, <code>.mp4</code>)</td>
+<td>Plays it.</td>
+</tr>
+<tr>
+<td>Text (<code>.txt</code>, <code>.log</code>, <code>.json</code>, <code>.xml</code>, <code>.har</code>, <code>.csv</code>, <code>.md</code>, <code>.html</code>, <code>.htm</code>)</td>
+<td>Shows it as text. An HTML file is shown as source. A file over 1 MB shows its first 1 MB.</td>
+</tr>
+</tbody>
+</table></div>
+<p>A file the dashboard cannot show, such as a PDF a test downloaded, is listed below the tiles. The
+copy button on every tile and row copies the file's path, so you can open it from disk. A retried
+test's files are labelled with the attempt that wrote them.</p>
+<p>The trace viewer is Playwright's own, served by the dashboard. It works offline, and the trace
+never leaves your machine. A trace from a newer Playwright than the dashboard's own may not open.
+Copy its path and run <code>pwsh bin/Debug/net10.0/playwright.ps1 show-trace &lt;file&gt;</code> in the test
+project, which uses the project's own Playwright.</p>
+<p>The dashboard opens only files a run reported, for as long as it keeps that run and the file is
+still on disk.</p>
+<h3 id="running">Running<a class="anchor" href="#running" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>To run</th>
+<th>Press</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One test</td>
+<td><strong>▶</strong> on its row.</td>
+</tr>
+<tr>
+<td>A suite or a tag</td>
+<td><strong>▶</strong> on its row in the list.</td>
+</tr>
+<tr>
+<td>A tag within one suite</td>
+<td><strong>▶</strong> on the suite under the selected tag.</td>
+</tr>
+<tr>
+<td>Several suites or tags</td>
+<td>Tick them, then <strong>▶ Run</strong> above the tests.</td>
+</tr>
+<tr>
+<td>Every test</td>
+<td><strong>▶ Run all</strong>.</td>
+</tr>
+</tbody>
+</table></div>
+<p>A suite or tag run starts every test the run finds in it, including tests added since the list was
+last built.</p>
+<ul>
+<li><strong>Environment.</strong> Pick one from the list beside the buttons. It offers the default environment and
+every <code>precept.{environment}.json</code> in the project.</li>
+<li><strong>Output.</strong> The build and the run's console output, up to the last 5,000 lines.</li>
+<li><strong>Log →.</strong> On a test that ran, opens it in the <strong>Runs</strong> tab with its full log.</li>
+</ul>
+<p>When you press a Run button, a message confirms the launch, and a run bar appears under the header.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>The run bar says</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;Building…&quot;</td>
+<td>The dashboard is building the project.</td>
+</tr>
+<tr>
+<td>&quot;Starting…&quot;</td>
+<td>The build is done and the tests are about to start.</td>
+</tr>
+<tr>
+<td>&quot;Running 3 / 6&quot;</td>
+<td>Tests are running. The bar shows live counts and the elapsed time.</td>
+</tr>
+<tr>
+<td>&quot;Finished · 5 passed · 1 failed · 4.2 s&quot;</td>
+<td>The run is over. Press ✕ to close the bar.</td>
+</tr>
+<tr>
+<td>&quot;Stopped&quot;</td>
+<td>The run was stopped, usually with <strong>■ Stop</strong>.</td>
+</tr>
+<tr>
+<td>A red reason</td>
+<td>The build failed. <strong>Show output</strong> has the details.</td>
+</tr>
+</tbody>
+</table></div>
+<p>If the dashboard refuses a run, the run does not start. A message and a notice on the project say
+why, for example that the project is still being listed.</p>
+<p>While the run is going, <strong>■ Stop</strong> ends it. <strong>Open live run →</strong>, on the bar and in the message, opens
+the run in the <strong>Runs</strong> tab.</p>
+<p>Tests turn green or red in place as the run goes. The run also appears in <strong>Runs</strong>. Its results
+are written to <code>TestResults</code> in the project folder. The page follows a run started here from its
+first test. See <a href="#what-it-costs-a-run">What it costs a run</a>.</p>
+<p>The dashboard builds the project first, then runs it. A build may take up to 10 minutes and a
+listing up to 2 minutes before the dashboard cancels it.</p>
+<h3 id="one-run-per-project">One run per project<a class="anchor" href="#one-run-per-project" aria-label="Link to this section">#</a></h3>
+<p>Each project has one run at a time. While it runs, <strong>Refresh</strong> is disabled and a second run is refused.
+A run is also refused while the project is being built and listed. Different projects can run at
+the same time.</p>
+<h3 id="where-it-keeps-the-list">Where it keeps the list<a class="anchor" href="#where-it-keeps-the-list" aria-label="Link to this section">#</a></h3>
+<p>The folders and projects are saved in <code>~/.precept/dashboard-projects.json</code>, which only you can read.
+It sits beside <code>dashboard.json</code>, so <code>PRECEPT_DASHBOARD_FILE</code> moves it too. A project's latest run
+is not in this file. It comes from history.</p>
+<p>If the file cannot be read, the dashboard starts with an empty list and says why. A file that is not
+valid JSON is kept as <code>dashboard-projects.json.bak</code>. A file it could not open is left alone, and
+changes are not saved until the dashboard restarts, so your list is not overwritten.</p>
+<h3 id="when-you-close-the-dashboard">When you close the dashboard<a class="anchor" href="#when-you-close-the-dashboard" aria-label="Link to this section">#</a></h3>
+<p>Closing the dashboard stops the runs it started. It prints how many. Runs you started yourself keep
+going.</p>
+<h2 id="what-it-costs-a-run">What it costs a run<a class="anchor" href="#what-it-costs-a-run" aria-label="Link to this section">#</a></h2>
+<ul>
+<li><strong>Every local run:</strong> one small record file, written as tests finish, and one idle pipe that only
+your account can open. See <a href="artifacts-and-logging.html#the-run-record">the run record</a>.</li>
+<li><strong>Dashboard following the run:</strong> the run's events, and a batch of new log lines twice a second.</li>
+<li><strong>On a build agent:</strong> nothing. No record and no pipe, unless <code>Dashboard</code> is <code>Always</code>.</li>
+</ul>
+<p>A run never looks for the dashboard and never waits for it. If the dashboard falls behind, the run
+drops events rather than slowing down, and the page says how many it missed.</p>
+<p><strong>Watching:</strong> frames only for the pages you are looking at. Thumbnails update once a second and the
+open test up to 15 times a second. A hidden or closed tab stops every stream.</p>
+<p>No pictures are recorded. For a lasting record use the Web module's
+<a href="browsers.html#what-a-test-records">trace and video settings</a>.</p>
+<h2 id="security">Security<a class="anchor" href="#security" aria-label="Link to this section">#</a></h2>
+<p>The dashboard listens on <code>127.0.0.1</code> only. An <code>appsettings.json</code> in the folder you start it from,
+or a <code>Kestrel__</code> environment variable, cannot add another address. When it starts it writes its
+port and the page key to <code>~/.precept/dashboard.json</code>, which only you can read.</p>
+<ul>
+<li><strong>Runs</strong> are not reached over the network at all. The dashboard connects to a run through a pipe
+that only your account can open, and it finds the pipe's name in the run's record.</li>
+<li><strong>History</strong> is one file, <code>~/.precept/dashboard.db</code>, readable only by you. It holds what your
+tests logged.</li>
+<li><strong>The page</strong> needs the key. The link the dashboard prints carries it once. The page stores the
+key in the browser for this address and port only, and takes it out of the address bar. Other
+tabs on the same address use the stored key.</li>
+<li><strong>The key changes</strong> each time the dashboard starts. A tab that holds an old key shows &quot;Open the
+link <code>precept-dashboard</code> printed&quot;. Open the new link and the tab works again.</li>
+<li><strong>Other people</strong> logged in to the same machine cannot use the page without the key. The dashboard
+never puts the key on a command line: to open your browser it opens a small file that only you
+can read, <code>dashboard-open.html</code> next to <code>dashboard.json</code>, and that file forwards to the link.</li>
+<li><strong>Other websites</strong> open in your browser cannot connect to it.</li>
+</ul>
+<p>The page can open a file only if a run reported it as a test's artifact. It cannot ask the
+dashboard for any other file on the machine.</p>
+<ul>
+<li><strong>A run that is not being followed</strong> is read from its record. Its artifacts open only if they
+are inside the test app's own folder, such as <code>bin/Debug/net10.0/PreceptArtifacts</code>. Links are
+followed before that is checked, so a link that leads out of the folder does not open.</li>
+<li><strong>A run you follow live</strong> shows its artifacts wherever <code>ArtifactDirectory</code> puts them.</li>
+<li><strong>A file that has been replaced by a link</strong> since the run does not open.</li>
+</ul>
+<p>The trace viewer runs on a second port that the dashboard picks at startup. A trace shows pages
+of the application under test, and on its own port nothing in them can reach the page key. The
+viewer gets a trace through a random link that works for one hour and opens only that file.</p>
+<p>The dashboard builds and runs a project only when you open it or press <strong>Run</strong>. Adding a folder
+asks MSBuild to evaluate each project in it, which runs that project's MSBuild files. Add only
+folders you trust.</p>
+<p>The page shows whatever your tests log, and whatever the application under test shows on screen,
+including any test credentials it displays.</p>
+<p>To keep the file somewhere else, set <code>PRECEPT_DASHBOARD_FILE</code> to an absolute path where you start
+the dashboard. A run does not read it.</p>
+<h2 id="when-a-run-does-not-appear">When a run does not appear<a class="anchor" href="#when-a-run-does-not-appear" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What you see</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The run is not in <strong>Runs</strong> at all</td>
+<td>Add the project's folder under <strong>Projects</strong>. The dashboard only looks at the runs of projects on its list.</td>
+</tr>
+<tr>
+<td>The run appears only when it has finished</td>
+<td>The run could not open its pipe. Its console says &quot;This run cannot be followed live&quot; and why.</td>
+</tr>
+<tr>
+<td>The run prints <code>A dashboard tried to follow this run but speaks protocol N</code></td>
+<td>Update whichever is older. The message says which: <code>dotnet tool update --global Precept.Dashboard</code>, or the project's Precept packages.</td>
+</tr>
+<tr>
+<td>A run shows &quot;The run ended without finishing&quot;</td>
+<td>Its process stopped before the run ended, or was killed. The page shows the tests it got to.</td>
+</tr>
+<tr>
+<td>A running test has no picture</td>
+<td>The test is not using Chromium, the session was opened outside a test, or the dashboard tab is hidden.</td>
+</tr>
+<tr>
+<td><strong>History</strong> shows a notice that it could not be opened</td>
+<td>The dashboard could not open <code>~/.precept/dashboard.db</code>. The message says why. Runs are shown while the dashboard is open and not kept.</td>
+</tr>
+<tr>
+<td>A past run's screenshot says &quot;No longer on disk&quot;</td>
+<td>The file was deleted after the run, often by a clean build. History keeps the path, not the file.</td>
+</tr>
+<tr>
+<td>A past run has no artifacts, but showed them while it ran</td>
+<td>Its <code>ArtifactDirectory</code> is outside the test app's folder. Artifacts of a past run are shown only from inside that folder. See <a href="#security">Security</a>.</td>
+</tr>
+<tr>
+<td>A run with <code>IsContinuousIntegration</code> set is not shown</td>
+<td>Such a run opens no pipe and writes no record, as on a build agent. Set <code>Dashboard</code> to <code>Always</code> to follow it.</td>
+</tr>
+<tr>
+<td>No run is shown at all</td>
+<td>Check that <code>Dashboard</code> is not <code>Never</code> in <code>precept.json</code> or <code>PRECEPT_DASHBOARD</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<p>On the page itself:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>The page says</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open the link <code>precept-dashboard</code> printed</td>
+<td>Open the full link, key included. Run <code>precept-dashboard</code> again to print it. A tab left open while the dashboard restarted shows this too.</td>
+</tr>
+<tr>
+<td>Update Precept to see suites and tags</td>
+<td>The project uses an older Precept. Its tests are listed by name only, and <strong>Run</strong> on a test runs every test with that name. Update its Precept packages.</td>
+</tr>
+<tr>
+<td>Live status is unavailable</td>
+<td>The run uses a Precept from before runs kept a record. <strong>Output</strong> still shows everything. Update the project's Precept packages.</td>
+</tr>
+</tbody>
+</table></div>
+
+    </article>
+
+    <nav class="pager">
+      <a class="prev" href="artifacts-and-logging.html"><span>Previous</span>Artifacts and logging</a><a class="next" href="reporting.html"><span>Next</span>Reporting</a>
+    </nav>
+
+    <footer>
+      <p>Precept 0.12.1 · MIT · © 2026</p>
+    </footer>
+  </main>
+
+  <aside class="toc">
+    <nav>
+      <p class="toc-title">On this page</p>
+<ul>
+<li><a href="#install-it">Install it</a></li>
+<li><a href="#start-it">Start it</a></li>
+<li><a href="#how-it-finds-runs">How it finds runs</a></li>
+<li><a href="#runs">Runs</a></li>
+<li><a href="#grid">Grid</a></li>
+<li><a href="#projects">Projects</a></li>
+<li><a href="#what-it-costs-a-run">What it costs a run</a></li>
+<li><a href="#security">Security</a></li>
+<li><a href="#when-a-run-does-not-appear">When a run does not appear</a></li>
+</ul>
+    </nav>
+  </aside>
+</div>
+
+<div class="scrim" hidden></div>
+
+<dialog class="search">
+  <div class="search-field">
+    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></svg>
+    <input type="search" placeholder="Search the documentation" aria-label="Search" autocomplete="off" spellcheck="false">
+    <kbd>Esc</kbd>
+  </div>
+  <ol class="results" tabindex="-1"></ol>
+  <p class="search-empty" hidden>Nothing matches that.</p>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

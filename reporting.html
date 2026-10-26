@@ -82,6 +82,7 @@
 <li><a href="execution-model.html">Execution model</a></li>
 <li><a href="filtering.html">Filtering</a></li>
 <li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="dashboard.html">Watching a run</a></li>
 <li><a href="reporting.html" class="active">Reporting</a></li>
 <li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
 </ul>
@@ -103,6 +104,7 @@
 <li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
 <li><a href="Precept.Templates.html">Precept.Templates</a></li>
 <li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+<li><a href="Precept.Dashboard.html">Precept.Dashboard</a></li>
 </ul>
 <p class="nav-group">The project</p>
 <ul>
@@ -171,8 +173,10 @@ environment-variable override is what keeps them out of source control.
 credentials come from, is on <a href="azure-devops.html">Running a suite on CI</a>.</p>
 <h2 id="what-gets-attached-and-what-does-not">What gets attached, and what does not<a class="anchor" href="#what-gets-attached-and-what-does-not" aria-label="Link to this section">#</a></h2>
 <p>ReportPortal and Azure DevOps upload the files a test captured (screenshots, Playwright traces,
-request logs) as attachments of its item or result. Two settings in the reporter's own section
-decide which files go:</p>
+request logs) as attachments of its item or result. A trace or a request log holds the test user's
+cookies and anything the test typed, passwords included; see
+<a href="browsers.html#traces-and-hars-hold-credentials">Traces and HARs hold credentials</a>. Three settings in
+the reporter's own section decide which files go:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -182,6 +186,11 @@ decide which files go:</p>
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>AttachArtifacts</code></td>
+<td><code>true</code></td>
+<td>Upload a test's files at all. <code>false</code> uploads none.</td>
+</tr>
 <tr>
 <td><code>AttachOnSuccess</code></td>
 <td><code>false</code></td>
@@ -550,7 +559,7 @@ IDE never opens a launch or posts to a channel.</p>
     </article>
 
     <nav class="pager">
-      <a class="prev" href="artifacts-and-logging.html"><span>Previous</span>Artifacts and logging</a><a class="next" href="azure-devops.html"><span>Next</span>Running a Precept suite on Azure Pipelines</a>
+      <a class="prev" href="dashboard.html"><span>Previous</span>Watching a run</a><a class="next" href="azure-devops.html"><span>Next</span>Running a Precept suite on Azure Pipelines</a>
     </nav>
 
     <footer>

@@ -82,6 +82,7 @@
 <li><a href="execution-model.html">Execution model</a></li>
 <li><a href="filtering.html">Filtering</a></li>
 <li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="dashboard.html">Watching a run</a></li>
 <li><a href="reporting.html">Reporting</a></li>
 <li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
 </ul>
@@ -103,6 +104,7 @@
 <li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
 <li><a href="Precept.Templates.html">Precept.Templates</a></li>
 <li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+<li><a href="Precept.Dashboard.html">Precept.Dashboard</a></li>
 </ul>
 <p class="nav-group">The project</p>
 <ul>
@@ -145,6 +147,11 @@ skips them, so the annotations below can stay in anything you copy.</p>
 
   <span class="tok-comment">// Named database connection strings for the data module.</span>
   <span class="tok-key">&quot;ConnectionStrings&quot;</span>: {},
+
+  <span class="tok-comment">// Whether the run can be followed by the dashboard: a pipe it connects to, and a record in</span>
+  <span class="tok-comment">// PreceptRuns. On locally and off on a build agent unless this says otherwise. One of: Auto,</span>
+  <span class="tok-comment">// Never, Always.</span>
+  <span class="tok-key">&quot;Dashboard&quot;</span>: <span class="tok-str">&quot;Auto&quot;</span>,
 
   <span class="tok-comment">// How many times a failing test is rerun when it has no explicit RetryAttribute. 0 — the default</span>
   <span class="tok-comment">// — reruns nothing; 2 means a test may run three times in all.</span>
@@ -616,6 +623,11 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// Whether a browser Playwright has not downloaded is installed rather than failing the run.</span>
     <span class="tok-comment">// Auto by default. One of: Auto, Never, Always.</span>
     <span class="tok-key">&quot;InstallBrowsers&quot;</span>: <span class="tok-str">&quot;Auto&quot;</span>,
+
+    <span class="tok-comment">// Keep each state SaveStorageStateAsync() saves in a file, so the next run&#39;s sessions start</span>
+    <span class="tok-comment">// signed in too. Off by default: the file is a signed-in user&#39;s cookies and tokens. One of:</span>
+    <span class="tok-comment">// Never, Auto, Always.</span>
+    <span class="tok-key">&quot;KeepStorageStates&quot;</span>: <span class="tok-str">&quot;Never&quot;</span>,
 
     <span class="tok-comment">// The locale the browser reports, as a BCP 47 tag — en-GB, de-DE. Decides the Accept-Language</span>
     <span class="tok-comment">// header and the formatting of dates and numbers the page renders.</span>

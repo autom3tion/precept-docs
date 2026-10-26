@@ -78,6 +78,16 @@
         "type": "string"
       }
     },
+    "Dashboard": {
+      "description": "Whether the run can be followed by the dashboard: a pipe it connects to, and a record in PreceptRuns. On locally and off on a build agent unless this says otherwise.",
+      "type": "string",
+      "enum": [
+        "Auto",
+        "Never",
+        "Always"
+      ],
+      "default": "Auto"
+    },
     "DefaultRetries": {
       "description": "How many times a failing test is rerun when it has no explicit RetryAttribute. 0 — the default — reruns nothing; 2 means a test may run three times in all.",
       "type": "integer"
@@ -841,6 +851,16 @@
             "Always"
           ],
           "default": "Auto"
+        },
+        "KeepStorageStates": {
+          "description": "Keep each state SaveStorageStateAsync() saves in a file, so the next run's sessions start signed in too. Off by default: the file is a signed-in user's cookies and tokens.",
+          "type": "string",
+          "enum": [
+            "Never",
+            "Auto",
+            "Always"
+          ],
+          "default": "Never"
         },
         "Locale": {
           "description": "The locale the browser reports, as a BCP 47 tag — en-GB, de-DE. Decides the Accept-Language header and the formatting of dates and numbers the page renders.",

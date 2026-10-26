@@ -82,6 +82,7 @@
 <li><a href="execution-model.html">Execution model</a></li>
 <li><a href="filtering.html">Filtering</a></li>
 <li><a href="artifacts-and-logging.html">Artifacts and logging</a></li>
+<li><a href="dashboard.html">Watching a run</a></li>
 <li><a href="reporting.html">Reporting</a></li>
 <li><a href="azure-devops.html">Running a Precept suite on Azure Pipelines</a></li>
 </ul>
@@ -103,6 +104,7 @@
 <li><a href="Precept.Reporting.AzureDevOps.html">Precept.Reporting.AzureDevOps</a></li>
 <li><a href="Precept.Templates.html">Precept.Templates</a></li>
 <li><a href="Precept.Mcp.html">Precept.Mcp</a></li>
+<li><a href="Precept.Dashboard.html">Precept.Dashboard</a></li>
 </ul>
 <p class="nav-group">The project</p>
 <ul>
@@ -195,6 +197,8 @@ the same browser but sharing nothing else: its own context, its own cookies, its
 <span class="tok-keyword">await</span> alice.Page.GetByRole(AriaRole.Button, <span class="tok-keyword">new</span>() { Name = <span class="tok-str">&quot;Share&quot;</span> }).ClickAsync();
 <span class="tok-keyword">await</span> Assert.That(bob.Page.GetByText(<span class="tok-str">&quot;Alice shared a document&quot;</span>)).ToBeVisibleAsync();</code></pre>
 
+<p>While <a href="dashboard.html#runs">the dashboard</a> is open, you can watch any running Chromium session
+live, headless ones included.</p>
 <p>Every member of <code>Browser</code> takes the name, so <code>Browser.PageAsync(&quot;bob&quot;)</code> and
 <code>Browser.GoToAsync(&quot;/inbox&quot;, &quot;bob&quot;)</code> reach the same session. Asking for a name twice in one test
 returns the session that name already has. Each session is disposed with the test, and each files
@@ -263,9 +267,57 @@ file instead, and seeds the default identity:</p>
 <p>The path is resolved against the working directory, which is normally the test project's output. A
 file that is not there fails the run. Seeding silently from nothing would leave every test signed
 out, with every failure worded as though the application had rejected the credentials.</p>
+<h3 id="keeping-a-sign-in-between-runs">Keeping a sign-in between runs<a class="anchor" href="#keeping-a-sign-in-between-runs" aria-label="Link to this section">#</a></h3>
+<p>A saved state lasts for the run. To have the next run start signed in too, keep it on disk:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;KeepStorageStates&quot;</span>: <span class="tok-str">&quot;Auto&quot;</span> }
+}</code></pre>
+
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Value</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Never</code></td>
+<td>The default. The state is kept in memory, for this run only.</td>
+</tr>
+<tr>
+<td><code>Auto</code></td>
+<td>Kept on disk on your own machine. On a build agent, in memory only.</td>
+</tr>
+<tr>
+<td><code>Always</code></td>
+<td>Kept on disk everywhere, a build agent too.</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><strong>Where:</strong> <code>PreceptStorageStates</code> next to the built test app, for example
+<code>bin/Debug/net10.0/PreceptStorageStates</code>. Each session has its own file: <code>default.json</code> for the
+default session, <code>session-&lt;name&gt;.json</code> for a named one.</li>
+<li><strong>Not published:</strong> the folder is outside <code>ArtifactDirectory</code>, so it is not attached to a test,
+copied into the TRX or uploaded by a reporter. Only your account can read the files.</li>
+<li><strong>Loaded once</strong>, when the run opens its first browser. Every session then starts from the file
+saved under its name. If <code>StorageState</code> is set too, it wins for the default session.</li>
+<li><strong>Parallel tests</strong> share one copy in memory and need no locking. Two runs at the same time each
+read whole files, and the last save wins.</li>
+<li><strong>A file that cannot be read</strong> is deleted, and that session starts signed out.</li>
+</ul>
+<p>A kept state can outlive the session on the server, for example when it expires overnight. The test
+then starts signed out. Use this when your suite signs in again whenever the application shows its
+sign-in page. To start over, delete the folder.</p>
+<p><code>Auto</code> stays off on a build agent on purpose. A self-hosted agent keeps its folders between builds,
+and the next pipeline to use it would start signed in as your test user.</p>
 <p>A saved state is never attached to the test as an artifact, whatever else the module attaches. It
 holds a session cookie or a bearer token, which is the credential itself, and an artifact goes
-wherever the report goes.</p>
+wherever the report goes. It is also kept out of the test's trace and HAR: a session starts from it
+before anything is recorded.</p>
+<p>What the test does after that is recorded as usual, and a signed-in test sends its cookies with
+every request. See <a href="#traces-and-hars-hold-credentials">Traces and HARs hold credentials</a>.</p>
 <h2 id="what-the-page-says-about-itself">What the page says about itself<a class="anchor" href="#what-the-page-says-about-itself" aria-label="Link to this section">#</a></h2>
 <p>Console errors and uncaught exceptions go into the test's own log, where they reach the TRX, a test
 explorer and every <a href="reporting.html#reporting">reporter</a>, rather than to a process console that
@@ -396,6 +448,32 @@ upload time wherever a <a href="reporting.html">reporter</a> attaches artifacts.
 <p>The files land in the test's artifact directory and are listed with its result; see
 <a href="artifacts-and-logging.html">Artifacts and logging</a>. A <a href="#more-than-one-user-in-a-scenario">named session</a>
 puts its name in the file name, so <code>alice</code> and <code>bob</code> do not overwrite each other.</p>
+<h3 id="traces-and-hars-hold-credentials">Traces and HARs hold credentials<a class="anchor" href="#traces-and-hars-hold-credentials" aria-label="Link to this section">#</a></h3>
+<p>A trace and a HAR record everything the test did, and that includes what a password manager would
+keep:</p>
+<ul>
+<li><strong>Typed text.</strong> A value passed to <code>FillAsync</code> is in the trace as it was typed, a password
+included, and in the request that sent the form.</li>
+<li><strong>Cookies and headers.</strong> Every request is recorded with its <code>Cookie</code> and <code>Authorization</code>
+headers, and every response with its <code>Set-Cookie</code>. A signed-in test's session cookie is in both
+files.</li>
+<li><strong>Request and response bodies.</strong> A token the application receives, or sends, is in them.</li>
+</ul>
+<p>Anyone who can open the file can sign in as the test's user until the session expires, and can read
+any password it typed. Precept does not edit these files. Removing every secret from them would
+need a change at each place Playwright writes one, and a file that has been partly cleaned still
+looks safe when it is not.</p>
+<p>Treat them like a password:</p>
+<ul>
+<li>Run browser tests against test accounts in a test environment, never against a real user or a
+production account.</li>
+<li>Set <code>Trace</code> and <code>Har</code> to <code>Never</code> where the report is read by more people than should have those
+accounts. A trace is copied into the TRX and the pipeline's attachments, and a reporter uploads
+it, so on a build agent the setting itself is what keeps it in. Set it in the agent's overlay, or
+as <code>PRECEPT_WEB__TRACE=Never</code>.</li>
+<li>To keep traces on disk but out of a reporter, set that reporter's <code>AttachArtifacts</code> to <code>false</code>.
+See <a href="reporting.html#what-gets-attached-and-what-does-not">What gets attached</a>.</li>
+</ul>
 <h2 id="files-the-page-produced">Files the page produced<a class="anchor" href="#files-the-page-produced" aria-label="Link to this section">#</a></h2>
 <p>A file the page downloads is saved into the test's artifacts and reported with it. Playwright
 deletes a download when its context closes, which is the end of the test, so without this the
