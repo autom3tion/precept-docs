@@ -267,6 +267,11 @@ file instead, and seeds the default identity:</p>
 <p>The path is resolved against the working directory, which is normally the test project's output. A
 file that is not there fails the run. Seeding silently from nothing would leave every test signed
 out, with every failure worded as though the application had rejected the credentials.</p>
+<p>An application that keeps its sign-in outside cookies and local storage needs more saved. Pass
+Playwright's own options and they go to <code>StorageStateAsync</code> unchanged:</p>
+<pre data-lang="csharp"><code><span class="tok-keyword">await</span> session.SaveStorageStateAsync(<span class="tok-keyword">new</span> BrowserContextStorageStateOptions { IndexedDB = <span class="tok-keyword">true</span>, Opfs = <span class="tok-keyword">true</span> });</code></pre>
+
+<p><code>IndexedDB</code> adds the page's databases, and <code>Opfs</code> adds its origin private file system.</p>
 <h3 id="keeping-a-sign-in-between-runs">Keeping a sign-in between runs<a class="anchor" href="#keeping-a-sign-in-between-runs" aria-label="Link to this section">#</a></h3>
 <p>A saved state lasts for the run. To have the next run start signed in too, keep it on disk:</p>
 <pre data-lang="json"><code>{
@@ -442,6 +447,37 @@ value decides what becomes of the file at the end, not whether the browser was r
 <p>Video and HAR are off because the trace already carries both the screen and the requests, and it is
 searchable. Turn the HAR on when the traffic is read somewhere else: by an API team, in a browser's
 own network panel, or by a tool that reads HARs.</p>
+<p>Three more settings shape what is recorded. None of them turns a recording on:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TraceAriaSnapshots</code></td>
+<td><code>false</code></td>
+<td>Adds the page's accessibility tree to the trace for every action. The trace viewer shows it beside the DOM snapshot, which answers what <code>GetByRole</code> saw.</td>
+</tr>
+<tr>
+<td><code>TraceScreenSnapshots</code></td>
+<td><code>false</code></td>
+<td>Adds a screenshot to the trace for every action. Use it for a canvas, a video or a WebGL scene, which a DOM snapshot cannot replay. It stores images for every action, so the trace becomes several times larger.</td>
+</tr>
+<tr>
+<td><code>VideoFps</code></td>
+<td>not set</td>
+<td>Frames a second in the video. Playwright records 25 when it is not set. A lower number makes smaller files. Firefox and WebKit record at most 25.</td>
+</tr>
+</tbody>
+</table></div>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;TraceAriaSnapshots&quot;</span>: <span class="tok-keyword">true</span>, <span class="tok-key">&quot;Video&quot;</span>: <span class="tok-str">&quot;OnFailure&quot;</span>, <span class="tok-key">&quot;VideoFps&quot;</span>: <span class="tok-number">10</span> }
+}</code></pre>
+
 <p><code>Always</code> is for a run whose files are the point: a regulated release, or a record of what was
 exercised. Every test then keeps its files, so a large suite costs a large amount of disk, and
 upload time wherever a <a href="reporting.html">reporter</a> attaches artifacts.</p>
@@ -572,6 +608,21 @@ key, a feature-flag override, the header a test environment identifies its calle
 <p>The password belongs in <code>PRECEPT_WEB__HTTPCREDENTIALS__PASSWORD</code> rather than in a file the repository
 carries. See <a href="environment-variables.html#environment-variables">Environment variables</a> for how a
 setting maps onto a variable name.</p>
+<p>When more than one host asks for credentials, list them in <code>HttpCredentialsList</code>, each with its
+<code>Origin</code>:</p>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: {
+    <span class="tok-key">&quot;HttpCredentialsList&quot;</span>: [
+      { <span class="tok-key">&quot;Username&quot;</span>: <span class="tok-str">&quot;qa&quot;</span>, <span class="tok-key">&quot;Origin&quot;</span>: <span class="tok-str">&quot;https://staging.example.com&quot;</span> },
+      { <span class="tok-key">&quot;Username&quot;</span>: <span class="tok-str">&quot;reports&quot;</span>, <span class="tok-key">&quot;Origin&quot;</span>: <span class="tok-str">&quot;https://reports.example.com&quot;</span> }
+    ]
+  }
+}</code></pre>
+
+<p>The first entry whose origin matches a request is used, and an entry with no <code>Origin</code> matches every
+request. <code>HttpCredentials</code> can be set as well. It is tried after the list, so it answers for any
+host the list does not name. The first entry's password is <code>PRECEPT_WEB__HTTPCREDENTIALSLIST__0__PASSWORD</code>,
+the second's ends <code>__1__PASSWORD</code>.</p>
 <p><code>Headers</code> is a JSON object rather than the one-string form <code>Args</code> uses, because configuration keys
 an object by name. An overlay adding a header keeps the ones underneath it and replaces only the
 header it names. That is the merge <a href="configuration.html#configuration">an array cannot give</a>.</p>
@@ -601,6 +652,57 @@ run that quietly did not do what the flag asked, so prefer a real setting where 
 double quote has to be escaped to survive JSON. A backslash is a path separator rather than an
 escape, so <code>--disk-cache-dir=C:\cache</code> means what it says. A quote that is never closed fails the run
 with a message about <code>Web:Args</code> rather than reaching a browser as a mangled flag list.</p>
+<h2 id="the-playwright-version">The Playwright version<a class="anchor" href="#the-playwright-version" aria-label="Link to this section">#</a></h2>
+<p><code>Precept.Web</code> ships Playwright 1.64. A test works with Playwright's own <code>IPage</code> and <code>ILocator</code>, so
+what a Playwright release adds is there to use without waiting for Precept to wrap it. Since 1.62:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>What</th>
+<th>How to use it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A locator inside another</td>
+<td><code>row.Within(table)</code> searches for <code>row</code> inside <code>table</code>.</td>
+</tr>
+<tr>
+<td>Only the visible matches</td>
+<td><code>locator.Visible</code> replaces the <code>:visible</code> CSS pseudo-class.</td>
+</tr>
+<tr>
+<td>An element in any frame</td>
+<td><code>page.FrameLocator()</code> with no selector searches every frame under the page. It fails when the rest of the locator matches in more than one frame.</td>
+</tr>
+<tr>
+<td>An element by its aria ref</td>
+<td><code>page.GetByRef(&quot;e2&quot;)</code>, with a ref taken from an aria snapshot.</td>
+</tr>
+<tr>
+<td>A dialog closing</td>
+<td>The <code>DialogClosed</code> event on a page and on a context.</td>
+</tr>
+<tr>
+<td>Shadow DOM in the page source</td>
+<td><code>page.ContentAsync(new() { IncludeShadow = true })</code>.</td>
+</tr>
+<tr>
+<td>Tools a page registers through WebMCP</td>
+<td><code>page.Webmcp</code>. Chromium needs <code>&quot;Args&quot;: &quot;--enable-features=WebMCP&quot;</code>.</td>
+</tr>
+</tbody>
+</table></div>
+<p>Moving to this version changes four things a suite may notice:</p>
+<ul>
+<li>An element inside a hidden iframe now counts as hidden. <code>ToBeVisibleAsync</code> fails for it, and an
+action waits for it, where both used to go through.</li>
+<li>The browsers are newer: Chromium 156, Firefox 157 and WebKit 27.2. With <code>InstallBrowsers</code> set to
+<code>Never</code>, install them again before the first run.</li>
+<li>Videos are encoded as VP9 instead of VP8. They are still <code>.webm</code> files.</li>
+<li>Ubuntu 20.04 is no longer supported, and on Linux arm64 Chromium is the Chrome for Testing build.</li>
+</ul>
+<p>Playwright's <a href="https://playwright.dev/dotnet/docs/release-notes">release notes</a> have the full list.</p>
 
     </article>
 
@@ -627,6 +729,7 @@ with a message about <code>Web:Args</code> rather than reaching a browser as a m
 <li><a href="#a-browser-somewhere-else">A browser somewhere else</a></li>
 <li><a href="#viewport-size">Viewport size</a></li>
 <li><a href="#what-else-a-context-is-opened-with">What else a context is opened with</a></li>
+<li><a href="#the-playwright-version">The Playwright version</a></li>
 </ul>
     </nav>
   </aside>

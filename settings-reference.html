@@ -616,6 +616,10 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// Run without a visible browser window.</span>
     <span class="tok-key">&quot;Headless&quot;</span>: <span class="tok-keyword">true</span>,
 
+    <span class="tok-comment">// Credentials for HTTP basic authentication where more than one host asks for them, each with</span>
+    <span class="tok-comment">// the origin it belongs to.</span>
+    <span class="tok-key">&quot;HttpCredentialsList&quot;</span>: [],
+
     <span class="tok-comment">// Continue to a site whose certificate does not validate. Off by default, and worth leaving off</span>
     <span class="tok-comment">// where the certificate is real.</span>
     <span class="tok-key">&quot;IgnoreHttpsErrors&quot;</span>: <span class="tok-keyword">false</span>,
@@ -669,6 +673,13 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// Never, OnFailure, Always.</span>
     <span class="tok-key">&quot;Trace&quot;</span>: <span class="tok-str">&quot;OnFailure&quot;</span>,
 
+    <span class="tok-comment">// Whether the Trace also holds an aria snapshot of the page for every action — the</span>
+    <span class="tok-comment">// accessibility tree, which the trace viewer shows beside the DOM snapshot. Off by default.</span>
+    <span class="tok-key">&quot;TraceAriaSnapshots&quot;</span>: <span class="tok-keyword">false</span>,
+
+    <span class="tok-comment">// Whether the Trace also holds a screenshot of the page for every action. Off by default.</span>
+    <span class="tok-key">&quot;TraceScreenSnapshots&quot;</span>: <span class="tok-keyword">false</span>,
+
     <span class="tok-comment">// The user agent every page reports. Unset leaves the browser&#39;s own — and a Device&#39;s, which is</span>
     <span class="tok-comment">// part of what makes the emulation convincing.</span>
     <span class="tok-key">&quot;UserAgent&quot;</span>: <span class="tok-keyword">null</span>,
@@ -676,6 +687,10 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// When a video of the test is recorded and attached to it. Never by default. One of: Never,</span>
     <span class="tok-comment">// OnFailure, Always.</span>
     <span class="tok-key">&quot;Video&quot;</span>: <span class="tok-str">&quot;Never&quot;</span>,
+
+    <span class="tok-comment">// How many frames a second a recorded Video holds. Unset by default, which leaves it to</span>
+    <span class="tok-comment">// Playwright — 25.</span>
+    <span class="tok-key">&quot;VideoFps&quot;</span>: <span class="tok-keyword">null</span>,
 
     <span class="tok-comment">// Viewport height in pixels. Ignored when Resolution names one.</span>
     <span class="tok-key">&quot;ViewportHeight&quot;</span>: <span class="tok-number">800</span>,

@@ -838,6 +838,38 @@
             }
           }
         },
+        "HttpCredentialsList": {
+          "description": "Credentials for HTTP basic authentication where more than one host asks for them, each with the origin it belongs to.",
+          "type": "array",
+          "items": {
+            "description": "Credentials for HTTP basic authentication, bound from Web:HttpCredentials.",
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "Origin": {
+                "description": "Restrict the credentials to this origin, scheme and port included — https://staging.example.com. Unset sends them wherever the page goes, including to a third-party host it happens to load an asset from.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "Password": {
+                "description": "The password. Belongs in an environment variable rather than in a settings file.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "Username": {
+                "description": "The user name.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
         "IgnoreHttpsErrors": {
           "description": "Continue to a site whose certificate does not validate. Off by default, and worth leaving off where the certificate is real.",
           "type": "boolean"
@@ -969,6 +1001,14 @@
           ],
           "default": "OnFailure"
         },
+        "TraceAriaSnapshots": {
+          "description": "Whether the Trace also holds an aria snapshot of the page for every action — the accessibility tree, which the trace viewer shows beside the DOM snapshot. Off by default.",
+          "type": "boolean"
+        },
+        "TraceScreenSnapshots": {
+          "description": "Whether the Trace also holds a screenshot of the page for every action. Off by default.",
+          "type": "boolean"
+        },
         "UserAgent": {
           "description": "The user agent every page reports. Unset leaves the browser's own — and a Device's, which is part of what makes the emulation convincing.",
           "type": [
@@ -985,6 +1025,13 @@
             "Always"
           ],
           "default": "Never"
+        },
+        "VideoFps": {
+          "description": "How many frames a second a recorded Video holds. Unset by default, which leaves it to Playwright — 25.",
+          "type": [
+            "integer",
+            "null"
+          ]
         },
         "ViewportHeight": {
           "description": "Viewport height in pixels. Ignored when Resolution names one.",
