@@ -567,6 +567,19 @@ statement of a size wins.</p>
 <h2 id="what-else-a-context-is-opened-with">What else a context is opened with<a class="anchor" href="#what-else-a-context-is-opened-with" aria-label="Link to this section">#</a></h2>
 <p>The context is opened for the test rather than by it, so anything the browser needs to be told
 before the first navigation is a setting rather than something test code can arrange.</p>
+<h3 id="timeouts">Timeouts<a class="anchor" href="#timeouts" aria-label="Link to this section">#</a></h3>
+<pre data-lang="json"><code>{
+  <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span>, <span class="tok-key">&quot;NavigationTimeoutMilliseconds&quot;</span>: <span class="tok-number">60000</span> }
+}</code></pre>
+
+<p><code>TimeoutMilliseconds</code> is how long an action, such as a click or a fill, waits for its element.
+<code>NavigationTimeoutMilliseconds</code> is how long <code>GotoAsync</code>, <code>ReloadAsync</code> and <code>WaitForURLAsync</code> wait for
+the page. Leave it out and a navigation waits as long as an action does. The two are separate because
+they wait for different things. An element still missing after thirty seconds is usually not coming,
+while the first page load on a cold test environment can take longer and still arrive. <code>0</code> in either
+one waits without a limit.</p>
+<p>A web assertion has a timeout of its own, <code>AssertionTimeoutMilliseconds</code>, described under
+<a href="assertions.html#on-a-page">checks on a page</a>.</p>
 <h3 id="locale-and-time">Locale and time<a class="anchor" href="#locale-and-time" aria-label="Link to this section">#</a></h3>
 <pre data-lang="json"><code>{
   <span class="tok-key">&quot;Web&quot;</span>: { <span class="tok-key">&quot;Locale&quot;</span>: <span class="tok-str">&quot;en-GB&quot;</span>, <span class="tok-key">&quot;TimezoneId&quot;</span>: <span class="tok-str">&quot;Europe/London&quot;</span>, <span class="tok-key">&quot;ColorScheme&quot;</span>: <span class="tok-str">&quot;dark&quot;</span> }
@@ -633,7 +646,9 @@ header it names. That is the merge <a href="configuration.html#configuration">an
 
 <p>The proxy is applied when the browser is launched rather than per context, because the browser is
 launched once for the run and a process-wide connection setting cannot vary per test. <code>Username</code>
-and <code>Password</code> go alongside <code>Server</code> where the proxy authenticates. <code>Bypass</code> is normally where a
+and <code>Password</code> go alongside <code>Server</code> where the proxy authenticates. They are sent to the proxy and
+never to a website, so a site behind a password needs
+<a href="#reaching-a-protected-environment"><code>HttpCredentials</code></a> as well. <code>Bypass</code> is normally where a
 container or a local stub goes, since a proxy cannot route to the agent's own loopback.</p>
 <h3 id="browser-switches">Browser switches<a class="anchor" href="#browser-switches" aria-label="Link to this section">#</a></h3>
 <p>Anything with no setting of its own, and only for Chromium, goes to the browser process as a
@@ -653,8 +668,8 @@ double quote has to be escaped to survive JSON. A backslash is a path separator 
 escape, so <code>--disk-cache-dir=C:\cache</code> means what it says. A quote that is never closed fails the run
 with a message about <code>Web:Args</code> rather than reaching a browser as a mangled flag list.</p>
 <h2 id="the-playwright-version">The Playwright version<a class="anchor" href="#the-playwright-version" aria-label="Link to this section">#</a></h2>
-<p><code>Precept.Web</code> ships Playwright 1.64. A test works with Playwright's own <code>IPage</code> and <code>ILocator</code>, so
-what a Playwright release adds is there to use without waiting for Precept to wrap it. Since 1.62:</p>
+<p><code>Precept.Web</code> ships Playwright 1.65. A test works with Playwright's own <code>IPage</code> and <code>ILocator</code>, so
+what a Playwright release adds is there to use without waiting for Precept to wrap it. Since 1.64:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -664,43 +679,41 @@ what a Playwright release adds is there to use without waiting for Precept to wr
 </thead>
 <tbody>
 <tr>
-<td>A locator inside another</td>
-<td><code>row.Within(table)</code> searches for <code>row</code> inside <code>table</code>.</td>
+<td>A locator written out as C#</td>
+<td><code>(await page.GetByRef(&quot;e2&quot;).NormalizeAsync()).ToString()</code> gives <code>GetByRole(AriaRole.Button, new() { Name = &quot;Submit&quot; })</code>, ready to paste into a page object.</td>
 </tr>
 <tr>
-<td>Only the visible matches</td>
-<td><code>locator.Visible</code> replaces the <code>:visible</code> CSS pseudo-class.</td>
-</tr>
-<tr>
-<td>An element in any frame</td>
-<td><code>page.FrameLocator()</code> with no selector searches every frame under the page. It fails when the rest of the locator matches in more than one frame.</td>
-</tr>
-<tr>
-<td>An element by its aria ref</td>
-<td><code>page.GetByRef(&quot;e2&quot;)</code>, with a ref taken from an aria snapshot.</td>
-</tr>
-<tr>
-<td>A dialog closing</td>
-<td>The <code>DialogClosed</code> event on a page and on a context.</td>
-</tr>
-<tr>
-<td>Shadow DOM in the page source</td>
-<td><code>page.ContentAsync(new() { IncludeShadow = true })</code>.</td>
-</tr>
-<tr>
-<td>Tools a page registers through WebMCP</td>
-<td><code>page.Webmcp</code>. Chromium needs <code>&quot;Args&quot;: &quot;--enable-features=WebMCP&quot;</code>.</td>
+<td>A time limit on a CDP command</td>
+<td><code>cdp.SendAsync(method, args, new() { Timeout = 5000 })</code>.</td>
 </tr>
 </tbody>
 </table></div>
-<p>Moving to this version changes four things a suite may notice:</p>
+<p>1.65 also fixes a hang in the debugger. Hovering a locator, or adding it to Watch, used to time out
+with &quot;Function evaluation timed out&quot;, and the IDE could stop showing values for the rest of the
+session. The debugger now shows the locator's selector straight away.</p>
+<p>Moving to this version changes these things a suite may notice:</p>
 <ul>
-<li>An element inside a hidden iframe now counts as hidden. <code>ToBeVisibleAsync</code> fails for it, and an
-action waits for it, where both used to go through.</li>
-<li>The browsers are newer: Chromium 156, Firefox 157 and WebKit 27.2. With <code>InstallBrowsers</code> set to
+<li>An action such as a click, a fill or a check now waits for its element to be not
+<a href="https://playwright.dev/dotnet/docs/actionability#not-inert">inert</a>. An action on an element
+inside an <code>inert</code> region, such as the page behind an open modal dialog, now times out instead of
+going through.</li>
+<li>Text the browser does not show, such as the content of a closed <code>&lt;details&gt;</code>, is no longer part of
+an element's accessible name. A <code>GetByRole</code> with a <code>Name</code>, and an aria snapshot, can match
+differently.</li>
+<li>Cookies are matched by the rules of RFC 6265. Reading the cookies for a URL no longer returns a
+host-only cookie for a subdomain, or a <code>Path=/api</code> cookie for <code>/apiv2</code>.</li>
+<li><code>Web:Proxy</code>'s <code>Username</code> and <code>Password</code> now answer only the proxy. Playwright used to send them to
+websites too. A site that asks for a password needs
+<a href="#reaching-a-protected-environment"><code>HttpCredentials</code></a>.</li>
+<li>A failed web assertion is a <code>PlaywrightAssertionException</code>. Precept reports it as an assertion
+failure, as before. Any other error from Playwright during a check now fails the test with that
+error, instead of being reported as the value the assertion found.</li>
+<li>Playwright runs on Node.js 26, which on Linux needs the <code>libatomic1</code> library. A full Ubuntu or
+Debian image normally has it, and Playwright's own 1.65 Docker image does. A slim image may not,
+and then Playwright fails before any browser is launched. Add <code>apt-get install -y libatomic1</code> to
+the image.</li>
+<li>The browsers are newer: Chromium 159, Firefox 159 and WebKit 27.2. With <code>InstallBrowsers</code> set to
 <code>Never</code>, install them again before the first run.</li>
-<li>Videos are encoded as VP9 instead of VP8. They are still <code>.webm</code> files.</li>
-<li>Ubuntu 20.04 is no longer supported, and on Linux arm64 Chromium is the Chrome for Testing build.</li>
 </ul>
 <p>Playwright's <a href="https://playwright.dev/dotnet/docs/release-notes">release notes</a> have the full list.</p>
 

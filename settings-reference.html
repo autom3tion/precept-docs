@@ -637,6 +637,10 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// header and the formatting of dates and numbers the page renders.</span>
     <span class="tok-key">&quot;Locale&quot;</span>: <span class="tok-keyword">null</span>,
 
+    <span class="tok-comment">// How long a navigation — GotoAsync, ReloadAsync, WaitForURLAsync — waits for the page, in</span>
+    <span class="tok-comment">// milliseconds. Unset, it is TimeoutMilliseconds. 0 waits without a limit.</span>
+    <span class="tok-key">&quot;NavigationTimeoutMilliseconds&quot;</span>: <span class="tok-keyword">null</span>,
+
     <span class="tok-comment">// Browser permissions granted to every context up front, separated by spaces or commas —</span>
     <span class="tok-comment">// geolocation, clipboard-read, notifications.</span>
     <span class="tok-key">&quot;Permissions&quot;</span>: <span class="tok-keyword">null</span>,
@@ -661,7 +665,8 @@ skips them, so the annotations below can stay in anything you copy.</p>
     <span class="tok-comment">// from, so a suite does not sign in once per test.</span>
     <span class="tok-key">&quot;StorageState&quot;</span>: <span class="tok-keyword">null</span>,
 
-    <span class="tok-comment">// Default timeout for element and navigation waits, in milliseconds.</span>
+    <span class="tok-comment">// How long an action waits for its element, in milliseconds — and a navigation too, unless</span>
+    <span class="tok-comment">// NavigationTimeoutMilliseconds says otherwise. 0 waits without a limit.</span>
     <span class="tok-key">&quot;TimeoutMilliseconds&quot;</span>: <span class="tok-number">30000</span>,
 
     <span class="tok-comment">// The time zone the browser reports, as an IANA name — Europe/London, America/New_York. Unset</span>

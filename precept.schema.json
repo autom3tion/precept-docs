@@ -901,6 +901,13 @@
             "null"
           ]
         },
+        "NavigationTimeoutMilliseconds": {
+          "description": "How long a navigation — GotoAsync, ReloadAsync, WaitForURLAsync — waits for the page, in milliseconds. Unset, it is TimeoutMilliseconds. 0 waits without a limit.",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "Permissions": {
           "description": "Browser permissions granted to every context up front, separated by spaces or commas — geolocation, clipboard-read, notifications.",
           "type": [
@@ -980,7 +987,7 @@
           ]
         },
         "TimeoutMilliseconds": {
-          "description": "Default timeout for element and navigation waits, in milliseconds.",
+          "description": "How long an action waits for its element, in milliseconds — and a navigation too, unless NavigationTimeoutMilliseconds says otherwise. 0 waits without a limit.",
           "type": "integer",
           "default": 30000
         },
