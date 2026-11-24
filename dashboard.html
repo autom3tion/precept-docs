@@ -707,8 +707,13 @@ Click a tile to open it. A screenshot's tile shows the picture itself.</p>
 copy button on every tile and row copies the file's path, so you can open it from disk. A retried
 test's files are labelled with the attempt that wrote them.</p>
 <p>The trace viewer is Playwright's own, served by the dashboard. It works offline, and the trace
-never leaves your machine. A trace from a newer Playwright than the dashboard's own may not open.
-Copy its path and run <code>pwsh bin/Debug/net10.0/playwright.ps1 show-trace &lt;file&gt;</code> in the test
+never leaves your machine. A trace opens in the viewer of the Playwright that recorded it, which
+the build copied into the test app's folder as <code>bin/Debug/net10.0/.playwright</code>. Your project can
+move to a newer Playwright than the dashboard was built with, and its traces still open.</p>
+<p>A trace that is not inside the test app's folder, because <code>ArtifactDirectory</code> puts it elsewhere,
+opens in the viewer built into the dashboard. If that viewer is older than the Playwright that
+recorded the trace, it reports that the trace &quot;was created by a newer version of Playwright&quot;. Copy
+the trace's path and run <code>pwsh bin/Debug/net10.0/playwright.ps1 show-trace &lt;file&gt;</code> in the test
 project, which uses the project's own Playwright.</p>
 <p>The dashboard opens only files a run reported, for as long as it keeps that run and the file is
 still on disk.</p>
@@ -852,7 +857,10 @@ followed before that is checked, so a link that leads out of the folder does not
 </ul>
 <p>The trace viewer runs on a second port that the dashboard picks at startup. A trace shows pages
 of the application under test, and on its own port nothing in them can reach the page key. The
-viewer gets a trace through a random link that works for one hour and opens only that file.</p>
+viewer gets a trace through a random link that works for one hour and opens only that file. When
+the viewer comes from the test app's folder, the dashboard serves only the files that were in that
+folder when you opened the trace. It does not use a <code>.playwright</code> folder that is a link, or one
+above the folder that holds <code>PreceptRuns</code>.</p>
 <p>The dashboard builds and runs a project only when you open it or press <strong>Run</strong>. Adding a folder
 asks MSBuild to evaluate each project in it, which runs that project's MSBuild files. Add only
 folders you trust.</p>
